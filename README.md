@@ -14,8 +14,8 @@
 
 ## 👥 멤버
 | 주디 | 하이빈 | 블루 | 제로 |
-|:------:|:------:|:------:|:------:|
-| 사진1 | 사진2 | 사진3 | 사진4 |
+|:---:|:---:|:---:|:---:|
+| <img src="https://github.com/kangjooy0ung.png" width="100"> | <img src="https://github.com/oevinqu.png" width="100"> | <img src="https://github.com/bluesummerskin.png" width="100"> | <img src="https://github.com/sum130.png" width="100"> |
 | iOS | iOS | iOS | iOS |
 | [GitHub](https://github.com/kangjooy0ung) | [GitHub](https://github.com/oevinqu) | [GitHub](https://github.com/bluesummerskin) | [GitHub](https://github.com/sum130) |
 
