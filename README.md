@@ -46,7 +46,7 @@ Swift 6.2
 ## ⚒️ 개발 환경
 * Front : SwiftUI
 * 버전 및 이슈 관리 : Github, Github Issues
-* 협업 툴 : Discord, Notion
+* 협업 툴 : Discord, Notion, GitKraken
 
 <br>
 
@@ -72,6 +72,7 @@ Swift 6.2
 
 ### Communication
 <div align="left">
+<img src="https://img.shields.io/badge/GitKraken-179287?style=for-the-badge&logo=GitKraken&logoColor=white" />
 <img src="https://img.shields.io/badge/Miro-FFFC00.svg?style=for-the-badge&logo=Miro&logoColor=050038" />
 <img src="https://img.shields.io/badge/Notion-white.svg?style=for-the-badge&logo=Notion&logoColor=000000" />
 <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=Discord&logoColor=white" />
@@ -82,15 +83,15 @@ Swift 6.2
 
 ## 📱 화면 구성
 <table>
-  <tr>
-    <td>
-      사진 넣어주세요
-    </td>
-    <td>
-      사진 넣어주세요
-    </td>
-   
-  </tr>
+  <tr>
+    <td>
+      사진 넣어주세요
+    </td>
+    <td>
+      사진 넣어주세요
+    </td>
+   
+  </tr>
 </table>
 
 ## 🔖 브랜치 컨벤션
@@ -116,11 +117,11 @@ Swift 6.2
 
 ### 1. Naming Rules
 - **Class, Struct, Enum**: `UpperCamelCase` (대문자 시작)
-    - 예: `LoginViewController`, `UserMenu`
+    - 예: `LoginViewController`, `UserMenu`
 - **Variable, Function**: `lowerCamelCase` (소문자 시작)
-    - 예: `viewDidLoad`, `userName`
+    - 예: `viewDidLoad`, `userName`
 - **Action Function**: 동작이 명확한 동사로 시작합니다.
-    - 예: `didTapLoginButton`, `fetchUserData`
+    - 예: `didTapLoginButton`, `fetchUserData`
 
 ### 2. Architecture (MVVM)
 - **View**: UI 구성과 사용자 입력만 담당합니다.
@@ -131,20 +132,18 @@ Swift 6.2
 - **강제 언래핑 지양**: 앱 안정성을 위해 `!` 대신 `guard let` 또는 `if let`을 사용합니다.
 - **함수 분리**: 하나의 함수가 너무 길어지지 않도록, 기능별로 작게 나눕니다.
 - **주석 활용**: 복잡한 로직이나 팀원 간 공유가 필요한 부분에는 주석을 작성합니다.
- 
+ 
 <br>
 
 ## 📁 PR 컨벤션
 * PR 시, 템플릿이 등장한다. 해당 템플릿에서 작성해야할 부분은 아래와 같다
-    1. `PR 유형 작성`, 어떤 변경 사항이 있었는지 [] 괄호 사이에 x를 입력하여 체크할 수 있도록 한다.
-    2. `작업 내용 작성`, 작업 내용에 대해 자세하게 작성을 한다.
-    3. `추후 진행할 작업`, PR 이후 작업할 내용에 대해 작성한다
-    4. `리뷰 포인트`, 본인 PR에서 꼭 확인해야 할 부분을 작성한다.
-    6. `PR 태그 종류`, PR 제목의 태그는 아래 형식을 따른다.
+    1. `PR 유형 작성`, 어떤 변경 사항이 있었는지 [] 괄호 사이에 x를 입력하여 체크할 수 있도록 한다.
+    2. `작업 내용 작성`, 작업 내용에 대해 자세하게 작성을 한다.
+    3. `추후 진행할 작업`, PR 이후 작업할 내용에 대해 작성한다
+    4. `리뷰 포인트`, 본인 PR에서 꼭 확인해야 할 부분을 작성한다.
+    6. `PR 태그 종류`, PR 제목의 태그는 아래 형식을 따른다.
 
 #### 🌟 태그 종류 (커밋 컨벤션과 동일)
-<!-- 팀원들끼리 협의하여 기록해주세요! -->
-
 ### ✅ PR 예시 모음
 > 🎉 [Chore] 프로젝트 초기 세팅 <br>
 > ✨ [Feat] 프로필 화면 UI 구현 <br>
@@ -173,7 +172,7 @@ Swift 6.2
 | 🔒 | lock | 보안 이슈 수정 | Fix security issues |
 | 🔖 | bookmark | 릴리즈/버전 태그 | Release / Version tags |
 | 📝 | memo | 문서 추가/수정 | Add or update documentation |
-| 🔧| wrench | 구성 파일 추가/삭제 | Add or update configuration files.|
+| 🔧| wrench | 구성 파일 추가/삭제 | Add or update configuration files.|
 | ⚡️ | zap | 성능 개선 | Improve performance |
 | 🎨 | art | 코드 구조 개선 | Improve structure / format of the code |
 | 📦 | package | 컴파일된 파일 추가/수정 | Add or update compiled files |
@@ -182,8 +181,6 @@ Swift 6.2
 | 🙈 | see_no_evil | .gitignore 추가/수정 | Add or update a .gitignore file |
 
 ### 🏷️ 커밋 태그 가이드
-<!-- 팀원들끼리 협의하여 기록해주세요! -->
-
 ### ✅ 커밋 예시 모음
 > 🎉 [Chore] 프로젝트 초기 세팅 <br>
 > ✨ [Feat] 프로필 화면 UI 구현 <br>
@@ -194,5 +191,3 @@ Swift 6.2
 <br>
 
 ## 🗂️ 폴더 컨벤션
-```
-```
