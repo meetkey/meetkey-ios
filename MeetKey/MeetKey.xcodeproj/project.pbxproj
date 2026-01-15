@@ -6,20 +6,63 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		A94A57E92F18DC3900DE9F0C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A94A57D32F18DC3800DE9F0C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A94A57DA2F18DC3800DE9F0C;
+			remoteInfo = MEETKEY;
+		};
+		A94A57F32F18DC3900DE9F0C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A94A57D32F18DC3800DE9F0C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A94A57DA2F18DC3800DE9F0C;
+			remoteInfo = MEETKEY;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		215F25832F18AF08000BEB64 /* MeetKey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetKey.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A94A57DB2F18DC3800DE9F0C /* MEETKEY.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MEETKEY.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A94A57E82F18DC3900DE9F0C /* MEETKEYTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MEETKEYTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A94A57F22F18DC3900DE9F0C /* MEETKEYUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MEETKEYUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		215F25852F18AF08000BEB64 /* MeetKey */ = {
+		A94A57DD2F18DC3800DE9F0C /* MEETKEY */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = MeetKey;
+			path = MEETKEY;
+			sourceTree = "<group>";
+		};
+		A94A57EB2F18DC3900DE9F0C /* MEETKEYTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MEETKEYTests;
+			sourceTree = "<group>";
+		};
+		A94A57F52F18DC3900DE9F0C /* MEETKEYUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MEETKEYUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		215F25802F18AF08000BEB64 /* Frameworks */ = {
+		A94A57D82F18DC3800DE9F0C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A94A57E52F18DC3900DE9F0C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A94A57EF2F18DC3900DE9F0C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -29,18 +72,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		215F257A2F18AF08000BEB64 = {
+		A94A57D22F18DC3800DE9F0C = {
 			isa = PBXGroup;
 			children = (
-				215F25852F18AF08000BEB64 /* MeetKey */,
-				215F25842F18AF08000BEB64 /* Products */,
+				A94A57DD2F18DC3800DE9F0C /* MEETKEY */,
+				A94A57EB2F18DC3900DE9F0C /* MEETKEYTests */,
+				A94A57F52F18DC3900DE9F0C /* MEETKEYUITests */,
+				A94A57DC2F18DC3800DE9F0C /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		215F25842F18AF08000BEB64 /* Products */ = {
+		A94A57DC2F18DC3800DE9F0C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				215F25832F18AF08000BEB64 /* MeetKey.app */,
+				A94A57DB2F18DC3800DE9F0C /* MEETKEY.app */,
+				A94A57E82F18DC3900DE9F0C /* MEETKEYTests.xctest */,
+				A94A57F22F18DC3900DE9F0C /* MEETKEYUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,64 +95,134 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		215F25822F18AF08000BEB64 /* MeetKey */ = {
+		A94A57DA2F18DC3800DE9F0C /* MEETKEY */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 215F258E2F18AF09000BEB64 /* Build configuration list for PBXNativeTarget "MeetKey" */;
+			buildConfigurationList = A94A57FC2F18DC3900DE9F0C /* Build configuration list for PBXNativeTarget "MEETKEY" */;
 			buildPhases = (
-				215F257F2F18AF08000BEB64 /* Sources */,
-				215F25802F18AF08000BEB64 /* Frameworks */,
-				215F25812F18AF08000BEB64 /* Resources */,
+				A94A57D72F18DC3800DE9F0C /* Sources */,
+				A94A57D82F18DC3800DE9F0C /* Frameworks */,
+				A94A57D92F18DC3800DE9F0C /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				215F25852F18AF08000BEB64 /* MeetKey */,
+				A94A57DD2F18DC3800DE9F0C /* MEETKEY */,
 			);
-			name = MeetKey;
+			name = MEETKEY;
 			packageProductDependencies = (
 			);
-			productName = MeetKey;
-			productReference = 215F25832F18AF08000BEB64 /* MeetKey.app */;
+			productName = MEETKEY;
+			productReference = A94A57DB2F18DC3800DE9F0C /* MEETKEY.app */;
 			productType = "com.apple.product-type.application";
+		};
+		A94A57E72F18DC3900DE9F0C /* MEETKEYTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A94A57FF2F18DC3900DE9F0C /* Build configuration list for PBXNativeTarget "MEETKEYTests" */;
+			buildPhases = (
+				A94A57E42F18DC3900DE9F0C /* Sources */,
+				A94A57E52F18DC3900DE9F0C /* Frameworks */,
+				A94A57E62F18DC3900DE9F0C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A94A57EA2F18DC3900DE9F0C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A94A57EB2F18DC3900DE9F0C /* MEETKEYTests */,
+			);
+			name = MEETKEYTests;
+			packageProductDependencies = (
+			);
+			productName = MEETKEYTests;
+			productReference = A94A57E82F18DC3900DE9F0C /* MEETKEYTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A94A57F12F18DC3900DE9F0C /* MEETKEYUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A94A58022F18DC3900DE9F0C /* Build configuration list for PBXNativeTarget "MEETKEYUITests" */;
+			buildPhases = (
+				A94A57EE2F18DC3900DE9F0C /* Sources */,
+				A94A57EF2F18DC3900DE9F0C /* Frameworks */,
+				A94A57F02F18DC3900DE9F0C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A94A57F42F18DC3900DE9F0C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A94A57F52F18DC3900DE9F0C /* MEETKEYUITests */,
+			);
+			name = MEETKEYUITests;
+			packageProductDependencies = (
+			);
+			productName = MEETKEYUITests;
+			productReference = A94A57F22F18DC3900DE9F0C /* MEETKEYUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		215F257B2F18AF08000BEB64 /* Project object */ = {
+		A94A57D32F18DC3800DE9F0C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2600;
-				LastUpgradeCheck = 2600;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
-					215F25822F18AF08000BEB64 = {
-						CreatedOnToolsVersion = 26.0;
+					A94A57DA2F18DC3800DE9F0C = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					A94A57E72F18DC3900DE9F0C = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = A94A57DA2F18DC3800DE9F0C;
+					};
+					A94A57F12F18DC3900DE9F0C = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = A94A57DA2F18DC3800DE9F0C;
 					};
 				};
 			};
-			buildConfigurationList = 215F257E2F18AF08000BEB64 /* Build configuration list for PBXProject "MeetKey" */;
+			buildConfigurationList = A94A57D62F18DC3800DE9F0C /* Build configuration list for PBXProject "MEETKEY" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 215F257A2F18AF08000BEB64;
+			mainGroup = A94A57D22F18DC3800DE9F0C;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 215F25842F18AF08000BEB64 /* Products */;
+			productRefGroup = A94A57DC2F18DC3800DE9F0C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				215F25822F18AF08000BEB64 /* MeetKey */,
+				A94A57DA2F18DC3800DE9F0C /* MEETKEY */,
+				A94A57E72F18DC3900DE9F0C /* MEETKEYTests */,
+				A94A57F12F18DC3900DE9F0C /* MEETKEYUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		215F25812F18AF08000BEB64 /* Resources */ = {
+		A94A57D92F18DC3800DE9F0C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A94A57E62F18DC3900DE9F0C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A94A57F02F18DC3900DE9F0C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -115,7 +232,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		215F257F2F18AF08000BEB64 /* Sources */ = {
+		A94A57D72F18DC3800DE9F0C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A94A57E42F18DC3900DE9F0C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A94A57EE2F18DC3900DE9F0C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -124,8 +255,21 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		A94A57EA2F18DC3900DE9F0C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A94A57DA2F18DC3800DE9F0C /* MEETKEY */;
+			targetProxy = A94A57E92F18DC3900DE9F0C /* PBXContainerItemProxy */;
+		};
+		A94A57F42F18DC3900DE9F0C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A94A57DA2F18DC3800DE9F0C /* MEETKEY */;
+			targetProxy = A94A57F32F18DC3900DE9F0C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
-		215F258C2F18AF09000BEB64 /* Debug */ = {
+		A94A57FA2F18DC3900DE9F0C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -160,7 +304,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = CJX79LBA76;
+				DEVELOPMENT_TEAM = GCD88HGNYX;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -178,7 +322,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -189,7 +333,7 @@
 			};
 			name = Debug;
 		};
-		215F258D2F18AF09000BEB64 /* Release */ = {
+		A94A57FB2F18DC3900DE9F0C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -224,7 +368,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = CJX79LBA76;
+				DEVELOPMENT_TEAM = GCD88HGNYX;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -236,7 +380,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -246,14 +390,14 @@
 			};
 			name = Release;
 		};
-		215F258F2F18AF09000BEB64 /* Debug */ = {
+		A94A57FD2F18DC3900DE9F0C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CJX79LBA76;
+				DEVELOPMENT_TEAM = GCD88HGNYX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -266,26 +410,22 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.kangjooyoung.MeetKey;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bluesummerskin.MEETKEY;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		215F25902F18AF09000BEB64 /* Release */ = {
+		A94A57FE2F18DC3900DE9F0C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CJX79LBA76;
+				DEVELOPMENT_TEAM = GCD88HGNYX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -298,40 +438,126 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.kangjooyoung.MeetKey;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bluesummerskin.MEETKEY;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A94A58002F18DC3900DE9F0C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GCD88HGNYX;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bluesummerskin.MEETKEYTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MEETKEY.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MEETKEY";
+			};
+			name = Debug;
+		};
+		A94A58012F18DC3900DE9F0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GCD88HGNYX;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bluesummerskin.MEETKEYTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MEETKEY.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MEETKEY";
+			};
+			name = Release;
+		};
+		A94A58032F18DC3900DE9F0C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GCD88HGNYX;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bluesummerskin.MEETKEYUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MEETKEY;
+			};
+			name = Debug;
+		};
+		A94A58042F18DC3900DE9F0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GCD88HGNYX;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bluesummerskin.MEETKEYUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MEETKEY;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		215F257E2F18AF08000BEB64 /* Build configuration list for PBXProject "MeetKey" */ = {
+		A94A57D62F18DC3800DE9F0C /* Build configuration list for PBXProject "MEETKEY" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				215F258C2F18AF09000BEB64 /* Debug */,
-				215F258D2F18AF09000BEB64 /* Release */,
+				A94A57FA2F18DC3900DE9F0C /* Debug */,
+				A94A57FB2F18DC3900DE9F0C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		215F258E2F18AF09000BEB64 /* Build configuration list for PBXNativeTarget "MeetKey" */ = {
+		A94A57FC2F18DC3900DE9F0C /* Build configuration list for PBXNativeTarget "MEETKEY" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				215F258F2F18AF09000BEB64 /* Debug */,
-				215F25902F18AF09000BEB64 /* Release */,
+				A94A57FD2F18DC3900DE9F0C /* Debug */,
+				A94A57FE2F18DC3900DE9F0C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A94A57FF2F18DC3900DE9F0C /* Build configuration list for PBXNativeTarget "MEETKEYTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A94A58002F18DC3900DE9F0C /* Debug */,
+				A94A58012F18DC3900DE9F0C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A94A58022F18DC3900DE9F0C /* Build configuration list for PBXNativeTarget "MEETKEYUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A94A58032F18DC3900DE9F0C /* Debug */,
+				A94A58042F18DC3900DE9F0C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 215F257B2F18AF08000BEB64 /* Project object */;
+	rootObject = A94A57D32F18DC3800DE9F0C /* Project object */;
 }
