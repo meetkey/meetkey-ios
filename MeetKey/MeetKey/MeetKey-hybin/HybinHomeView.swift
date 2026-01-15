@@ -19,12 +19,14 @@ struct HybinHomeView: View {
 
     @State private var isProfileDetailPresented: Bool = false
     @State private var isMatchingPresented: Bool = false
+    @State private var isFilterPresented: Bool = false
 
     var body: some View {
         GeometryReader { geometry in
             let imageWidth = geometry.size.width * 0.76
             let imageHeight = imageWidth * (536.0 / 304.0)
             let imageSize = CGSize(width: imageWidth, height: imageHeight)
+            let screenWidth = geometry.size.width
 
             ZStack {
 
@@ -64,6 +66,21 @@ struct HybinHomeView: View {
 
                     Spacer()
                 }
+                .blur(radius: isFilterPresented ? 3 : 0)
+                .disabled(isFilterPresented)
+                
+                if isFilterPresented {
+                    Color.black.opacity(0.2)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation { isFilterPresented = false }
+                        }
+                }
+                FilterSideView()
+                    .frame(width: imageWidth)
+                    .offset(x: isFilterPresented ? screenWidth - imageWidth : screenWidth)
+                    .animation(.spring(), value: isFilterPresented)
+
             }
         }
     }
@@ -86,8 +103,12 @@ struct HybinHomeView: View {
 
     //MARK: -필터 버튼
     private var filterButton: some View {
+
         Button(action: {
             print("filter")
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                isFilterPresented.toggle()
+            }
         }) {
             Image(systemName: "slider.horizontal.3")
                 .font(.system(size: 20))
@@ -204,6 +225,43 @@ struct MatchingView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+// MARK: - 필터뷰
+struct FilterSideView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 25) {
+            Text("필터 설정")
+                .font(.headline)
+                .padding(.top, 60)
+
+            Divider()
+
+            // 간단한 필터 항목들
+            VStack(alignment: .leading) {
+                Text("거리 범위").font(.caption).foregroundColor(.gray)
+                Text("20km 이내").bold()
+            }
+
+            VStack(alignment: .leading) {
+                Text("나이대").font(.caption).foregroundColor(.gray)
+                Text("24세 - 30세").bold()
+            }
+
+            Spacer()
+
+            Button("적용하기") {
+                // 적용 로직
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.black)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+        }
+        .padding()
+        .frame(maxHeight: .infinity)
     }
 }
 
