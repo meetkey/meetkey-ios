@@ -16,8 +16,8 @@
 | 주디 | 하이빈 | 블루 | 제로 |
 |:------:|:------:|:------:|:------:|
 | 사진1 | 사진2 | 사진3 | 사진4 |
-| FE | FE | FE | FE |
-| [GitHub](깃허브 링크) | [GitHub](깃허브 링크) | [GitHub](깃허브 링크) | [GitHub](깃허브 링크) |
+| iOS | iOS | iOS | iOS |
+| [GitHub](https://github.com/kangjooy0ung) | [GitHub](https://github.com/oevinqu) | [GitHub](https://github.com/bluesummerskin) | [GitHub](https://github.com/sum130) |
 
 <br>
 
@@ -131,7 +131,7 @@ Swift 6.2
 - **강제 언래핑 지양**: 앱 안정성을 위해 `!` 대신 `guard let` 또는 `if let`을 사용합니다.
 - **함수 분리**: 하나의 함수가 너무 길어지지 않도록, 기능별로 작게 나눕니다.
 - **주석 활용**: 복잡한 로직이나 팀원 간 공유가 필요한 부분에는 주석을 작성합니다.
-- 
+ 
 <br>
 
 ## 📁 PR 컨벤션
