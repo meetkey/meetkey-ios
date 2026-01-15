@@ -94,13 +94,44 @@ Swift 6.2
 </table>
 
 ## 🔖 브랜치 컨벤션
-<!-- 팀원들끼리 협의하여 기록해주세요! -->
+
+### 1. 브랜치 전략
+모든 개발은 `dev` 브랜치를 기준으로 진행합니다.
+- **main**: 배포 가능한 상태의 최종 코드만 관리합니다.
+- **dev**: 개발 중인 코드가 모이는 곳입니다. (Default Branch)
+- **feat**: 새로운 기능 개발 브랜치입니다.
+- **fix**: 버그 수정 브랜치입니다.
+
+### 2. 브랜치 명명 규칙
+> `타입/#이슈번호-설명`
+
+이슈 번호를 포함하여 어떤 작업인지 명확히 식별합니다.
+- `feat/#1-login-view`
+- `fix/#3-crash-error`
+- `design/#5-home-layout`
 
 <br>
 
 ## 🌀 코딩 컨벤션
-<!-- 팀원들끼리 협의하여 기록해주세요! -->
 
+### 1. Naming Rules
+- **Class, Struct, Enum**: `UpperCamelCase` (대문자 시작)
+    - 예: `LoginViewController`, `UserMenu`
+- **Variable, Function**: `lowerCamelCase` (소문자 시작)
+    - 예: `viewDidLoad`, `userName`
+- **Action Function**: 동작이 명확한 동사로 시작합니다.
+    - 예: `didTapLoginButton`, `fetchUserData`
+
+### 2. Architecture (MVVM)
+- **View**: UI 구성과 사용자 입력만 담당합니다.
+- **ViewModel**: 비즈니스 로직을 담당하며, `import UIKit`을 사용하지 않습니다. (순수 로직 유지)
+- **Role**: 뷰컨트롤러가 비대해지지 않도록 로직 분리에 집중합니다.
+
+### 3. Code Style
+- **강제 언래핑 지양**: 앱 안정성을 위해 `!` 대신 `guard let` 또는 `if let`을 사용합니다.
+- **함수 분리**: 하나의 함수가 너무 길어지지 않도록, 기능별로 작게 나눕니다.
+- **주석 활용**: 복잡한 로직이나 팀원 간 공유가 필요한 부분에는 주석을 작성합니다.
+- 
 <br>
 
 ## 📁 PR 컨벤션
