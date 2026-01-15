@@ -11,8 +11,8 @@ import SwiftUI
 struct MeetKeyApp: App {
     var body: some Scene {
         WindowGroup {
-//            ContentView()
-            HybinHomeView()
+            ContentView()
+//            HybinMainTabView()
         }
     }
 }
