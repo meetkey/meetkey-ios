@@ -9,12 +9,9 @@
 import SwiftUI
 
 struct HybinHomeView: View {
-    @State private var users: [String] = [
-        "One", "Two", "Three", "Four", "Five",
-    ]
-    @State private var currentIndex: Int = 0
-    @State private var safeBadge = "gold"
-
+    
+    @ObservedObject var homeVM: HybinHomeViewModel
+    
     @State private var offset: CGSize = .zero
 
     @State private var isProfileDetailPresented: Bool = false
@@ -38,16 +35,18 @@ struct HybinHomeView: View {
 
                     ZStack(alignment: .bottom) {
 
-                        HybinProfileSectionView(
-                            size: imageSize,
-                            name: users[currentIndex],
-                            badge: safeBadge
-                        )
-                        .offset(x: offset.width, y: offset.height * 0.1)
-                        .gesture(profileDragGesture)
-                        .onTapGesture {
-                            isProfileDetailPresented = true
+                        if let user = homeVM.currentUser {
+                            HybinProfileSectionView(
+                                size: imageSize,
+                                user: user
+                            )
+                            .offset(x: offset.width, y: offset.height * 0.1)
+                            .gesture(profileDragGesture)
+                            .onTapGesture {
+                                isProfileDetailPresented = true
+                            }
                         }
+                        
 
                         likeButton
                             .offset(y: imageHeight * 0.01)
@@ -56,7 +55,7 @@ struct HybinHomeView: View {
                     .sheet(isPresented: $isProfileDetailPresented) {
                         ProfileDetailView()
                     }
-                    .fullScreenCover(isPresented: $isMatchingPresented) {
+                    .fullScreenCover(isPresented: $homeVM.showMatchView) {
                         MatchingView {
                             withAnimation(.spring()) {
                                 offset = .zero
@@ -131,14 +130,6 @@ struct HybinHomeView: View {
             }
     }
 
-    // 2.다음 유저로 넘어가는 로직
-    private func goToNextUser() {
-        offset = .zero
-
-        currentIndex += 1
-
-    }
-
     // 3. 종료 로직만 따로 메서드로 분리
     private func handleDragEnded(gesture: _ChangedGesture<DragGesture>.Value) {
         let translation = gesture.translation.width
@@ -146,15 +137,17 @@ struct HybinHomeView: View {
             // 오른쪽으로 던짐 -> 매칭 화면 호출
             withAnimation(.spring()) {
                 offset.width = 1000
-
             }
-            isMatchingPresented = true
+            offset = .zero
+            homeVM.didSelectLike()
+                
         } else if translation < -150 {
             // 다음 유저로 전환
             withAnimation(.spring()) {
                 offset.width = -1000
             }
-            goToNextUser()
+            offset = .zero
+            homeVM.didSelectUnlike()
         } else {
             withAnimation(.spring()) {
                 offset = .zero
@@ -169,7 +162,8 @@ struct HybinHomeView: View {
                 withAnimation(.spring()) {
                     offset.width = -1000
                 }
-                goToNextUser()
+                homeVM.didSelectUnlike()
+                offset = .zero
             } label: {
                 Text("unlike")
                     .foregroundStyle(Color.orange)
@@ -179,7 +173,7 @@ struct HybinHomeView: View {
                 withAnimation(.spring()) {
                     offset.width = 1000
                 }
-                isMatchingPresented = true
+                homeVM.didSelectLike()
 
             } label: {
                 Text("match")
@@ -263,8 +257,4 @@ struct FilterSideView: View {
         .padding()
         .frame(maxHeight: .infinity)
     }
-}
-
-#Preview {
-    HybinHomeView()
 }

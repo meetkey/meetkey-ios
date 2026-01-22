@@ -9,13 +9,12 @@ import SwiftUI
 
 struct HybinProfileSectionView: View {
     let size: CGSize
-    let name: String
-    let badge : String
+    let user: User
     var body: some View {
         ZStack(alignment: .top) {
             
 
-            Image("profileImageSample1")
+            Image(user.profileImageURL)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: size.width, height: size.height)
@@ -25,11 +24,11 @@ struct HybinProfileSectionView: View {
             VStack{
                 HStack{
                     Spacer()
-                    Text(badge)
+                    Text(user.safeBadge.rawValue)
                         .foregroundStyle(Color.orange)
                 }
                 Spacer()
-                Text(name)
+                Text(user.name)
                     .font(.title)
                     .foregroundStyle(Color.white)
                 

@@ -30,7 +30,7 @@ struct HybinMainTabView: View {
             Group {
                 switch currentTab {
                 case .home:
-                    HybinHomeView()
+                    HybinHomeView(homeVM:HybinHomeViewModel())
                 case .chat:
                     HybinChatListView()
                 case .profile:
