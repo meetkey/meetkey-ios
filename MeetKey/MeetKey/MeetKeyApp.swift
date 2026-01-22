@@ -1,10 +1,3 @@
-//
-//  MeetKeyApp.swift
-//  MeetKey
-//
-//  Created by qwnm7 on 1/15/26.
-//
-
 import SwiftUI
 
 @main
