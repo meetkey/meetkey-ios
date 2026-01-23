@@ -24,13 +24,14 @@ enum HybinTab: String, CaseIterable {
 
 struct HybinMainTabView: View {
     @State private var currentTab: HybinTab = .home
+    @StateObject private var homeVM = HybinHomeViewModel()
     
     var body: some View {
         ZStack(alignment: .bottom) {
             Group {
                 switch currentTab {
                 case .home:
-                    HybinHomeView(homeVM:HybinHomeViewModel())
+                    HybinHomeView(homeVM:homeVM)
                 case .chat:
                     HybinChatListView()
                 case .profile:

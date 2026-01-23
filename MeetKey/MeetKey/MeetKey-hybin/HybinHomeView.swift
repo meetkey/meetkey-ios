@@ -15,7 +15,7 @@ struct HybinHomeView: View {
     @State private var offset: CGSize = .zero
 
     @State private var isProfileDetailPresented: Bool = false
-    @State private var isMatchingPresented: Bool = false
+//    @State private var isMatchingPresented: Bool = false
     @State private var isFilterPresented: Bool = false
 
     var body: some View {
@@ -56,7 +56,7 @@ struct HybinHomeView: View {
                         ProfileDetailView()
                     }
                     .fullScreenCover(isPresented: $homeVM.showMatchView) {
-                        MatchingView {
+                        HybinMatchingView(homeVM: homeVM){
                             withAnimation(.spring()) {
                                 offset = .zero
                             }
@@ -193,32 +193,6 @@ struct ProfileDetailView: View {
             Text("profile detail")
             Spacer()
         }
-    }
-}
-
-//MARK: - 매칭 뷰
-struct MatchingView: View {
-    @Environment(\.dismiss) var dismiss
-    var onDismiss: () -> Void
-
-    var body: some View {
-        ZStack {
-            VStack {
-                Button(action: {
-                    onDismiss()
-                    dismiss()  //
-                }) {
-                    Text("계속 탐색하기")
-                        .font(.headline)
-                        .foregroundStyle(Color.black)
-                        .padding()
-                        .frame(width: 250)
-                }
-                Color.pink.opacity(0.1)
-                Text("Matching View")
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
