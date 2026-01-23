@@ -17,7 +17,59 @@ struct HybinHomeView: View {
     @State private var isProfileDetailPresented: Bool = false
     @State private var isDetailExpanded: Bool = false
     //    @State private var isMatchingPresented: Bool = false
-    @State private var isFilterPresented: Bool = false
+//    @State private var isFilterPresented: Bool = false
+
+//    var body: some View {
+//        GeometryReader { geometry in
+//            let imageWidth = geometry.size.width * 0.76
+//            let imageHeight = imageWidth * (536.0 / 304.0)
+//            let imageSize = CGSize(width: imageWidth, height: imageHeight)
+////            let screenWidth = geometry.size.width
+//
+//            ZStack {
+//                VStack {
+//                    Header
+//                    Spacer()
+//                    ZStack(alignment: .bottom) {
+//                        if let user = homeVM.currentUser {
+//                            HybinProfileSectionView(
+//                                size: imageSize,
+//                                user: user
+//                            )
+//                            .offset(x: offset.width, y: offset.height * 0.1)
+//                            .gesture(profileDragGesture)
+//                            .onTapGesture {
+//                                isProfileDetailPresented = true
+//                            }
+//                        }
+//
+//                        likeButton
+//                            .offset(y: imageHeight * 0.01)
+//                    }
+//                    .frame(width: imageWidth, height: imageHeight)
+//                    .sheet(isPresented: $isProfileDetailPresented) {
+//                        ProfileDetailView()
+//                    }
+//                    .fullScreenCover(isPresented: $homeVM.showMatchView) {
+//                        HybinMatchingView(homeVM: homeVM) {
+//                            withAnimation(.spring()) {
+//                                offset = .zero
+//                            }
+//                        }
+//                    }
+//
+//                    Spacer()
+//                }
+//                .fullScreenCover(isPresented: $homeVM.showFilter) {
+//                    HybinFilterView(homeVM: homeVM) {
+//                        withAnimation(.spring()) {
+//                            offset = .zero
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     var body: some View {
         GeometryReader { geometry in
@@ -27,45 +79,74 @@ struct HybinHomeView: View {
 //            let screenWidth = geometry.size.width
 
             ZStack {
-                VStack {
-                    Header
-                    Spacer()
-                    ZStack(alignment: .bottom) {
-                        if let user = homeVM.currentUser {
-                            HybinProfileSectionView(
-                                size: imageSize,
-                                user: user
-                            )
-                            .offset(x: offset.width, y: offset.height * 0.1)
-                            .gesture(profileDragGesture)
-                            .onTapGesture {
-                                isProfileDetailPresented = true
+                if !homeVM.showDetailExpander{
+                    VStack {
+                        Header
+                        Spacer()
+                        ZStack(alignment: .bottom) {
+                            if let user = homeVM.currentUser {
+                                HybinProfileSectionView(
+                                    size: imageSize,
+                                    user: user
+                                )
+                                .offset(x: offset.width, y: offset.height * 0.1)
+                                .gesture(profileDragGesture)
+                                .onTapGesture {
+                                    homeVM.goDetail()
+                                }
+                            }
+                            
+                            likeButton
+                                .offset(y: imageHeight * 0.01)
+                        }
+                        .frame(width: imageWidth, height: imageHeight)
+                        
+                        .fullScreenCover(isPresented: $homeVM.showMatchView) {
+                            HybinMatchingView(homeVM: homeVM) {
+                                withAnimation(.spring()) {
+                                    offset = .zero
+                                }
                             }
                         }
-
-                        likeButton
-                            .offset(y: imageHeight * 0.01)
+                        
+                        Spacer()
                     }
-                    .frame(width: imageWidth, height: imageHeight)
-                    .sheet(isPresented: $isProfileDetailPresented) {
-                        ProfileDetailView()
-                    }
-                    .fullScreenCover(isPresented: $homeVM.showMatchView) {
-                        HybinMatchingView(homeVM: homeVM) {
+                    .fullScreenCover(isPresented: $homeVM.showFilter) {
+                        HybinFilterView(homeVM: homeVM) {
                             withAnimation(.spring()) {
                                 offset = .zero
                             }
                         }
                     }
-
-                    Spacer()
-                }
-                .fullScreenCover(isPresented: $homeVM.showFilter) {
-                    HybinFilterView(homeVM: homeVM) {
-                        withAnimation(.spring()) {
-                            offset = .zero
+                } else {
+                    ScrollView{
+                        VStack{
+                            Text("프로필 디테일뷰를 위한 스크롤 뷰입니다")
+                                .onTapGesture {
+                                    withAnimation(.spring()) {
+                                        homeVM.goHomefromDetail()
+                                    }
+                                }
+                            VStack(alignment: .leading, spacing: 15) {
+                                Text(homeVM.currentUser!.name)
+                                    .font(.largeTitle).bold()
+                                
+                                Text(homeVM.currentUser!.bio)
+                                    .font(.body)
+                                    .lineSpacing(10)
+                                
+                                // 스크롤 확인용 더미 텍스트
+                                ForEach(0..<10) { i in
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.gray.opacity(0.1))
+                                        .frame(height: 100)
+                                        .overlay(Text("추가 정보 영역 \(i)"))
+                                }
+                            }
+                            .padding()
                         }
                     }
+                    .transition(.opacity)
                 }
             }
         }

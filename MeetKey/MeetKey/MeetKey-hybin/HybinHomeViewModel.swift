@@ -13,6 +13,7 @@ class HybinHomeViewModel: ObservableObject {
     @Published private(set) var currentIndex: Int = 0
     @Published var showMatchView: Bool = false
     @Published var showFilter: Bool = false
+    @Published var showDetailExpander: Bool = false
     @Published var selectedUser: User? // 디테일 뷰에 넘겨주기 위함
     
     let users: [User] = User.mockData //확인용 더미데이터
@@ -43,6 +44,12 @@ class HybinHomeViewModel: ObservableObject {
         goNext()
     }
     
+    func goDetail(){
+        showDetailExpander = true
+    }
+    func goHomefromDetail(){
+        showDetailExpander = false
+    }
     private func goMatch() {
         showMatchView = true
     }

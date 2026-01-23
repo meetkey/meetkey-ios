@@ -12,7 +12,7 @@ enum HybinTab: String, CaseIterable {
     case home = "sparkles"
     case chat = "bubble.left.and.bubble.right"
     case profile = "person"
-    
+
     var title: String {
         switch self {
         case .home: return "홈"
@@ -25,13 +25,13 @@ enum HybinTab: String, CaseIterable {
 struct HybinMainTabView: View {
     @State private var currentTab: HybinTab = .home
     @StateObject private var homeVM = HybinHomeViewModel()
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Group {
                 switch currentTab {
                 case .home:
-                    HybinHomeView(homeVM:homeVM)
+                    HybinHomeView(homeVM: homeVM)
                 case .chat:
                     HybinChatListView()
                 case .profile:
@@ -39,13 +39,16 @@ struct HybinMainTabView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
+
             // 3. 커스텀 탭 바
-            customTabBar
+            if !homeVM.showDetailExpander {  // 상세화면이 아닐 때만 탭 바 표시
+                customTabBar
+                    .transition(.move(edge: .bottom).combined(with: .opacity))  // 사라질 때 부드럽게
+            }
         }
-        .ignoresSafeArea(.keyboard) // 키보드 올라올 때 탭 바 밀림 방지
+        .ignoresSafeArea(.keyboard)  // 키보드 올라올 때 탭 바 밀림 방지
     }
-    
+
     private var customTabBar: some View {
         HStack {
             ForEach(HybinTab.allCases, id: \.self) { tab in
@@ -72,7 +75,7 @@ struct HybinMainTabView: View {
                 .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
         )
         .padding(.horizontal, 20)
-        .padding(.bottom, 10) // 플로팅 스타일 하단 바
+        .padding(.bottom, 10)  // 플로팅 스타일 하단 바
     }
 }
 
@@ -100,4 +103,3 @@ struct HybinMyProfileView: View {
         }
     }
 }
-
