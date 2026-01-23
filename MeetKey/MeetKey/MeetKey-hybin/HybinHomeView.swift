@@ -14,8 +14,8 @@ struct HybinHomeView: View {
 
     @State private var offset: CGSize = .zero
 
-    @State private var isProfileDetailPresented: Bool = false
-    @State private var isDetailExpanded: Bool = false
+//    @State private var isProfileDetailPresented: Bool = false
+//    @State private var isDetailExpanded: Bool = false
     //    @State private var isMatchingPresented: Bool = false
 //    @State private var isFilterPresented: Bool = false
 
@@ -76,12 +76,14 @@ struct HybinHomeView: View {
             let imageWidth = geometry.size.width * 0.76
             let imageHeight = imageWidth * (536.0 / 304.0)
             let imageSize = CGSize(width: imageWidth, height: imageHeight)
-//            let screenWidth = geometry.size.width
+            let screenWidth = geometry.size.width
 
-            ZStack {
+            ZStack(alignment:.top) {
+                Color(.black).opacity(0.3)
+
                 if !homeVM.showDetailExpander{
                     VStack {
-                        Header
+                        HeaderOverlay(homeVM: homeVM)
                         Spacer()
                         ZStack(alignment: .bottom) {
                             if let user = homeVM.currentUser {
@@ -111,75 +113,34 @@ struct HybinHomeView: View {
                         
                         Spacer()
                     }
-                    .fullScreenCover(isPresented: $homeVM.showFilter) {
-                        HybinFilterView(homeVM: homeVM) {
-                            withAnimation(.spring()) {
-                                offset = .zero
-                            }
-                        }
-                    }
+//                    .fullScreenCover(isPresented: $homeVM.showFilter) {
+//                        HybinFilterView(homeVM: homeVM) {
+//                            withAnimation(.spring()) {
+//                                offset = .zero
+//                            }
+//                        }
+//                    }
                 } else {
-                    ScrollView{
-                        VStack{
-                            Text("프로필 디테일뷰를 위한 스크롤 뷰입니다")
-                                .onTapGesture {
-                                    withAnimation(.spring()) {
-                                        homeVM.goHomefromDetail()
-                                    }
-                                }
-                            VStack(alignment: .leading, spacing: 15) {
-                                Text(homeVM.currentUser!.name)
-                                    .font(.largeTitle).bold()
-                                
-                                Text(homeVM.currentUser!.bio)
-                                    .font(.body)
-                                    .lineSpacing(10)
-                                
-                                // 스크롤 확인용 더미 텍스트
-                                ForEach(0..<10) { i in
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.gray.opacity(0.1))
-                                        .frame(height: 100)
-                                        .overlay(Text("추가 정보 영역 \(i)"))
-                                }
-                            }
-                            .padding()
-                        }
+                    HybinProfileDetailView(
+                        homeVM:homeVM,
+                        size:imageSize,
+                        screenWidth:screenWidth
+                    )
+                    .safeAreaInset(edge: .top) {
+                        HeaderOverlay(homeVM: homeVM)
                     }
                     .transition(.opacity)
+                    
                 }
             }
-        }
-    }
-
-    //MARK: - Header (Logo and Filter)
-    private var Header: some View {
-        HStack {
-            appLogoTitleView
-            Spacer()
-            filterButton
-        }
-    }
-
-    // MARK: - 앱 로고 타이틀 뷰
-    private var appLogoTitleView: some View {
-        HStack {
-            Text("logo")
-        }
-    }
-
-    //MARK: -필터 버튼
-    private var filterButton: some View {
-
-        Button(action: {
-            print("filter")
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                homeVM.didSelectFilter()
+            .fullScreenCover(isPresented: $homeVM.showFilter) {
+                HybinFilterView(homeVM: homeVM) {
+                    withAnimation(.spring()) {
+                        offset = .zero
+                    }
+                }
             }
-        }) {
-            Image(systemName: "slider.horizontal.3")
-                .font(.system(size: 20))
-                .foregroundStyle(Color.black)
+            .ignoresSafeArea(.all)
         }
     }
 
@@ -250,16 +211,40 @@ struct HybinHomeView: View {
         }
     }
 }
-//MARK: -프로필 디테일 뷰
-struct ProfileDetailView: View {
+
+struct HeaderOverlay: View {
+    @ObservedObject var homeVM : HybinHomeViewModel
     var body: some View {
-        VStack {
-            Capsule()  // 시트 상단 바 느낌
-                .frame(width: 40, height: 6)
-                .foregroundColor(.gray.opacity(0.5))
-                .padding(.top)
-            Text("profile detail")
+        HStack {
+            if homeVM.showDetailExpander {
+                Button(action: { homeVM.goHomefromDetail() }) {
+                    Image(systemName: "arrow.left").padding(12).background(.ultraThinMaterial).clipShape(Circle())
+                }
+            } else {
+                HStack {
+                    Circle().frame(width: 40, height: 40).overlay(Text("효"))
+                    Text("이런 친구는 어때요?").bold()
+                }
+            }
             Spacer()
+            filterButton
+        }
+        .padding(.horizontal)
+        .padding(.top, 50)
+        .foregroundColor(.white)
+    }
+    
+    private var filterButton: some View {
+        
+        Button(action: {
+            print("filter")
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                homeVM.didSelectFilter()
+            }
+        }) {
+            Image(systemName: "slider.horizontal.3")
+                .font(.system(size: 20))
+                .foregroundStyle(Color.black)
         }
     }
 }
