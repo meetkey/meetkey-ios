@@ -12,6 +12,7 @@ import Combine
 class HybinHomeViewModel: ObservableObject {
     @Published private(set) var currentIndex: Int = 0
     @Published var showMatchView: Bool = false
+    @Published var showFilter: Bool = false
     @Published var selectedUser: User? // 디테일 뷰에 넘겨주기 위함
     
     let users: [User] = User.mockData //확인용 더미데이터
@@ -29,6 +30,14 @@ class HybinHomeViewModel: ObservableObject {
         goNext()
     }
     
+    func didSelectFilter() {
+        goFilter()
+    }
+    
+    func didSelectHome() {
+        goHome()
+    }
+    
     func finishMatch(){ // dismiss 대신
         showMatchView = false
         goNext()
@@ -42,6 +51,14 @@ class HybinHomeViewModel: ObservableObject {
     private func goNext() {
         guard currentIndex < users.count - 1 else {return}
         currentIndex += 1
+    }
+    
+    private func goHome() {
+        showFilter = false
+    }
+    
+    private func goFilter() {
+        showFilter = true
     }
 }
 

@@ -9,13 +9,14 @@
 import SwiftUI
 
 struct HybinHomeView: View {
-    
+
     @ObservedObject var homeVM: HybinHomeViewModel
-    
+
     @State private var offset: CGSize = .zero
 
     @State private var isProfileDetailPresented: Bool = false
-//    @State private var isMatchingPresented: Bool = false
+    @State private var isDetailExpanded: Bool = false
+    //    @State private var isMatchingPresented: Bool = false
     @State private var isFilterPresented: Bool = false
 
     var body: some View {
@@ -23,18 +24,13 @@ struct HybinHomeView: View {
             let imageWidth = geometry.size.width * 0.76
             let imageHeight = imageWidth * (536.0 / 304.0)
             let imageSize = CGSize(width: imageWidth, height: imageHeight)
-            let screenWidth = geometry.size.width
+//            let screenWidth = geometry.size.width
 
             ZStack {
-
                 VStack {
-
                     Header
-
                     Spacer()
-
                     ZStack(alignment: .bottom) {
-
                         if let user = homeVM.currentUser {
                             HybinProfileSectionView(
                                 size: imageSize,
@@ -46,7 +42,6 @@ struct HybinHomeView: View {
                                 isProfileDetailPresented = true
                             }
                         }
-                        
 
                         likeButton
                             .offset(y: imageHeight * 0.01)
@@ -56,7 +51,7 @@ struct HybinHomeView: View {
                         ProfileDetailView()
                     }
                     .fullScreenCover(isPresented: $homeVM.showMatchView) {
-                        HybinMatchingView(homeVM: homeVM){
+                        HybinMatchingView(homeVM: homeVM) {
                             withAnimation(.spring()) {
                                 offset = .zero
                             }
@@ -65,21 +60,13 @@ struct HybinHomeView: View {
 
                     Spacer()
                 }
-                .blur(radius: isFilterPresented ? 3 : 0)
-                .disabled(isFilterPresented)
-                
-                if isFilterPresented {
-                    Color.black.opacity(0.2)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation { isFilterPresented = false }
+                .fullScreenCover(isPresented: $homeVM.showFilter) {
+                    HybinFilterView(homeVM: homeVM) {
+                        withAnimation(.spring()) {
+                            offset = .zero
                         }
+                    }
                 }
-                FilterSideView()
-                    .frame(width: imageWidth)
-                    .offset(x: isFilterPresented ? screenWidth - imageWidth : screenWidth)
-                    .animation(.spring(), value: isFilterPresented)
-
             }
         }
     }
@@ -106,7 +93,7 @@ struct HybinHomeView: View {
         Button(action: {
             print("filter")
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                isFilterPresented.toggle()
+                homeVM.didSelectFilter()
             }
         }) {
             Image(systemName: "slider.horizontal.3")
@@ -140,7 +127,7 @@ struct HybinHomeView: View {
             }
             offset = .zero
             homeVM.didSelectLike()
-                
+
         } else if translation < -150 {
             // 다음 유저로 전환
             withAnimation(.spring()) {
@@ -193,42 +180,5 @@ struct ProfileDetailView: View {
             Text("profile detail")
             Spacer()
         }
-    }
-}
-
-// MARK: - 필터뷰
-struct FilterSideView: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 25) {
-            Text("필터 설정")
-                .font(.headline)
-                .padding(.top, 60)
-
-            Divider()
-
-            // 간단한 필터 항목들
-            VStack(alignment: .leading) {
-                Text("거리 범위").font(.caption).foregroundColor(.gray)
-                Text("20km 이내").bold()
-            }
-
-            VStack(alignment: .leading) {
-                Text("나이대").font(.caption).foregroundColor(.gray)
-                Text("24세 - 30세").bold()
-            }
-
-            Spacer()
-
-            Button("적용하기") {
-                // 적용 로직
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.black)
-            .foregroundColor(.white)
-            .cornerRadius(10)
-        }
-        .padding()
-        .frame(maxHeight: .infinity)
     }
 }
