@@ -11,7 +11,7 @@ extension Font {
         case title3 // 24 SemiBold
         case title4 // 22 SemiBold
         case title5 // 18 SemiBold
-        case title6 // 22 Regular (피그마 표 기준)
+        case title6 // 22 Regular
         
         // Bodies
         case body1 // 16 SemiBold
@@ -53,7 +53,6 @@ extension Font {
     // MARK: - 사용 함수
     /// 사용법: .font(.meetKey(.title1))
     static func meetKey(_ style: MeetKeyFontStyle) -> Font {
-        // Info.plist에 등록된 폰트 파일명과 정확히 일치해야 합니다.
         let fontName: String
         
         switch style.weight {
