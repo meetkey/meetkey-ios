@@ -1,6 +1,6 @@
 //
 //  HybinProfileSectionView.swift
-//  
+//
 //
 //  Created by 전효빈 on 1/15/26.
 //
@@ -12,7 +12,6 @@ struct HybinProfileSectionView: View {
     let user: User
     var body: some View {
         ZStack(alignment: .top) {
-            
 
             Image(user.profileImageURL)
                 .resizable()
@@ -20,9 +19,15 @@ struct HybinProfileSectionView: View {
                 .frame(width: size.width, height: size.height)
                 .clipped()
             
+            LinearGradient(
+                colors:[.black.opacity(0.7), .black.opacity(0.1)],
+                startPoint: .bottom,
+                endPoint: .center
+            )
+
             Spacer()
-            VStack{
-                HStack{
+            VStack {
+                HStack {
                     Spacer()
                     Text(user.safeBadge.rawValue)
                         .foregroundStyle(Color.orange)
@@ -31,9 +36,9 @@ struct HybinProfileSectionView: View {
                 Text(user.name)
                     .font(.title)
                     .foregroundStyle(Color.white)
-                
+
             }
-            .frame(width:size.width,height:size.height * 0.7)
+            .frame(width: size.width, height: size.height * 0.7)
         }
     }
 }

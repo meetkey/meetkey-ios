@@ -5,73 +5,79 @@
 //  Created by 전효빈 on 1/22/26.
 //
 
-import SwiftUI
-import Foundation
 import Combine
+import Foundation
+import SwiftUI
 
 class HybinHomeViewModel: ObservableObject {
     @Published private(set) var currentIndex: Int = 0
     @Published var showMatchView: Bool = false
     @Published var showFilterView: Bool = false
     @Published var showDetailExpander: Bool = false
-    @Published var selectedUser: User? // 디테일 뷰에 넘겨주기 위함
-    
-    let users: [User] = User.mockData //확인용 더미데이터
-    
+    @Published var selectedUser: User?  // 디테일 뷰에 넘겨주기 위함
+    @Published var hasReachedLimit: Bool = false
+
+    let users: [User] = User.mockData  //확인용 더미데이터
+
     var currentUser: User? {
         guard users.indices.contains(currentIndex) else { return nil }
         return users[currentIndex]
     }
-    
-    func didSelectLike() { //스와이프 or 관심있음 버튼 -> 매칭화면
+
+    func didSelectLike() {  //스와이프 or 관심있음 버튼 -> 매칭화면
         showMatch()
     }
-    
-    func didSelectUnlike() { //스와이프 or 관심없음 버튼 -> 다음화면
+
+    func didSelectUnlike() {  //스와이프 or 관심없음 버튼 -> 다음화면
         moveToNextUser()
     }
-    
+
     func didSelectFilter() {
         showFilter()
     }
-    
+
     func didSelectHome() {
         goHome()
     }
-    
-    func didFinishMatch(){ // dismiss 대신
+
+    func didFinishMatch() {  // dismiss 대신
         showMatchView = false
         moveToNextUser()
     }
-    
-    func didTapDetail(){
+
+    func didTapDetail() {
         showDetailExpander = true
     }
-    
-    func didTapBackFromDetail(){
+
+    func didTapBackFromDetail() {
         showDetailExpander = false
     }
     
-    
+    func resetDiscovery() {
+        currentIndex = 0
+        hasReachedLimit = false
+    }
+
     private func showMatch() {
         showMatchView = true
     }
-    
-    
+
     private func moveToNextUser() {
-        guard currentIndex < users.count - 1 else {return}
-        currentIndex += 1
+        if currentIndex >= users.count - 1 {
+            hasReachedLimit = true  // 추천친구 끝
+        } else {
+            currentIndex += 1
+        }
     }
-    
+
     private func goHome() {
         showFilterView = false
     }
-    
+
     private func showFilter() {
         showFilterView = true
     }
 }
-
 
 extension User {
     static let mockData: [User] = [
@@ -114,6 +120,6 @@ extension User {
             bio: "이제 막 대학교 졸업했어요! 새로운 사람들을 만나는 건 늘 설레네요.",
             profileImageURL: "profileImageSample1",
             safeBadge: .gold
-        )
+        ),
     ]
 }

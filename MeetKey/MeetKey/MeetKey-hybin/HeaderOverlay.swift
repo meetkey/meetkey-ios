@@ -9,8 +9,13 @@ import SwiftUI
 
 
 struct HeaderOverlay: View {
-    @ObservedObject var homeVM: HybinHomeViewModel
+    @Binding var showDetail: Bool
+    
     let safeArea : EdgeInsets
+    let user: User
+    
+    var onBackAction: () -> Void
+    var onFilterAction: () -> Void
     
     var body: some View {
         // 1. 헤더 전체 컨테이너 (상단 끝까지 채우기 위해 ZStack 사용)
@@ -23,11 +28,11 @@ struct HeaderOverlay: View {
                 .ignoresSafeArea(edges: .top)
                 .frame(height: safeArea.top + 15) // 헤더 전체 높이 (노치 포함)
 
-            // 2. 실제 버튼 및 텍스트 레이어
+            // 2. 실제 버튼 및 텍스트 레이어, 하드코딩 = 현재 로그인 유저
             HStack(alignment: .center) {
-                if homeVM.showDetailExpander {
+                if showDetail {
                     // ✅ 상세 모드: 뒤로가기 버튼
-                    Button(action: { homeVM.didTapBackFromDetail() }) {
+                    Button(action: { onBackAction() }) {
                         Image(systemName: "arrow.left")
                             .font(.system(size: 20, weight: .bold))
                             .foregroundColor(.black)
@@ -45,7 +50,7 @@ struct HeaderOverlay: View {
                             .overlay(Text("효").foregroundColor(.white))
                         
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("김밋키닝,")
+                            Text(user.name + "님,")
                                 .font(.system(size: 12))
                                 .foregroundColor(.white.opacity(0.7))
                             Text("이런 친구는 어때요?")
@@ -59,28 +64,16 @@ struct HeaderOverlay: View {
                 Spacer()
                 
                 // ✅ 필터 버튼
-                filterButton
+                FilterButton {
+                    withAnimation(.spring(response: 0.4 , dampingFraction: 0.8)) {
+                        onFilterAction()
+                    }
+                }
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 12) // 바닥과의 간격
         }
         // ✅ 헤더 자체가 화면 상단에 딱 붙도록 고정
         .fixedSize(horizontal: false, vertical: true)
-    }
-    
-    private var filterButton: some View {
-        Button(action: {
-            print("filter")
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                homeVM.didSelectFilter()
-            }
-        }) {
-            Image(systemName: "slider.horizontal.3")
-                .font(.system(size: 20))
-                .foregroundColor(.black)
-                .padding(12)
-                .background(Color.white.opacity(0.8))
-                .clipShape(Circle())
-        }
     }
 }
