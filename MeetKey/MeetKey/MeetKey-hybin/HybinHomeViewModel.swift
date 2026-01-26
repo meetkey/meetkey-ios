@@ -12,7 +12,7 @@ import Combine
 class HybinHomeViewModel: ObservableObject {
     @Published private(set) var currentIndex: Int = 0
     @Published var showMatchView: Bool = false
-    @Published var showFilter: Bool = false
+    @Published var showFilterView: Bool = false
     @Published var showDetailExpander: Bool = false
     @Published var selectedUser: User? // 디테일 뷰에 넘겨주기 위함
     
@@ -24,48 +24,51 @@ class HybinHomeViewModel: ObservableObject {
     }
     
     func didSelectLike() { //스와이프 or 관심있음 버튼 -> 매칭화면
-        goMatch()
+        showMatch()
     }
     
     func didSelectUnlike() { //스와이프 or 관심없음 버튼 -> 다음화면
-        goNext()
+        moveToNextUser()
     }
     
     func didSelectFilter() {
-        goFilter()
+        showFilter()
     }
     
     func didSelectHome() {
         goHome()
     }
     
-    func finishMatch(){ // dismiss 대신
+    func didFinishMatch(){ // dismiss 대신
         showMatchView = false
-        goNext()
+        moveToNextUser()
     }
     
-    func goDetail(){
+    func didTapDetail(){
         showDetailExpander = true
     }
-    func goHomefromDetail(){
+    
+    func didTapBackFromDetail(){
         showDetailExpander = false
     }
-    private func goMatch() {
+    
+    
+    private func showMatch() {
         showMatchView = true
     }
     
     
-    private func goNext() {
+    private func moveToNextUser() {
         guard currentIndex < users.count - 1 else {return}
         currentIndex += 1
     }
     
     private func goHome() {
-        showFilter = false
+        showFilterView = false
     }
     
-    private func goFilter() {
-        showFilter = true
+    private func showFilter() {
+        showFilterView = true
     }
 }
 
@@ -85,7 +88,7 @@ extension User {
             name: "김민준",
             age: 24,
             bio: "주말마다 한강에서 러닝하는 거 좋아해요. 같이 뛰실 분?",
-            profileImageURL: "profileImageSample1",
+            profileImageURL: "profileImageSample2",
             safeBadge: .silver
         ),
         User(
@@ -101,7 +104,7 @@ extension User {
             name: "박지성",
             age: 31,
             bio: "개발자입니다. 커피 한 잔 하면서 기술 얘기 나누고 싶어요.",
-            profileImageURL: "profileImageSample1",
+            profileImageURL: "profileImageSample2",
             safeBadge: .none
         ),
         User(

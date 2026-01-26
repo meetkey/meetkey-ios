@@ -10,23 +10,17 @@ import SwiftUI
 struct HybinProfileDetailView: View{
     @ObservedObject var homeVM: HybinHomeViewModel
     let size: CGSize
-    let screenWidth : CGFloat
+    let safeArea: EdgeInsets
     
     var body: some View{
         if let user = homeVM.currentUser{
             ZStack{
-                Image("profileImageSample1")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .clipped()
-                    .frame(maxWidth: screenWidth , alignment: .center)
-                    .opacity(0.1)
                 ScrollView{
                     VStack{
-                        Image("profileImageSample1")
+                        Image(user.profileImageURL)
                             .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: size.width, height: size.height)
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: size.width - 40 , height: 400)
                             .clipped()
                         VStack{
                             Text(user.bio)
@@ -45,7 +39,14 @@ struct HybinProfileDetailView: View{
                             }
                         }
                     }
+                    
                 }
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 30))
+                .shadow(color: .black.opacity(0.2), radius: 20, x: 0 , y:10)
+                .padding(.horizontal, 20)
+                .padding(.top, safeArea.top + 45)
+                .padding(.bottom, safeArea.bottom + 40)
             }
         }
     }

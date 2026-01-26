@@ -16,7 +16,7 @@ struct HybinMatchingView: View {
         ZStack {
             VStack {
                 Button(action: {
-                    homeVM.finishMatch()
+                    homeVM.didFinishMatch()
                     onDismiss()
                 }) {
                     Text("계속 탐색하기")

@@ -14,136 +14,128 @@ struct HybinHomeView: View {
 
     @State private var offset: CGSize = .zero
 
-//    @State private var isProfileDetailPresented: Bool = false
-//    @State private var isDetailExpanded: Bool = false
-    //    @State private var isMatchingPresented: Bool = false
-//    @State private var isFilterPresented: Bool = false
-
-//    var body: some View {
-//        GeometryReader { geometry in
-//            let imageWidth = geometry.size.width * 0.76
-//            let imageHeight = imageWidth * (536.0 / 304.0)
-//            let imageSize = CGSize(width: imageWidth, height: imageHeight)
-////            let screenWidth = geometry.size.width
-//
-//            ZStack {
-//                VStack {
-//                    Header
-//                    Spacer()
-//                    ZStack(alignment: .bottom) {
-//                        if let user = homeVM.currentUser {
-//                            HybinProfileSectionView(
-//                                size: imageSize,
-//                                user: user
-//                            )
-//                            .offset(x: offset.width, y: offset.height * 0.1)
-//                            .gesture(profileDragGesture)
-//                            .onTapGesture {
-//                                isProfileDetailPresented = true
-//                            }
-//                        }
-//
-//                        likeButton
-//                            .offset(y: imageHeight * 0.01)
-//                    }
-//                    .frame(width: imageWidth, height: imageHeight)
-//                    .sheet(isPresented: $isProfileDetailPresented) {
-//                        ProfileDetailView()
-//                    }
-//                    .fullScreenCover(isPresented: $homeVM.showMatchView) {
-//                        HybinMatchingView(homeVM: homeVM) {
-//                            withAnimation(.spring()) {
-//                                offset = .zero
-//                            }
-//                        }
-//                    }
-//
-//                    Spacer()
-//                }
-//                .fullScreenCover(isPresented: $homeVM.showFilter) {
-//                    HybinFilterView(homeVM: homeVM) {
-//                        withAnimation(.spring()) {
-//                            offset = .zero
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+    //    var body: some View {
+    //        GeometryReader { geometry in
+    //            let imageWidth = geometry.size.width * 0.76
+    //            let imageHeight = imageWidth * (536.0 / 304.0)
+    //            let imageSize = CGSize(width: imageWidth, height: imageHeight)
+    //            let screenWidth = geometry.size.width
+    //            let screenSize = geometry.size
+    //
+    //            ZStack(alignment:.top) {
+    //                Color(.black).opacity(0.3)
+    //
+    //                if !homeVM.showDetailExpander{
+    //                    VStack {
+    //                        HeaderOverlay(homeVM: homeVM)
+    //                        Spacer()
+    //                        ZStack(alignment: .bottom) {
+    //                            if let user = homeVM.currentUser {
+    //                                HybinProfileSectionView(
+    //                                    size: screenSize,
+    //                                    user: user
+    //                                )
+    //                                .offset(x: offset.width, y: offset.height * 0.1)
+    //                                .gesture(profileDragGesture)
+    //                                .onTapGesture {
+    //                                    homeVM.didTapDetail()
+    //                                }
+    //                            }
+    //
+    //                            likeButton
+    //                                .offset(y: imageHeight * 0.01)
+    //                        }
+    //                        .frame(width: imageWidth, height: imageHeight)
+    //
+    //                        .fullScreenCover(isPresented: $homeVM.showMatchView) {
+    //                            HybinMatchingView(homeVM: homeVM) {
+    //                                withAnimation(.spring()) {
+    //                                    offset = .zero
+    //                                }
+    //                            }
+    //                        }
+    //
+    //                        Spacer()
+    //                    }
+    //
+    //                } else {
+    //                    HybinProfileDetailView(
+    //                        homeVM:homeVM,
+    //                        size:imageSize,
+    //                        screenWidth:screenWidth
+    //                    )
+    //                        .safeAreaInset(edge: .top) {
+    //                            HeaderOverlay(homeVM: homeVM)
+    //                        }
+    //                    .transition(.opacity)
+    //
+    //                }
+    //            }
+    //            .fullScreenCover(isPresented: $homeVM.showFilterView) {
+    //                HybinFilterView(homeVM: homeVM) {
+    //                    withAnimation(.spring()) {
+    //                        offset = .zero
+    //                    }
+    //                }
+    //            }
+    //            .ignoresSafeArea(.all)
+    //        }
+    //    }
 
     var body: some View {
         GeometryReader { geometry in
-            let imageWidth = geometry.size.width * 0.76
-            let imageHeight = imageWidth * (536.0 / 304.0)
-            let imageSize = CGSize(width: imageWidth, height: imageHeight)
-            let screenWidth = geometry.size.width
+            let screenSize = geometry.size
+            let safeArea = geometry.safeAreaInsets
 
-            ZStack(alignment:.top) {
-                Color(.black).opacity(0.3)
-
-                if !homeVM.showDetailExpander{
-                    VStack {
-                        HeaderOverlay(homeVM: homeVM)
-                        Spacer()
-                        ZStack(alignment: .bottom) {
+            ZStack(alignment: .top) {
+                if let user = homeVM.currentUser {
+                    Image(user.profileImageURL)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(
+                            width: screenSize.width,
+                            height: screenSize.height
+                        )
+                        .clipped()
+                        .opacity(0.4)
+                } else {
+                    Color.black.ignoresSafeArea()
+                        .opacity(0.1)
+                }
+                // MARK: - 콘텐츠
+                Group {
+                    if !homeVM.showDetailExpander {
+                        ZStack {
                             if let user = homeVM.currentUser {
                                 HybinProfileSectionView(
-                                    size: imageSize,
+                                    size: screenSize,
                                     user: user
                                 )
                                 .offset(x: offset.width, y: offset.height * 0.1)
                                 .gesture(profileDragGesture)
-                                .onTapGesture {
-                                    homeVM.goDetail()
-                                }
+                                .onTapGesture { homeVM.didTapDetail() }
                             }
-                            
                             likeButton
-                                .offset(y: imageHeight * 0.01)
+                                .offset(y: 40)
                         }
-                        .frame(width: imageWidth, height: imageHeight)
-                        
-                        .fullScreenCover(isPresented: $homeVM.showMatchView) {
-                            HybinMatchingView(homeVM: homeVM) {
-                                withAnimation(.spring()) {
-                                    offset = .zero
-                                }
-                            }
-                        }
-                        
-                        Spacer()
-                    }
-//                    .fullScreenCover(isPresented: $homeVM.showFilter) {
-//                        HybinFilterView(homeVM: homeVM) {
-//                            withAnimation(.spring()) {
-//                                offset = .zero
-//                            }
-//                        }
-//                    }
-                } else {
-                    HybinProfileDetailView(
-                        homeVM:homeVM,
-                        size:imageSize,
-                        screenWidth:screenWidth
-                    )
-                    .safeAreaInset(edge: .top) {
-                        HeaderOverlay(homeVM: homeVM)
-                    }
-                    .transition(.opacity)
-                    
-                }
-            }
-            .fullScreenCover(isPresented: $homeVM.showFilter) {
-                HybinFilterView(homeVM: homeVM) {
-                    withAnimation(.spring()) {
-                        offset = .zero
+                    } else {
+                        HybinProfileDetailView(homeVM: homeVM, size: screenSize, safeArea: safeArea)
                     }
                 }
+                // MARK: - 헤더
+                HeaderOverlay(homeVM: homeVM, safeArea: safeArea)  // 바인딩으로 빼야함
+                    .zIndex(1) //항상 최상단
             }
-            .ignoresSafeArea(.all)
+            // 공통 모달 처리
+            .fullScreenCover(isPresented: $homeVM.showMatchView) {
+                HybinMatchingView(homeVM: homeVM) { offset = .zero }
+            }
+            .fullScreenCover(isPresented: $homeVM.showFilterView) {
+                HybinFilterView(homeVM: homeVM) { offset = .zero }
+            }
         }
+        .ignoresSafeArea(.all,edges: .bottom)
     }
-
     //MARK: - 제스처 메서드
 
     //1. 제스처 본체 분리
@@ -208,43 +200,6 @@ struct HybinHomeView: View {
                 Text("match")
                     .foregroundStyle(Color.orange)
             }
-        }
-    }
-}
-
-struct HeaderOverlay: View {
-    @ObservedObject var homeVM : HybinHomeViewModel
-    var body: some View {
-        HStack {
-            if homeVM.showDetailExpander {
-                Button(action: { homeVM.goHomefromDetail() }) {
-                    Image(systemName: "arrow.left").padding(12).background(.ultraThinMaterial).clipShape(Circle())
-                }
-            } else {
-                HStack {
-                    Circle().frame(width: 40, height: 40).overlay(Text("효"))
-                    Text("이런 친구는 어때요?").bold()
-                }
-            }
-            Spacer()
-            filterButton
-        }
-        .padding(.horizontal)
-        .padding(.top, 50)
-        .foregroundColor(.white)
-    }
-    
-    private var filterButton: some View {
-        
-        Button(action: {
-            print("filter")
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                homeVM.didSelectFilter()
-            }
-        }) {
-            Image(systemName: "slider.horizontal.3")
-                .font(.system(size: 20))
-                .foregroundStyle(Color.black)
         }
     }
 }
