@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "밋키 로고.png",
+      "filename" : "goldBadge.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "goldBadge@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "goldBadge@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

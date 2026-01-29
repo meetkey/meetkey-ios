@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "밋키 로고.png",
+      "filename" : "CN - China.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "CN - China@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "CN - China@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

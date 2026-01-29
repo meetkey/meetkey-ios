@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "밋키 로고.png",
+      "filename" : "KR - Korea (South).png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "KR - Korea (South)@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "KR - Korea (South)@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
