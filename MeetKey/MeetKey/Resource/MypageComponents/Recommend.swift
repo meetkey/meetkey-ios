@@ -52,6 +52,7 @@ struct Recommend: View {
         .padding(.vertical, 14)
         .padding(.horizontal, 8)
         .background(.background1)
-        .frame(height: 89)        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .frame(height: 89)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

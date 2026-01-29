@@ -53,7 +53,7 @@ struct MyProfile: View {
                 .padding(.vertical, 18)
             }
             .background(.white01)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 20))
             .padding(.top, 27)
             .padding(.horizontal, 20)
             
