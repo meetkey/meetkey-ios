@@ -1,5 +1,5 @@
 //
-//  OneLiner.swift
+//  OneLinerSetting.swift
 //  MeetKey
 //
 //  Created by sumin Kong on 1/23/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct OneLiner: View {
+struct OneLinerSetting: View {
     var introduceText: String
     var body: some View {
         HStack(spacing: 8) {

@@ -19,6 +19,7 @@ struct OneLiner: View {
                 .padding(.trailing, 16)
         }
         .frame(height: 56)
+        .frame(maxWidth: .infinity)
         .background(.background1)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }

@@ -10,13 +10,22 @@ import SwiftUI
 struct Language: View {
     var usingLanguage: String = "English"
     var interestingLanguage: String = "Korean"
+    var isSetting: Bool = false
+    
     var body: some View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
-                Text("사용 언어")
-                    .font(.meetKey(.body5))
-                    .foregroundStyle(.black03)
-                    .padding(.top, 14)
+                HStack(alignment: .firstTextBaseline, spacing: 0){
+                    Text("사용 언어")
+                        .font(.meetKey(.body5))
+                        .foregroundStyle(.black03)
+                        .padding(.top, 14)
+                    Spacer()
+//                    if isSetting {
+//                        Image(.edit)
+//                            .padding(.trailing, 10)
+//                    }
+                }
                 HStack {
                     Text(usingLanguage)
                         .font(.meetKey(.title5))
@@ -38,10 +47,17 @@ struct Language: View {
                 .frame(height: 87)
             
             VStack(alignment: .leading, spacing: 0) {
-                Text("관심 언어")
-                    .font(.meetKey(.body5))
-                    .foregroundStyle(.black03)
-                    .padding(.top, 14)
+                HStack(alignment: .firstTextBaseline, spacing: 0){
+                    Text("관심 언어")
+                        .font(.meetKey(.body5))
+                        .foregroundStyle(.black03)
+                        .padding(.top, 14)
+                    Spacer()
+                    if isSetting {
+                        Image(.edit)
+                            .padding(.trailing, 10)
+                    }
+                }
                 HStack {
                     Text(interestingLanguage)
                         .font(.meetKey(.title5))
@@ -61,9 +77,17 @@ struct Language: View {
         }
         .padding(.vertical, 14)
         .padding(.horizontal, 8)
-        .background(.background1)
-        .frame(height: 115)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .frame(height: 115)        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(isSetting ? .clear : .background1)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(
+                    isSetting ? .disabled : .clear,
+                    lineWidth: isSetting ? 1 : 0
+                )
+        )
     }
 }
 
