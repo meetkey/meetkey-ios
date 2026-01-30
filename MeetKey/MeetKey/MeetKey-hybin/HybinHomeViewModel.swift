@@ -43,7 +43,6 @@ class HybinHomeViewModel: ObservableObject {
 
     func didFinishMatch() {  // dismiss 대신
         showMatchView = false
-        moveToNextUser()
     }
 
     func didTapDetail() {

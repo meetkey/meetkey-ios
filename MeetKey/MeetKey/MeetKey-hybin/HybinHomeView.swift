@@ -156,8 +156,8 @@ struct HybinHomeView: View {
                 withAnimation(.spring()) {
                     offset.width = -500
                 }
-                homeVM.didSelectUnlike()
                 offset = .zero
+                homeVM.didSelectUnlike()
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 24, weight: .bold))
@@ -172,6 +172,7 @@ struct HybinHomeView: View {
                 withAnimation(.spring()) {
                     offset.width = 500
                 }
+                offset = .zero
                 homeVM.didSelectLike()
 
             } label: {

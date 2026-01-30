@@ -14,11 +14,7 @@ enum HeaderType {
 }
 
 struct HeaderOverlay: View {
-//    @Binding var showDetail: Bool
-    
-    // ✅ type을 state로 변경
     let state: HeaderType
-    
     let safeArea: EdgeInsets
     let user: User
     
@@ -27,51 +23,43 @@ struct HeaderOverlay: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            
             // 1. 배경 처리
             RoundedRectangle(cornerRadius: 20)
                 .fill(.ultraThinMaterial)
                 .ignoresSafeArea(edges: .top)
-                .frame(height: safeArea.top + 15)
+                .frame(height: safeArea.top + 15) // 높이를 여유 있게 조절
 
-            // 2. 상태별 레이어 분기
+            // 2. 버튼 및 콘텐츠 레이어
             HStack(alignment: .center) {
-                switch state {
-                case .home:
-                    // ✅ 홈 모드: 기존 로직 그대로 유지
-                    homeHeaderItems
-                    
-                case .detail:
-                    // ✅ 상세 모드: 뒤로가기 버튼 중심
-                    detailHeaderItems
-                    
-                case .chat:
-                    // ✅ 채팅 모드: 일단 오류 방지용 주석 및 빈 화면 처리
-                    /*
-                    HStack {
-                        Button(action: { onBackAction() }) {
-                            Image(systemName: "xmark")
-                                .foregroundColor(.black)
-                        }
-                        Spacer()
-                        Text(user.name) // 상대방 이름
-                        Spacer()
-                        Image(systemName: "ellipsis")
+                // ✅ 왼쪽 영역: 모든 상태에서 크기를 40x40으로 고정
+                Group {
+                    switch state {
+                    case .home:
+                        homeProfileCircle
+                    case .detail:
+                        backButton(icon: "arrow.left")
+                    case .chat:
+                        backButton(icon: "xmark")
                     }
-                    */
-                    EmptyView()
+                }
+                .frame(width: 40, height: 40) // 크기 통일
+                
+                // 중앙 텍스트 (홈 모드일 때만 보임)
+                if state == .home {
+                    homeHeaderText
+                        .padding(.leading, 8)
+                } else if state == .chat {
+                    // 채팅일 때 중앙에 이름 배치하고 싶다면 여기에 추가
+                    Spacer()
+                    Text(user.name)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.black)
                 }
                 
                 Spacer()
                 
-                // 오른쪽 필터 버튼
-                if state == .home || state == .detail {
-                    FilterButton {
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                            onFilterAction()
-                        }
-                    }
-                }
+                // 오른쪽 버튼 영역
+                rightSideButton
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 12)
@@ -80,39 +68,60 @@ struct HeaderOverlay: View {
     }
 }
 
-// MARK: - 서브 뷰 컴포넌트 (가독성을 위해 분리)
+// MARK: - 서브 컴포넌트
 extension HeaderOverlay {
     
-    // 홈 모드 아이템
-    private var homeHeaderItems: some View {
-        HStack(spacing: 12) {
-            Circle()
-                .frame(width: 40, height: 40)
-                .foregroundColor(.gray.opacity(0.3))
-                .overlay(Text(String(user.name.prefix(1))).foregroundColor(.white))
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(user.name + "님,")
-                    .font(.system(size: 12))
-                    .foregroundColor(.white.opacity(0.7))
-                Text("이런 친구는 어때요?")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
-            }
-        }
-        .transition(.move(edge: .leading).combined(with: .opacity))
-    }
-    
-    // 상세 모드 아이템
-    private var detailHeaderItems: some View {
+    // ✅ 공통 버튼 스타일 (상세 뒤로가기 & 채팅 X버튼)
+    private func backButton(icon: String) -> some View {
         Button(action: { onBackAction() }) {
-            Image(systemName: "arrow.left")
-                .font(.system(size: 20, weight: .bold))
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.black)
-                .padding(12)
+                .frame(width: 40, height: 40) // Circle 크기와 동일하게
                 .background(Color.white.opacity(0.8))
                 .clipShape(Circle())
         }
-        .transition(.move(edge: .leading).combined(with: .opacity))
+    }
+
+    // 홈 프로필 서클
+    private var homeProfileCircle: some View {
+        Circle()
+            .frame(width: 40, height: 40)
+            .foregroundColor(.gray.opacity(0.3))
+            .overlay(Text(String(user.name.prefix(1))).foregroundColor(.white))
+    }
+
+    // 홈 텍스트
+    private var homeHeaderText: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(user.name + "님,")
+                .font(.system(size: 12))
+                .foregroundColor(.white.opacity(0.7))
+            Text("이런 친구는 어때요?")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundColor(.white)
+        }
+    }
+    
+    // 오른쪽 버튼 분기 (필터 vs 신고)
+    private var rightSideButton: some View {
+        Group {
+            if state == .home || state == .detail {
+                FilterButton {
+                    withAnimation(.spring()) { onFilterAction() }
+                }
+            } else if state == .chat {
+                // 신고 버튼 (점 세개)
+                Button(action: { onFilterAction() }) {
+                    Image(systemName: "ellipsis")
+                        .rotationEffect(.degrees(90))
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.black)
+                        .frame(width: 40, height: 40)
+                        .background(Color.white.opacity(0.8))
+                        .clipShape(Circle())
+                }
+            }
+        }
     }
 }
