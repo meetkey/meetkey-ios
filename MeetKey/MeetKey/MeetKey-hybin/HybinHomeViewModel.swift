@@ -16,6 +16,7 @@ class HybinHomeViewModel: ObservableObject {
     @Published var showDetailExpander: Bool = false
     @Published var selectedUser: User?  // 디테일 뷰에 넘겨주기 위함
     @Published var hasReachedLimit: Bool = false
+    @Published var me = User.me // 로그인한 유저
 
     let users: [User] = User.mockData  //확인용 더미데이터
 
@@ -79,6 +80,7 @@ class HybinHomeViewModel: ObservableObject {
     }
 }
 
+// MARK: - 유저 목데이터
 extension User {
     static let mockData: [User] = [
         User(
@@ -122,4 +124,14 @@ extension User {
             safeBadge: .gold
         ),
     ]
+    
+    //로그인 유저 목데이터
+    static let me = User(
+        id: UUID(),
+        name: "김밋키",
+        age: 24,
+        bio: "안녕하세요, 언어 교환 친구를 사귀고 싶어요",
+        profileImageURL: "profileImageSample1",
+        safeBadge: .gold
+    )
 }

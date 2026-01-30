@@ -36,15 +36,16 @@ struct HybinHomeView: View {
                 }
                 //MARK: - 마지막 인덱스 처리
                 if homeVM.hasReachedLimit {
+                    //HybinFinishedMatchView로 처리할거임
                     VStack {
-                        Button{
+                        Button {
                             homeVM.resetDiscovery()
                         } label: {
                             Text("처음으로")
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }else{
+                } else {
                     // MARK: - 콘텐츠
                     Group {
                         if !homeVM.showDetailExpander {
@@ -54,7 +55,10 @@ struct HybinHomeView: View {
                                         size: screenSize,
                                         user: user
                                     )
-                                    .offset(x: offset.width, y: offset.height * 0.1)
+                                    .offset(
+                                        x: offset.width,
+                                        y: offset.height * 0.1
+                                    )
                                     .gesture(profileDragGesture)
                                     .onTapGesture { homeVM.didTapDetail() }
                                 }
@@ -71,18 +75,28 @@ struct HybinHomeView: View {
                     }
                 }
                 // MARK: - 헤더
-                HeaderOverlay(
-                    showDetail: $homeVM.showDetailExpander,
-                    safeArea: safeArea,
-                    user: homeVM.currentUser!,
-                    onBackAction: {
-                        homeVM.didTapBackFromDetail()
-                    },
-                    onFilterAction: {
-                        homeVM.didSelectFilter()
-                    }
-                )
+                if !homeVM.showDetailExpander {
+                    HeaderOverlay(
+                        state: .home,
+                        safeArea: safeArea,
+                        user: homeVM.me,
+                        onBackAction: { homeVM.didTapBackFromDetail() },
+                        onFilterAction: { homeVM.didSelectFilter() }
+                    ).zIndex(1)
+                } else {
+                    HeaderOverlay(
+                        state: .detail,
+                        safeArea: safeArea,
+                        user: homeVM.me,
+                        onBackAction: {
+                            homeVM.didTapBackFromDetail()
+                        },
+                        onFilterAction: {
+                            homeVM.didSelectFilter()
+                        }
+                    )
                     .zIndex(1)  //항상 최상단
+                }
             }
             // 공통 모달 처리
             .fullScreenCover(isPresented: $homeVM.showMatchView) {
