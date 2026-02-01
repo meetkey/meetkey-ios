@@ -16,13 +16,18 @@ class HybinHomeViewModel: ObservableObject {
     @Published var showDetailExpander: Bool = false
     @Published var selectedUser: User?  // 디테일 뷰에 넘겨주기 위함
     @Published var hasReachedLimit: Bool = false
-    @Published var me = User.me // 로그인한 유저
+    @Published var showReportMenu: Bool = false  // 채팅(매칭)에서 신고하기
+    @Published var me = User.me  // 로그인한 유저
 
     let users: [User] = User.mockData  //확인용 더미데이터
 
     var currentUser: User? {
         guard users.indices.contains(currentIndex) else { return nil }
         return users[currentIndex]
+    }
+
+    func didTapReport() {
+        showReportMenu = true
     }
 
     func didSelectLike() {  //스와이프 or 관심있음 버튼 -> 매칭화면
@@ -52,7 +57,7 @@ class HybinHomeViewModel: ObservableObject {
     func didTapBackFromDetail() {
         showDetailExpander = false
     }
-    
+
     func resetDiscovery() {
         currentIndex = 0
         hasReachedLimit = false
@@ -123,7 +128,7 @@ extension User {
             safeBadge: .gold
         ),
     ]
-    
+
     //로그인 유저 목데이터
     static let me = User(
         id: UUID(),

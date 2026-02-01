@@ -36,15 +36,11 @@ struct HybinHomeView: View {
                 }
                 //MARK: - 마지막 인덱스 처리
                 if homeVM.hasReachedLimit {
-                    //HybinFinishedMatchView로 처리할거임
-                    VStack {
-                        Button {
-                            homeVM.resetDiscovery()
-                        } label: {
-                            Text("처음으로")
-                        }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    HybinFinishedMatchView(
+                        size: screenSize,
+                        safeArea: safeArea,
+                        action: homeVM.resetDiscovery,
+                    )
                 } else {
                     // MARK: - 콘텐츠
                     Group {
@@ -98,15 +94,19 @@ struct HybinHomeView: View {
                     .zIndex(1)  //항상 최상단
                 }
             }
-            // 공통 모달 처리
-            .fullScreenCover(isPresented: $homeVM.showMatchView) {
-                HybinMatchingView(homeVM: homeVM) { offset = .zero }
-            }
-            .fullScreenCover(isPresented: $homeVM.showFilterView) {
-                HybinFilterView(homeVM: homeVM) { offset = .zero }
-            }
         }
         .ignoresSafeArea(.all, edges: .bottom)
+        
+        //매칭뷰 호출
+        .fullScreenCover(isPresented: $homeVM.showMatchView) {
+            HybinMatchingView(homeVM: homeVM) {
+                withAnimation(.spring()) { offset = .zero }
+            }
+        }
+        // 필터뷰 호출
+        .fullScreenCover(isPresented: $homeVM.showFilterView) {
+            HybinFilterView(homeVM: homeVM) { offset = .zero }
+        }
     }
 
     //MARK: - 제스처 메서드

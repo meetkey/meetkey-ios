@@ -31,7 +31,7 @@ struct HeaderOverlay: View {
 
             // 2. 버튼 및 콘텐츠 레이어
             HStack(alignment: .center) {
-                // ✅ 왼쪽 영역: 모든 상태에서 크기를 40x40으로 고정
+
                 Group {
                     switch state {
                     case .home:
@@ -49,7 +49,7 @@ struct HeaderOverlay: View {
                     homeHeaderText
                         .padding(.leading, 8)
                 } else if state == .chat {
-                    // 채팅일 때 중앙에 이름 배치하고 싶다면 여기에 추가
+
                     Spacer()
                     Text(user.name)
                         .font(.system(size: 16, weight: .bold))
@@ -71,7 +71,7 @@ struct HeaderOverlay: View {
 // MARK: - 서브 컴포넌트
 extension HeaderOverlay {
     
-    // ✅ 공통 버튼 스타일 (상세 뒤로가기 & 채팅 X버튼)
+    // 공통 버튼 스타일 (상세 뒤로가기 & 채팅 X버튼)
     private func backButton(icon: String) -> some View {
         Button(action: { onBackAction() }) {
             Image(systemName: icon)
