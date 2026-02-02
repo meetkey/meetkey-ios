@@ -66,7 +66,7 @@ struct MatchingView: View {
         VStack {
             Spacer()
             VStack(spacing: 12) {
-                Image("profileSampleImage1")  // 나중에 실제 데이터로 교체 가능
+                Image("profileImageSample1")  // 나중에 실제 데이터로 교체 가능
                     .resizable()
                     .scaledToFit()
                     .frame(width: 140, height: 140)
