@@ -20,23 +20,17 @@ struct MatchingView: View {
 
             ZStack(alignment: .top) {
 
-                VStack {
-                    Spacer()
-
-                    VStack {
-                        Image("profileSampleImage1")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 140, height: 140)
-                        VStack {
-                            Text("soulMate")
-                            Text("yourFriends")
-                        }
-                    }
-                    Spacer()
-                    chatInputSection
+                backgroundSection(size: screenSize)
+                
+                if homeVM.reportVM.isReportMenuPresented {
+                    closeOverlay
                 }
-                .frame(width: screenSize.width, height: screenSize.height)
+                
+                VStack{
+                    Spacer()
+                    ChatInputSection(messageText: $messageText)
+                        .padding(.bottom, safeArea.bottom)
+                }
 
                 HeaderOverlay(
                     state: .chat,
@@ -63,58 +57,38 @@ struct MatchingView: View {
                     targetUser: homeVM.currentUser ?? User.mockData[0]
                 )
                 .presentationDetents([.medium])  // 피그마처럼 중간 높이 설정
-                //                    .presentationDragIndicator(.visible)
             }
         }
+
     }
-}
 
-extension MatchingView {
-    private var chatInputSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
+    private func backgroundSection(size: CGSize) -> some View {
+        VStack {
+            Spacer()
+            VStack(spacing: 12) {
+                Image("profileSampleImage1")  // 나중에 실제 데이터로 교체 가능
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 140, height: 140)
 
-            // 대화 주제 추천 버튼
-            Button(action: { /* 주제 추천 로직 */  }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "bubble.left.and.bubble.right.fill")
-                        .font(.system(size: 12))
-                    Text("대화 주제 추천 받기 5/5")
-                        .font(.system(size: 13, weight: .medium))
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .foregroundColor(.orange)
-                .overlay(
-                    Capsule().stroke(Color.orange, lineWidth: 1)
-                )
-            }
-            .padding(.leading, 20)
-
-            // 입력 필드와 전송 버튼
-            HStack(spacing: 12) {
-                Button(action: {}) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 22))
-                        .foregroundColor(.gray)
-                }
-
-                TextField("Type a message", text: $messageText)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(25)
-
-                Button(action: { /* 메시지 전송 */  }) {
-                    Image(systemName: "paperplane.fill")
-                        .font(.system(size: 18))
-                        .foregroundColor(.white)
-                        .padding(10)
-                        .background(Color.orange)
-                        .clipShape(Circle())
+                VStack {
+                    Text("soulMate").font(.headline)
+                    Text("yourFriends").font(.subheadline).foregroundColor(
+                        .gray
+                    )
                 }
             }
-            .padding(.horizontal, 20)
+            Spacer()
         }
-        .background(Color.white)
+        .frame(width: size.width, height: size.height)
+    }
+
+    //클릭 시 오버레이를 닫게 하기 위한 레이어
+    private var closeOverlay: some View {
+        Color.black.opacity(0.001)
+            .ignoresSafeArea()
+            .onTapGesture {
+                withAnimation { homeVM.reportVM.closeReportMenu() }
+            }
     }
 }
