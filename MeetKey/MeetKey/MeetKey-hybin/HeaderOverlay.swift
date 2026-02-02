@@ -18,7 +18,7 @@ struct HeaderOverlay: View {
     let safeArea: EdgeInsets
     let user: User
 
-    @ObservedObject var homeVM: HybinHomeViewModel
+    @ObservedObject var homeVM: HomeViewModel
 
     var onBackAction: () -> Void
     var onFilterAction: () -> Void
@@ -143,6 +143,7 @@ extension HeaderOverlay {
             // 1. 화면 전환 액션
             menuItem(title: "프로필 보기", icon: "person.circle") {
                 homeVM.didTapDetail()  // 기존에 만든 상세 보기 함수 호출
+                homeVM.didFinishMatch()// 일단 homeDetail로 빠지기..
             }
 
             Divider().padding(.horizontal, 10)

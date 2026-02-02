@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HybinProfileSectionView: View {
+struct ProfileSectionView: View {
     let size: CGSize
     let user: User
     

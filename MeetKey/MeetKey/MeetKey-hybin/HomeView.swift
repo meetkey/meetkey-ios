@@ -8,9 +8,9 @@
 //피그마 홈 뷰 제작
 import SwiftUI
 
-struct HybinHomeView: View {
+struct HomeView: View {
 
-    @ObservedObject var homeVM: HybinHomeViewModel
+    @ObservedObject var homeVM: HomeViewModel
 
     @State private var offset: CGSize = .zero
 
@@ -36,7 +36,7 @@ struct HybinHomeView: View {
                 }
                 //MARK: - 마지막 인덱스 처리
                 if homeVM.hasReachedLimit {
-                    HybinFinishedMatchView(
+                    FinishedMatchView(
                         size: screenSize,
                         safeArea: safeArea,
                         action: homeVM.resetDiscovery,
@@ -47,7 +47,7 @@ struct HybinHomeView: View {
                         if !homeVM.showDetailExpander {
                             ZStack {
                                 if let user = homeVM.currentUser {
-                                    HybinProfileSectionView(
+                                    ProfileSectionView(
                                         size: screenSize,
                                         user: user
                                     )
@@ -62,7 +62,7 @@ struct HybinHomeView: View {
                                     .padding(.horizontal, 20)
                             }
                         } else {
-                            HybinProfileDetailView(
+                            HomeProfileDetailView(
                                 homeVM: homeVM,
                                 size: screenSize,
                                 safeArea: safeArea
@@ -75,7 +75,8 @@ struct HybinHomeView: View {
                     HeaderOverlay(
                         state: .home,
                         safeArea: safeArea,
-                        user: homeVM.me, homeVM: homeVM,
+                        user: homeVM.me,
+                        homeVM: homeVM,
                         onBackAction: { homeVM.didTapBackFromDetail() },
                         onFilterAction: { homeVM.didSelectFilter() }
                     ).zIndex(1)
@@ -83,7 +84,8 @@ struct HybinHomeView: View {
                     HeaderOverlay(
                         state: .detail,
                         safeArea: safeArea,
-                        user: homeVM.me,homeVM: homeVM,
+                        user: homeVM.me,
+                        homeVM: homeVM,
                         onBackAction: {
                             homeVM.didTapBackFromDetail()
                         },
@@ -96,14 +98,14 @@ struct HybinHomeView: View {
             }
         }
         .ignoresSafeArea(.all, edges: .bottom)
-        
+
         //매칭뷰 호출
         .fullScreenCover(isPresented: $homeVM.showMatchView) {
-            HybinMatchingView(homeVM: homeVM)
+            MatchingView(homeVM: homeVM)
         }
         // 필터뷰 호출
         .fullScreenCover(isPresented: $homeVM.showFilterView) {
-            HybinFilterView(homeVM: homeVM) { offset = .zero }
+            FilterView(homeVM: homeVM) { offset = .zero }
         }
     }
 

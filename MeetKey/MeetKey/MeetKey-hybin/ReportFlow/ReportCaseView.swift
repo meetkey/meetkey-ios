@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ReportCaseView: View {
-    @ObservedObject var homeVM: HybinHomeViewModel
+    @ObservedObject var homeVM: HomeViewModel
     
     // 피그마에 정의된 신고 카테고리 목록
     private let categories = [

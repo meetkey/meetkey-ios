@@ -9,7 +9,7 @@ import SwiftUI
 import PhotosUI // 사진 첨부를 위해 필요
 
 struct ReportReasonView: View {
-    @ObservedObject var homeVM: HybinHomeViewModel
+    @ObservedObject var homeVM: HomeViewModel
     
     @State private var reportText: String = ""
     @State private var selectedItems: [PhotosPickerItem] = []

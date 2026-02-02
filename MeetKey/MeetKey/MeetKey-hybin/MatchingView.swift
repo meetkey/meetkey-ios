@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct HybinMatchingView: View {
+struct MatchingView: View {
 
-    @ObservedObject var homeVM: HybinHomeViewModel
+    @ObservedObject var homeVM: HomeViewModel
 
     @State private var messageText: String = ""
 
@@ -66,7 +66,7 @@ struct HybinMatchingView: View {
     }
 }
 
-extension HybinMatchingView {
+extension MatchingView {
     private var chatInputSection: some View {
         VStack(alignment: .leading, spacing: 16) {
 

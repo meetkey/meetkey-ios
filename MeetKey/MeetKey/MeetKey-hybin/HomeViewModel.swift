@@ -1,5 +1,5 @@
 //
-//  HybinHomeViewModel.swift
+//  HomeViewModel.swift
 //  MeetKey
 //
 //  Created by 전효빈 on 1/22/26.
@@ -20,7 +20,7 @@ enum ReportStep {
     case reportComplete
 }
 
-class HybinHomeViewModel: ObservableObject {
+class HomeViewModel: ObservableObject {
     @Published private(set) var currentIndex: Int = 0
     @Published var showMatchView: Bool = false
     @Published var showFilterView: Bool = false

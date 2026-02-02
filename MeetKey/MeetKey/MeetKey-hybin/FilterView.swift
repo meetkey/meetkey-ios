@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct HybinFilterView: View {
-    @ObservedObject var homeVM: HybinHomeViewModel
+struct FilterView: View {
+    @ObservedObject var homeVM: HomeViewModel
     var onDismiss : () -> Void
     
     var body: some View {

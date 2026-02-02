@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ReportSelectionView: View {
-    @ObservedObject var homeVM: HybinHomeViewModel
+    @ObservedObject var homeVM: HomeViewModel
     
     var body: some View {
         VStack {

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct HybinFinishedMatchView: View {
+struct FinishedMatchView: View {
     let size: CGSize
     let safeArea: EdgeInsets
     let action: () -> Void

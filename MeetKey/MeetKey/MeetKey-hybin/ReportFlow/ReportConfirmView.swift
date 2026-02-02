@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ReportConfirmView: View {
-    @ObservedObject var homeVM: HybinHomeViewModel
+    @ObservedObject var homeVM: HomeViewModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

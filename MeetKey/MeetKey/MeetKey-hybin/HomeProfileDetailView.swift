@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct HybinProfileDetailView: View {
-    @ObservedObject var homeVM: HybinHomeViewModel
+struct HomeProfileDetailView: View {
+    @ObservedObject var homeVM: HomeViewModel
     let size: CGSize
     let safeArea: EdgeInsets
     
@@ -47,7 +47,7 @@ struct HybinProfileDetailView: View {
 }
 
 // MARK: - 하드코딩된 목데이터 및 서브뷰
-extension HybinProfileDetailView {
+extension HomeProfileDetailView {
     
     // 1. 세이프 배지
     private var safeBadge: some View {
@@ -163,7 +163,7 @@ extension HybinProfileDetailView {
     }
 }
 
-extension HybinProfileDetailView {
+extension HomeProfileDetailView {
     
     private var languageSection: some View {
         HStack(spacing: 12) {
