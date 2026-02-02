@@ -19,7 +19,7 @@ struct ScoreHistory: View {
                     scoreImage
                     Text(scoreTitle)
                         .font(.meetKey(.body4))
-                        .foregroundStyle(.black06)
+                        .foregroundStyle(.text2)
                 }
                 Text("내 위치 기반으로 등록됩니다.")
                     .font(.meetKey(.caption3))

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct User {
+struct MyPageUser {
     var name: String
     var birthDate: Date
     var location: String

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ProfileSetting: View {
     
-    private var user = User(
+    private var user = MyPageUser(
         name: "김밋키",
         birthDate: Date(),
         location: "서울시 마포구, 20Km 근처",
@@ -23,12 +23,12 @@ struct ProfileSetting: View {
             HStack {
                 Text("취소")
                     .font(.meetKey(.body2))
-                    .foregroundStyle(.black06)
+                    .foregroundStyle(.text2)
                     .frame(height: 22)
                 Spacer()
                 Text("프로필 변경")
                     .font(.meetKey(.title5))
-                    .foregroundStyle(.black01)
+                    .foregroundStyle(.text1)
                     .frame(height: 24)
                 Spacer()
                 Text("저장")
@@ -45,7 +45,7 @@ struct ProfileSetting: View {
                         HStack {
                             Text("위치")
                                 .font(.meetKey(.body1))
-                                .foregroundStyle(.black01)
+                                .foregroundStyle(.text1)
                                 .frame(height: 19)
                             Spacer()
                         }
@@ -53,7 +53,7 @@ struct ProfileSetting: View {
                         HStack(spacing: 0) {
                             Text(user.location)
                                 .font(.meetKey(.body3))
-                                .foregroundStyle(.black06)
+                                .foregroundStyle(.text2)
                                 .frame(height: 22)
                             Spacer()
                             Image(.location1)
@@ -79,7 +79,7 @@ struct ProfileSetting: View {
                         HStack {
                             Text("언어 변경")
                                 .font(.meetKey(.body1))
-                                .foregroundStyle(.black01)
+                                .foregroundStyle(.text1)
                                 .frame(height: 19)
                             Spacer()
                         }
@@ -95,7 +95,7 @@ struct ProfileSetting: View {
                         HStack {
                             Text("한 줄 소개")
                                 .font(.meetKey(.body1))
-                                .foregroundStyle(.black01)
+                                .foregroundStyle(.text1)
                                 .frame(height: 19)
                             Spacer()
                         }

@@ -18,7 +18,7 @@ struct ProfileInfo: View {
             HStack {
                 Text(title)
                     .font(.meetKey(.body1))
-                    .foregroundStyle(.black01)
+                    .foregroundStyle(.text1)
                     .frame(height: 19)
                 Spacer()
             }
@@ -45,7 +45,7 @@ struct ProfileInfo: View {
 }
 
 #Preview {
-    var user = User(
+    var user = MyPageUser(
         name: "김밋키",
         birthDate: Date(),
         location: "서울",

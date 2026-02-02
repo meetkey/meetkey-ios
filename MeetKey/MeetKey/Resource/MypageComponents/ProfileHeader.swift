@@ -41,20 +41,20 @@ struct ProfileHeader: View {
                     HStack(spacing: 3.5) {
                         Text(name)
                             .font(.meetKey(.title4))
-                            .foregroundStyle(.black01)
+                            .foregroundStyle(.text1)
                             .padding(.bottom, 3.5)
                         Image(.bronze)
                     }
                     HStack(spacing: 0) {
                         Text("사용 언어")
                             .font(.meetKey(.body3))
-                            .foregroundStyle(.black06)
+                            .foregroundStyle(.text2)
                             .padding(.trailing, 2)
                         usingLanguage
                             .padding(.trailing, 6)
                         Text("관심 언어")
                             .font(.meetKey(.body3))
-                            .foregroundStyle(.black06)
+                            .foregroundStyle(.text2)
                             .padding(.trailing, 2)
                         interestingLanguages
                     }
@@ -63,7 +63,7 @@ struct ProfileHeader: View {
                         ForEach(tags, id: \.self) { tag in
                             Text("#\(tag)")
                                 .font(.meetKey(.caption2))
-                                .foregroundStyle(.black03)
+                                .foregroundStyle(.text3)
                         }
                     }
                     .padding(.top, 4)

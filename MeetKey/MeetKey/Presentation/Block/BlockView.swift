@@ -15,7 +15,7 @@ struct BlockView: View {
             HStack {
                 Text("차단하기")
                     .font(.meetKey(.title4))
-                    .foregroundStyle(.black01)
+                    .foregroundStyle(.text1)
                     .frame(height: 31)
                 Spacer()
             }
@@ -26,7 +26,7 @@ struct BlockView: View {
                     .frame(width: 24, height: 24)
                 Text("이 설정을 적용하면 서로의 프로필을 확인할 수  없습니다.")
                     .font(.meetKey(.body3))
-                    .foregroundStyle(.black03)
+                    .foregroundStyle(.text3)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -41,7 +41,7 @@ struct BlockView: View {
                     .frame(width: 24, height: 24)
                 Text("상대방은 회원님에게 메시지를 보낼 수 없게 됩니다.")
                     .font(.meetKey(.body3))
-                    .foregroundStyle(.black03)
+                    .foregroundStyle(.text3)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -56,7 +56,7 @@ struct BlockView: View {
                         .frame(width: 20, height: 20)
                     Text("상대방이 커뮤니티 가이드라인을 위반했나요?")
                         .font(.meetKey(.body3))
-                        .foregroundStyle(.black06)
+                        .foregroundStyle(.text2)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -65,7 +65,7 @@ struct BlockView: View {
                 HStack(spacing: 4) {
                     Text("신고하러 바로가기")
                         .font(.meetKey(.caption3))
-                        .foregroundStyle(.black03)
+                        .foregroundStyle(.text3)
                         .frame(height: 17)
                     Image(.arrowRight)
                         .frame(height: 16)

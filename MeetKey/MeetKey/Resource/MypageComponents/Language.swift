@@ -18,7 +18,7 @@ struct Language: View {
                 HStack(alignment: .firstTextBaseline, spacing: 0){
                     Text("사용 언어")
                         .font(.meetKey(.body5))
-                        .foregroundStyle(.black03)
+                        .foregroundStyle(.text3)
                         .padding(.top, 14)
                     Spacer()
 //                    if isSetting {
@@ -29,7 +29,7 @@ struct Language: View {
                 HStack {
                     Text(usingLanguage)
                         .font(.meetKey(.title5))
-                        .foregroundStyle(.black01)
+                        .foregroundStyle(.text1)
                         .padding(.trailing, 4)
                     Image(.usUnitedStates)
                         .padding(.top, 8)
@@ -50,7 +50,7 @@ struct Language: View {
                 HStack(alignment: .firstTextBaseline, spacing: 0){
                     Text("관심 언어")
                         .font(.meetKey(.body5))
-                        .foregroundStyle(.black03)
+                        .foregroundStyle(.text3)
                         .padding(.top, 14)
                     Spacer()
                     if isSetting {
@@ -61,7 +61,7 @@ struct Language: View {
                 HStack {
                     Text(interestingLanguage)
                         .font(.meetKey(.title5))
-                        .foregroundStyle(.black01)
+                        .foregroundStyle(.text1)
                         .padding(.trailing, 4)
                     Image(.krKoreaSouth)
                         .padding(.top, 8)
