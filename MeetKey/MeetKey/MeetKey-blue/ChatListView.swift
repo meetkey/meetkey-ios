@@ -1,15 +1,10 @@
 import SwiftUI
 
-// MARK: - Tab
-enum Tab: String {
-    case chat, people, home, folder, profile
-}
-
-// MARK: - Main View
+// Main View
 struct ChatListView: View {
 
     private let pageBg = Color(.white)
-    private let orange = Color("Orange")
+    private let orange = Color("Orange01")
 
     @State private var selectedTab: Tab = .chat
     @State private var chats: [ChatItem] = sampleChats
@@ -63,7 +58,7 @@ struct ChatListView: View {
     }
 }
 
-// MARK: - Header
+// Header
 struct ChatListHeader: View {
 
     var body: some View {
@@ -102,16 +97,14 @@ struct ChatListHeader: View {
     }
 }
 
-// MARK: - Chat Row
+// Chat Row
 struct ChatRow: View {
 
     @Binding var chat: ChatItem
     let orange: Color
 
     var body: some View {
-
         NavigationLink {
-          
             if chat.name == "Jane Smith" {
                 ChatRoomScreen(chat: $chat)
             } else {
@@ -198,61 +191,6 @@ struct ChatDetailView: View {
     }
 }
 
-// Bottom Navigation
-struct BottomNavigationBar: View {
-
-    @Binding var selectedTab: Tab
-
-    var body: some View {
-        HStack(spacing: 22) {
-
-            Button { selectedTab = .chat } label: {
-                NavIcon(assetName: "Chat", selected: selectedTab == .chat)
-            }
-            Button { selectedTab = .people } label: {
-                NavIcon(assetName: "2 User", selected: selectedTab == .people)
-            }
-            Button { selectedTab = .home } label: {
-                NavIcon(assetName: "Home", selected: selectedTab == .home)
-            }
-            Button { selectedTab = .folder } label: {
-                NavIcon(assetName: "Folder", selected: selectedTab == .folder)
-            }
-            Button { selectedTab = .profile } label: {
-                NavIcon(assetName: "Profile", selected: selectedTab == .profile)
-            }
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(Color(red: 0.76, green: 0.76, blue: 0.76).opacity(0.2))
-                .shadow(color: .black.opacity(0.08), radius: 16, x: 0, y: 8)
-        )
-        .padding(.horizontal, 24)
-        .padding(.top, 8)
-        .padding(.bottom, 10)
-        .buttonStyle(.plain)
-    }
-}
-
-struct NavIcon: View {
-
-    let assetName: String
-    var selected: Bool = false
-
-    var body: some View {
-        Image(assetName)
-            .resizable()
-            .renderingMode(.template)
-            .scaledToFit()
-            .frame(width: 22, height: 22)
-            .foregroundColor(selected ? .white : .gray)
-            .frame(width: 44, height: 44)
-            .background(Circle().fill(selected ? Color.black : Color.clear))
-    }
-}
-
 struct PlaceholderView: View {
     let title: String
     var body: some View {
@@ -321,5 +259,4 @@ struct BottomRoundedShape0: Shape {
 }
 
 #Preview { ChatListView() }
-
 
