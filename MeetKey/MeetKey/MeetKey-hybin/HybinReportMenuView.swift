@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HybinReportMenuView: View {
+struct HybinReportView: View {
     @ObservedObject var homeVM: HybinHomeViewModel
     let user: User
     

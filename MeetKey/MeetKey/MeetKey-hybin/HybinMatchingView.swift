@@ -10,7 +10,6 @@ import SwiftUI
 struct HybinMatchingView: View {
 
     @ObservedObject var homeVM: HybinHomeViewModel
-    var onDismiss: () -> Void
 
     @State private var messageText: String = ""
 
@@ -42,19 +41,10 @@ struct HybinMatchingView: View {
                 HeaderOverlay(
                     state: .chat,
                     safeArea: safeArea,
-                    user: homeVM.currentUser ?? homeVM.me,
+                    user: homeVM.currentUser ?? homeVM.me, homeVM: homeVM,
                     onBackAction: homeVM.didFinishMatch,
                     onFilterAction: homeVM.didTapReport
                 ).zIndex(1)
-
-                if homeVM.showReportMenu {
-                    HybinReportMenuView(
-                        homeVM: homeVM,
-                        user: homeVM.currentUser!
-                    )
-                    .transition(.move(edge: .bottom))
-                    .zIndex(10)  // 헤더보다 위에 뜨게
-                } // 헤더 오버레이가 확장되게끔해야할듯??
 
             }
             .ignoresSafeArea(.all, edges: .bottom)

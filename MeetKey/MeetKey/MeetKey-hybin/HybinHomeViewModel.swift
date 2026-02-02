@@ -9,6 +9,17 @@ import Combine
 import Foundation
 import SwiftUI
 
+enum ReportStep{
+    case none
+    case main
+    case block
+    case blockComplete
+    case report
+    case reportCase
+    case reportReason
+    case reportComplete
+}
+
 class HybinHomeViewModel: ObservableObject {
     @Published private(set) var currentIndex: Int = 0
     @Published var showMatchView: Bool = false
@@ -18,16 +29,13 @@ class HybinHomeViewModel: ObservableObject {
     @Published var hasReachedLimit: Bool = false
     @Published var showReportMenu: Bool = false  // 채팅(매칭)에서 신고하기
     @Published var me = User.me  // 로그인한 유저
+    @Published var currentReportStep: ReportStep = .none
 
     let users: [User] = User.mockData  //확인용 더미데이터
 
     var currentUser: User? {
         guard users.indices.contains(currentIndex) else { return nil }
         return users[currentIndex]
-    }
-
-    func didTapReport() {
-        showReportMenu = true
     }
 
     func didSelectLike() {  //스와이프 or 관심있음 버튼 -> 매칭화면
@@ -48,6 +56,7 @@ class HybinHomeViewModel: ObservableObject {
 
     func didFinishMatch() {  // dismiss 대신
         showMatchView = false
+        showReportMenu = false
     }
 
     func didTapDetail() {
@@ -62,6 +71,41 @@ class HybinHomeViewModel: ObservableObject {
         currentIndex = 0
         hasReachedLimit = false
     }
+    
+    //2. didTapReport 수정 (토글 방식으로)
+        func didTapReport() {
+            withAnimation(.spring()) {
+                if showReportMenu {
+                    closeReportMenu()
+                } else {
+                    showReportMenu = true
+                    currentReportStep = .main // 열 때 기본 메뉴부터
+                }
+            }
+        }
+
+        //  3. 메뉴 단계 전환 함수 추가
+        func changeReportStep(to step: ReportStep) {
+            withAnimation(.easeInOut) {
+                currentReportStep = step
+            }
+        }
+
+        //  4. 메뉴 닫기 함수 추가
+        func closeReportMenu() {
+            withAnimation {
+                showReportMenu = false
+                currentReportStep = .none
+            }
+        }
+
+        //  5. 실제 처리 함수 (틀만 잡아두기)
+        func confirmBlock() {
+            guard let user = currentUser else { return }
+            print("\(user.name) 차단 완료")
+            closeReportMenu()
+            moveToNextUser() // 차단했으니 다음 사람으로 넘기기
+        }
 
     private func showMatch() {
         showMatchView = true

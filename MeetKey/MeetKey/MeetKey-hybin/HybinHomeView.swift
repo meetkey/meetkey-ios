@@ -75,7 +75,7 @@ struct HybinHomeView: View {
                     HeaderOverlay(
                         state: .home,
                         safeArea: safeArea,
-                        user: homeVM.me,
+                        user: homeVM.me, homeVM: homeVM,
                         onBackAction: { homeVM.didTapBackFromDetail() },
                         onFilterAction: { homeVM.didSelectFilter() }
                     ).zIndex(1)
@@ -83,7 +83,7 @@ struct HybinHomeView: View {
                     HeaderOverlay(
                         state: .detail,
                         safeArea: safeArea,
-                        user: homeVM.me,
+                        user: homeVM.me,homeVM: homeVM,
                         onBackAction: {
                             homeVM.didTapBackFromDetail()
                         },
@@ -99,9 +99,7 @@ struct HybinHomeView: View {
         
         //매칭뷰 호출
         .fullScreenCover(isPresented: $homeVM.showMatchView) {
-            HybinMatchingView(homeVM: homeVM) {
-                withAnimation(.spring()) { offset = .zero }
-            }
+            HybinMatchingView(homeVM: homeVM)
         }
         // 필터뷰 호출
         .fullScreenCover(isPresented: $homeVM.showFilterView) {
