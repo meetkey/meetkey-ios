@@ -1,61 +1,18 @@
 //
-//  HybinMatchingView.swift
+//  chatInputSection.swift
 //  MeetKey
 //
-//  Created by 전효빈 on 1/23/26.
+//  Created by 전효빈 on 2/2/26.
 //
 
 import SwiftUI
 
-struct HybinMatchingView: View {
+struct ChatInputSection: View {
+    @Binding var messageText: String
 
-    @ObservedObject var homeVM: HybinHomeViewModel
-    var onDismiss: () -> Void
-
-    @State private var messageText: String = ""
+//    var onSend: () -> Void //전송 액션
 
     var body: some View {
-        GeometryReader { geometry in
-            let screenSize = geometry.size
-            let safeArea = geometry.safeAreaInsets
-
-            ZStack(alignment: .top) {
-
-                VStack {
-                    Spacer()
-
-                    VStack {
-                        Image("profileSampleImage1")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 140, height: 140)
-                        VStack {
-                            Text("soulMate")
-                            Text("yourFriends")
-                        }
-                    }
-                    Spacer()
-                    chatInputSection
-                }
-                .frame(width: screenSize.width, height: screenSize.height)
-
-                HeaderOverlay(
-                    state: .chat,
-                    safeArea: safeArea,
-                    user: homeVM.currentUser ?? homeVM.me,
-                    onBackAction: homeVM.didFinishMatch,
-                    onFilterAction: {}
-                ).zIndex(1)
-
-            }
-            .ignoresSafeArea(.all, edges: .bottom)
-
-        }
-    }
-}
-
-extension HybinMatchingView {
-    private var chatInputSection: some View {
         VStack(alignment: .leading, spacing: 16) {
 
             // 대화 주제 추천 버튼
@@ -99,8 +56,8 @@ extension HybinMatchingView {
                 }
             }
             .padding(.horizontal, 20)
-//            .padding(.bottom, 20)  // 하단 여백
         }
         .background(Color.white)
     }
+
 }

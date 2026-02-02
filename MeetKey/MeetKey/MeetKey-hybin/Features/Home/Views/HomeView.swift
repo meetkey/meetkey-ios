@@ -8,9 +8,9 @@
 //피그마 홈 뷰 제작
 import SwiftUI
 
-struct HybinHomeView: View {
+struct HomeView: View {
 
-    @ObservedObject var homeVM: HybinHomeViewModel
+    @ObservedObject var homeVM: HomeViewModel
 
     @State private var offset: CGSize = .zero
 
@@ -36,22 +36,18 @@ struct HybinHomeView: View {
                 }
                 //MARK: - 마지막 인덱스 처리
                 if homeVM.hasReachedLimit {
-                    //HybinFinishedMatchView로 처리할거임
-                    VStack {
-                        Button {
-                            homeVM.resetDiscovery()
-                        } label: {
-                            Text("처음으로")
-                        }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    FinishedMatchView(
+                        size: screenSize,
+                        safeArea: safeArea,
+                        action: homeVM.resetDiscovery,
+                    )
                 } else {
                     // MARK: - 콘텐츠
                     Group {
-                        if !homeVM.showDetailExpander {
+                        if !homeVM.isDetailViewPresented {
                             ZStack {
                                 if let user = homeVM.currentUser {
-                                    HybinProfileSectionView(
+                                    ProfileSectionView(
                                         size: screenSize,
                                         user: user
                                     )
@@ -60,13 +56,13 @@ struct HybinHomeView: View {
                                         y: offset.height * 0.1
                                     )
                                     .gesture(profileDragGesture)
-                                    .onTapGesture { homeVM.didTapDetail() }
+                                    .onTapGesture { homeVM.presentDetailView() }
                                 }
                                 likeButton
                                     .padding(.horizontal, 20)
                             }
                         } else {
-                            HybinProfileDetailView(
+                            HomeProfileDetailView(
                                 homeVM: homeVM,
                                 size: screenSize,
                                 safeArea: safeArea
@@ -75,38 +71,42 @@ struct HybinHomeView: View {
                     }
                 }
                 // MARK: - 헤더
-                if !homeVM.showDetailExpander {
+                if !homeVM.isDetailViewPresented {
                     HeaderOverlay(
                         state: .home,
                         safeArea: safeArea,
                         user: homeVM.me,
-                        onBackAction: { homeVM.didTapBackFromDetail() },
-                        onFilterAction: { homeVM.didSelectFilter() }
+                        homeVM: homeVM,
+                        onBackAction: { homeVM.dismissDetailView() },
+                        onFilterAction: { homeVM.handleFilterAction() }
                     ).zIndex(1)
                 } else {
                     HeaderOverlay(
                         state: .detail,
                         safeArea: safeArea,
                         user: homeVM.me,
+                        homeVM: homeVM,
                         onBackAction: {
-                            homeVM.didTapBackFromDetail()
+                            homeVM.dismissDetailView()
                         },
                         onFilterAction: {
-                            homeVM.didSelectFilter()
+                            homeVM.handleFilterAction()
                         }
                     )
                     .zIndex(1)  //항상 최상단
                 }
             }
-            // 공통 모달 처리
-            .fullScreenCover(isPresented: $homeVM.showMatchView) {
-                HybinMatchingView(homeVM: homeVM) { offset = .zero }
-            }
-            .fullScreenCover(isPresented: $homeVM.showFilterView) {
-                HybinFilterView(homeVM: homeVM) { offset = .zero }
-            }
         }
         .ignoresSafeArea(.all, edges: .bottom)
+
+        //매칭뷰 호출
+        .fullScreenCover(isPresented: $homeVM.isMatchViewPresented) {
+            MatchingView(homeVM: homeVM)
+        }
+        // 필터뷰 호출
+        .fullScreenCover(isPresented: $homeVM.isFilterViewPresented) {
+            FilterView(homeVM: homeVM) { offset = .zero }
+        }
     }
 
     //MARK: - 제스처 메서드
@@ -133,7 +133,7 @@ struct HybinHomeView: View {
                 offset.width = 1000
             }
             offset = .zero
-            homeVM.didSelectLike()
+            homeVM.handleLikeAction()
 
         } else if translation < -150 {
             // 다음 유저로 전환
@@ -141,7 +141,7 @@ struct HybinHomeView: View {
                 offset.width = -1000
             }
             offset = .zero
-            homeVM.didSelectUnlike()
+            homeVM.handleSkipAction()
         } else {
             withAnimation(.spring()) {
                 offset = .zero
@@ -157,7 +157,7 @@ struct HybinHomeView: View {
                     offset.width = -500
                 }
                 offset = .zero
-                homeVM.didSelectUnlike()
+                homeVM.handleSkipAction()
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 24, weight: .bold))
@@ -173,7 +173,7 @@ struct HybinHomeView: View {
                     offset.width = 500
                 }
                 offset = .zero
-                homeVM.didSelectLike()
+                homeVM.handleLikeAction()
 
             } label: {
                 Image(systemName: "heart.fill")

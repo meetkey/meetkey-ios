@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-struct HybinFilterView: View {
-    @ObservedObject var homeVM: HybinHomeViewModel
+struct FilterView: View {
+    @ObservedObject var homeVM: HomeViewModel
     var onDismiss : () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 25) {
             Button {
-                homeVM.didSelectHome()
+                homeVM.handleFilterDismissAction()
             } label:{
                 Text("go Home")
             }
