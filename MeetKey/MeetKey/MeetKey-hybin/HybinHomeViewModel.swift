@@ -9,7 +9,7 @@ import Combine
 import Foundation
 import SwiftUI
 
-enum ReportStep{
+enum ReportStep {
     case none
     case main
     case block
@@ -71,43 +71,65 @@ class HybinHomeViewModel: ObservableObject {
         currentIndex = 0
         hasReachedLimit = false
     }
-    
+
+    //MARK: -- Report & Block 처리 로직
     //2. didTapReport 수정 (토글 방식으로)
-        func didTapReport() {
-            withAnimation(.spring()) {
-                if showReportMenu {
-                    closeReportMenu()
-                } else {
-                    showReportMenu = true
-                    currentReportStep = .main // 열 때 기본 메뉴부터
-                }
+    func didTapReport() {
+        withAnimation(.spring()) {
+            if showReportMenu {
+                closeReportMenu()
+            } else {
+                showReportMenu = true
+                currentReportStep = .main  // 열 때 기본 메뉴부터
             }
         }
+    }
 
-        //  3. 메뉴 단계 전환 함수 추가
-        func changeReportStep(to step: ReportStep) {
-            withAnimation(.easeInOut) {
-                showReportMenu = false
-                currentReportStep = step
-            }
+    //  3. 메뉴 단계 전환 함수 추가
+    func changeReportStep(to step: ReportStep) {
+        withAnimation(.easeInOut) {
+            showReportMenu = false
+            currentReportStep = step
         }
+    }
 
-        //  4. 메뉴 닫기 함수 추가
-        func closeReportMenu() {
-            withAnimation {
-                showReportMenu = false
-                currentReportStep = .none
-                showMatchView = false
-            }
+    //  4. 메뉴 닫기 함수 추가
+    func closeReportMenu() {
+        withAnimation {
+            showReportMenu = false
+            currentReportStep = .none
         }
+    }
+    
+    //  5. 프로세스 종료 함수
+    func finalizeReportProcess() {
+        withAnimation(.easeInOut) {
+            self.showReportMenu = false
+            self.currentReportStep = .none
+            self.didSelectUnlike()
+            self.didFinishMatch()
+        }
+    }
 
-        //  5. 실제 처리 함수 (틀만 잡아두기)
-        func confirmBlock() {
-            guard let user = currentUser else { return }
-            print("\(user.name) 차단 완료")
-            changeReportStep(to: .blockComplete)
-            moveToNextUser() // 차단했으니 다음 사람으로 넘기기
+    //  6. 실제 비즈니스 로직 처리 함수 (틀만 잡아두기) TODO: API 연결
+    func confirmBlock() {
+        guard let user = currentUser else { return }
+        print("\(user.name) 차단 완료")
+        
+        withAnimation {
+            self.currentReportStep = .blockComplete
         }
+    }
+    
+    func confirmReport() {
+        guard let user = currentUser else { return}
+        print("\(user.name) 신고 완료")
+        
+        withAnimation {
+            self.currentReportStep = .reportComplete
+        }
+    }
+    
 
     private func showMatch() {
         showMatchView = true

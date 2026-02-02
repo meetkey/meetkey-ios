@@ -65,8 +65,7 @@ struct BlockCompleteView: View {
                 // 4. 하단 확인 버튼
                 Button(action: {
                     // 확인 클릭 시 시트 닫고 다음 유저로 넘기기
-                    homeVM.closeReportMenu()
-                    homeVM.didSelectUnlike() // 차단했으니 다음 친구 보여주기
+                    homeVM.finalizeReportProcess()
                 }) {
                     Text("확인")
                         .font(.system(size: 18, weight: .bold))

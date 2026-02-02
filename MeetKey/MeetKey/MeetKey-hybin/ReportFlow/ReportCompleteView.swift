@@ -61,7 +61,7 @@ struct ReportCompleteView: View {
                 // 4. 하단 확인 버튼
                 Button(action: {
                     // 확인 클릭 시 모든 신고/차단 프로세스 종료 및 시트 닫기
-                    homeVM.closeReportMenu()
+                    homeVM.finalizeReportProcess()
                 }) {
                     Text("확인")
                         .font(.system(size: 18, weight: .bold))
