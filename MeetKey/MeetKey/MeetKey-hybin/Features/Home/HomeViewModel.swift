@@ -34,12 +34,12 @@ class HomeViewModel: ObservableObject {
     init() {
         reportVM.objectWillChange
                     .sink { [weak self] _ in
-                        // 📢 자식이 바뀌면 부모(나)도 "나 바뀌었어!"라고 외칩니다.
+                        // 자식이 바뀌면 부모(나)도 "나 바뀌었어!"라고 외칩니다.
                         self?.objectWillChange.send()
                     }
                     .store(in: &cancellables) // 주머니에 안테나 선 저장
                     
-                // ✅ 비서가 일이 다 끝났다고(onFinalize) 보고할 때의 로직도 여기서 관리!
+                // 비서가 일이 다 끝났다고(onFinalize) 보고할 때의 로직도 여기서 관리!
                 reportVM.onFinalize = { [weak self] in
                     self?.finalizeReportProcess()
                 }
