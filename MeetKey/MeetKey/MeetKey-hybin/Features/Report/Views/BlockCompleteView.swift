@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct BlockCompleteView: View {
-    @ObservedObject var homeVM: HomeViewModel
+    @ObservedObject var reportVM: ReportViewModel
+    let targetUser: User
     
     var body: some View {
         ZStack {
@@ -65,7 +66,7 @@ struct BlockCompleteView: View {
                 // 4. 하단 확인 버튼
                 Button(action: {
                     // 확인 클릭 시 시트 닫고 다음 유저로 넘기기
-                    homeVM.finalizeReportProcess()
+                    reportVM.finalizeReportProcess()
                 }) {
                     Text("확인")
                         .font(.system(size: 18, weight: .bold))

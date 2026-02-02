@@ -12,7 +12,8 @@ enum HeaderType {
     case chat
     case detail
 }
-
+//MARK: -- ## HeaderOverlay는 공용으로 써야할거같으니 분리 해야함!!!!!!
+//TODO: ##### 꼭 의존성 분리하자!!!!!!!!!!!!!
 struct HeaderOverlay: View {
     let state: HeaderType
     let safeArea: EdgeInsets
@@ -20,6 +21,7 @@ struct HeaderOverlay: View {
 
     @ObservedObject var homeVM: HomeViewModel
 
+    
     var onBackAction: () -> Void
     var onFilterAction: () -> Void
 
@@ -65,7 +67,7 @@ struct HeaderOverlay: View {
                 .padding(.bottom, 12)
                 .padding(.top, 16)
 
-                if homeVM.isReportMenuPresented {
+                if homeVM.reportVM.isReportMenuPresented {
                     reportMenuList
                 }
             }
@@ -150,7 +152,7 @@ extension HeaderOverlay {
 
             // 2. 상태값 변경 액션
             menuItem(title: "차단하기", icon: "nosign") {
-                homeVM.currentReportStep = ReportStep.block  // 차단 확인 단계로 변경
+                homeVM.reportVM.currentReportStep = ReportStep.block  // 차단 확인 단계로 변경
             }
 
             Divider().padding(.horizontal, 10)
@@ -162,7 +164,7 @@ extension HeaderOverlay {
                 isDestructive: true
             ) {
                 print("신고 프로세스 시작: \(homeVM.currentUser?.name ?? "알 수 없음")")
-                homeVM.currentReportStep = ReportStep.report  // 신고 사유 선택 단계로 변경
+                homeVM.reportVM.currentReportStep = ReportStep.report  // 신고 사유 선택 단계로 변경
             }
             
             Divider().padding(.horizontal, 10)
@@ -176,7 +178,7 @@ extension HeaderOverlay {
         action: @escaping () -> Void
     ) -> some View {
         Button(action: {
-            withAnimation { homeVM.isReportMenuPresented = false }
+            withAnimation { homeVM.reportVM.isReportMenuPresented = false }
             action()
         }) {
             HStack(spacing: 15) {

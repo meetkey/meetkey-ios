@@ -8,24 +8,25 @@
 import SwiftUI
 
 struct ReportSelectionView: View {
-    @ObservedObject var homeVM: HomeViewModel
+    @ObservedObject var reportVM: ReportViewModel
     
+    let targetUser: User
     var body: some View {
         VStack {
-            switch homeVM.currentReportStep {
+            switch reportVM.currentReportStep {
 
             case .block:
-                BlockConfirmView(homeVM: homeVM)   // 아까 만든 차단 확인 뷰
+                BlockConfirmView(reportVM: reportVM, targetUser: targetUser)   // 아까 만든 차단 확인 뷰
             case .blockComplete:
-                BlockCompleteView(homeVM: homeVM)
+                BlockCompleteView(reportVM: reportVM, targetUser: targetUser)
             case .report:
-                ReportConfirmView(homeVM: homeVM)  // 신고 사유 선택 뷰
+                ReportConfirmView(reportVM: reportVM, targetUser: targetUser)   // 신고 사유 선택 뷰
             case .reportCase:
-                ReportCaseView(homeVM: homeVM)
+                ReportCaseView(reportVM: reportVM, targetUser: targetUser)
             case .reportReason:
-                ReportReasonView(homeVM: homeVM)
+                ReportReasonView(reportVM: reportVM, targetUser: targetUser)
             case .reportComplete:
-                ReportCompleteView(homeVM: homeVM) // 완료 화면
+                ReportCompleteView(reportVM: reportVM, targetUser: targetUser) // 완료 화면
             default:
                 EmptyView()
             }
@@ -33,6 +34,6 @@ struct ReportSelectionView: View {
         .padding()
         // 단계가 바뀔 때 옆으로 슥 밀리는 애니메이션 추가
         .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-        .animation(.easeInOut, value: homeVM.currentReportStep)
+        .animation(.easeInOut, value: reportVM.currentReportStep)
     }
 }

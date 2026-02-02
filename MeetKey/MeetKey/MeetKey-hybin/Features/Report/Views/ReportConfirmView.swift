@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ReportConfirmView: View {
-    @ObservedObject var homeVM: HomeViewModel
-    
+    @ObservedObject var reportVM: ReportViewModel
+    let targetUser: User
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // 1. 상단 핸들 (시트 인디케이터)
@@ -73,7 +73,7 @@ struct ReportConfirmView: View {
             // 5. 하단 버튼 영역
             HStack(spacing: 12) {
                 Button(action: {
-                    homeVM.closeReportMenu()
+                    reportVM.closeReportMenu()
                 }) {
                     Text("취소")
                         .font(.system(size: 16, weight: .bold))
@@ -86,7 +86,7 @@ struct ReportConfirmView: View {
                 
                 Button(action: {
                     // 다음 단계인 신고 사유 선택으로 이동
-                    homeVM.changeReportStep(to: .reportCase)
+                    reportVM.changeReportStep(to: .reportCase)
                 }) {
                     Text("신고하기")
                         .font(.system(size: 16, weight: .bold))

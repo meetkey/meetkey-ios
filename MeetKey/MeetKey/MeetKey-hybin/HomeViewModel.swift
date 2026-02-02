@@ -26,9 +26,41 @@ class HomeViewModel: ObservableObject {
     @Published var hasReachedLimit: Bool = false
     let users: [User] = User.mockData  //확인용 더미데이터
     
-    //MARK: - 3. Report & Block State -> 이동 예정
-    @Published var isReportMenuPresented: Bool = false  // 채팅(매칭)에서 신고
-    @Published var currentReportStep: ReportStep = .none
+    //MARK: -3 Report & Block
+    @Published var reportVM = ReportViewModel()
+    
+    private var cancellables = Set<AnyCancellable>()
+    
+    init() {
+        reportVM.objectWillChange
+                    .sink { [weak self] _ in
+                        // 📢 자식이 바뀌면 부모(나)도 "나 바뀌었어!"라고 외칩니다.
+                        self?.objectWillChange.send()
+                    }
+                    .store(in: &cancellables) // 주머니에 안테나 선 저장
+                    
+                // ✅ 비서가 일이 다 끝났다고(onFinalize) 보고할 때의 로직도 여기서 관리!
+                reportVM.onFinalize = { [weak self] in
+                    self?.finalizeReportProcess()
+                }
+    }
+    
+    //MARK: -3
+    func finalizeReportProcess() {
+            withAnimation(.easeInOut) {
+                // 1. reportVM의 메뉴 닫기, 스텝 초기화
+                reportVM.closeReportMenu()
+                
+                // 2. homeVM의 카드 넘기기, 매칭창 닫기 받기
+                self.handleSkipAction()
+                self.dismissMatchView()
+            }
+        }
+    
+    func dismissMatchView() {  // dismiss 대신
+        isMatchViewPresented = false
+        reportVM.closeReportMenu()
+    }
 
     //MARK: - 2
     var currentUser: User? {
@@ -66,10 +98,7 @@ class HomeViewModel: ObservableObject {
         dismissFilterView()
     }
 
-    func dismissMatchView() {  // dismiss 대신
-        isMatchViewPresented = false
-        isReportMenuPresented = false
-    }
+
 
     func presentDetailView() {
         isDetailViewPresented = true
@@ -89,64 +118,6 @@ class HomeViewModel: ObservableObject {
 
     private func presentFilterView() {
         isFilterViewPresented = true
-    }
-
-    //MARK: -- 3. Report & Block 처리 로직
-    //2. handleReportMenuTap
-    func handleReportMenuTap() {
-        withAnimation(.spring()) {
-            if isReportMenuPresented {
-                closeReportMenu()
-            } else {
-                isReportMenuPresented = true
-                currentReportStep = .main  // 열 때 기본 메뉴부터
-            }
-        }
-    }
-
-    //  3. 메뉴 단계 전환 함수 추가
-    func changeReportStep(to step: ReportStep) {
-        withAnimation(.easeInOut) {
-            isReportMenuPresented = false
-            currentReportStep = step
-        }
-    }
-
-    //  4. 메뉴 닫기 함수 추가
-    func closeReportMenu() {
-        withAnimation {
-            isReportMenuPresented = false
-            currentReportStep = .none
-        }
-    }
-    
-    //  5. 프로세스 종료 함수
-    func finalizeReportProcess() {
-        withAnimation(.easeInOut) {
-            self.isReportMenuPresented = false
-            self.currentReportStep = .none
-            self.handleSkipAction()
-            self.dismissMatchView()
-        }
-    }
-
-    //  6. 실제 비즈니스 로직 처리 함수 (틀만 잡아두기) TODO: API 연결
-    func confirmBlock() {
-        guard let user = currentUser else { return }
-        print("\(user.name) 차단 완료")
-        
-        withAnimation {
-            self.currentReportStep = .blockComplete
-        }
-    }
-    
-    func confirmReport() {
-        guard let user = currentUser else { return}
-        print("\(user.name) 신고 완료")
-        
-        withAnimation {
-            self.currentReportStep = .reportComplete
-        }
     }
 }
 

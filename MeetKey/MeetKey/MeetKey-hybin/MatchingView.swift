@@ -44,7 +44,7 @@ struct MatchingView: View {
                     user: homeVM.currentUser ?? homeVM.me,
                     homeVM: homeVM,
                     onBackAction: homeVM.dismissMatchView,
-                    onFilterAction: homeVM.handleReportMenuTap
+                    onFilterAction: homeVM.reportVM.handleReportMenuTap
                 ).zIndex(1)
 
             }
@@ -52,15 +52,18 @@ struct MatchingView: View {
             .sheet(
                 isPresented: Binding(
                     get: {
-                        homeVM.currentReportStep != .none
-                            && homeVM.currentReportStep != .main
+                        homeVM.reportVM.currentReportStep != .none
+                            && homeVM.reportVM.currentReportStep != .main
                     },
-                    set: { if !$0 { homeVM.closeReportMenu() } }
+                    set: { if !$0 { homeVM.reportVM.closeReportMenu() } }
                 )
             ) {
-                ReportSelectionView(homeVM: homeVM)
-                    .presentationDetents([.medium])  // 피그마처럼 중간 높이 설정
-//                    .presentationDragIndicator(.visible)
+                ReportSelectionView(
+                    reportVM: homeVM.reportVM,
+                    targetUser: homeVM.currentUser ?? User.mockData[0]
+                )
+                .presentationDetents([.medium])  // 피그마처럼 중간 높이 설정
+                //                    .presentationDragIndicator(.visible)
             }
         }
     }

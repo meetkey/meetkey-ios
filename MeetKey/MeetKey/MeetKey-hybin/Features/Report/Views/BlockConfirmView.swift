@@ -7,8 +7,9 @@
 
 import SwiftUI
 
-struct BlockConfirmView: View {
-    @ObservedObject var homeVM: HomeViewModel
+struct BlockConfirmView: View { 
+    @ObservedObject var reportVM: ReportViewModel
+    let targetUser: User
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -42,7 +43,7 @@ struct BlockConfirmView: View {
             
             // 4. 신고 바로가기 배너
             Button(action: {
-                homeVM.changeReportStep(to: .report) // 신고 단계로 이동
+                reportVM.changeReportStep(to: .report) // 신고 단계로 이동
             }) {
                 HStack(spacing: 12) {
                     Image(systemName: "exclamationmark.triangle")
@@ -74,7 +75,7 @@ struct BlockConfirmView: View {
             HStack(spacing: 12) {
                 // 취소 버튼
                 Button(action: {
-                    homeVM.closeReportMenu()
+                    reportVM.closeReportMenu()
                 }) {
                     Text("취소")
                         .font(.system(size: 16, weight: .bold))
@@ -87,7 +88,7 @@ struct BlockConfirmView: View {
                 
                 // 차단하기 버튼
                 Button(action: {
-                    homeVM.confirmBlock() // VM에서 .blockComplete 단계로 넘김
+                    reportVM.confirmBlock(userName: targetUser.name) // VM에서 .blockComplete 단계로 넘김
                 }) {
                     Text("차단하기")
                         .font(.system(size: 16, weight: .bold))

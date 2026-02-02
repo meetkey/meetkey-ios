@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ReportCaseView: View {
-    @ObservedObject var homeVM: HomeViewModel
-    
+    @ObservedObject var reportVM: ReportViewModel
+    let targetUser: User
     // 피그마에 정의된 신고 카테고리 목록
     private let categories = [
         "부적절한 행동 신고",
@@ -45,7 +45,7 @@ struct ReportCaseView: View {
                         Button(action: {
                             // 선택한 카테고리를 저장하고 다음 단계로 이동
                             // homeVM.selectedReportCategory = category (필요 시 추가)
-                            homeVM.changeReportStep(to: .reportReason)
+                            reportVM.changeReportStep(to: .reportReason)
                         }) {
                             HStack {
                                 Text(category)
@@ -72,7 +72,7 @@ struct ReportCaseView: View {
             // 4. 하단 버튼 영역 (디자인상 비활성화 상태인 경우)
             HStack(spacing: 12) {
                 Button(action: {
-                    homeVM.closeReportMenu()
+                    reportVM.closeReportMenu()
                 }) {
                     Text("취소")
                         .font(.system(size: 16, weight: .bold))

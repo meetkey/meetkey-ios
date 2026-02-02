@@ -9,7 +9,8 @@ import SwiftUI
 import PhotosUI // 사진 첨부를 위해 필요
 
 struct ReportReasonView: View {
-    @ObservedObject var homeVM: HomeViewModel
+    @ObservedObject var reportVM: ReportViewModel
+    let targetUser: User
     
     @State private var reportText: String = ""
     @State private var selectedItems: [PhotosPickerItem] = []
@@ -86,13 +87,13 @@ struct ReportReasonView: View {
             
             // 5. 하단 버튼 영역
             HStack(spacing: 12) {
-                Button("취소") { homeVM.closeReportMenu() }
+                Button("취소") { reportVM.closeReportMenu() }
                     .frame(maxWidth: .infinity).frame(height: 56)
                     .background(Color.gray.opacity(0.1)).cornerRadius(16)
                     .foregroundColor(.gray)
                 
                 Button("신고하기") {
-                    homeVM.changeReportStep(to: .reportComplete) // 완료 단계로 이동
+                    reportVM.changeReportStep(to: .reportComplete) // 완료 단계로 이동
                 }
                 .frame(maxWidth: .infinity).frame(height: 56)
                 .background(Color.orange).cornerRadius(16)
