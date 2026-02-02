@@ -1,0 +1,102 @@
+//
+//  BlockView.swift
+//  MeetKey
+//
+//  Created by sumin Kong on 2/2/26.
+//
+
+import SwiftUI
+
+struct BlockView: View {
+    @State private var isBlocked = false
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text("차단하기")
+                    .font(.meetKey(.title4))
+                    .foregroundStyle(.black01)
+                    .frame(height: 31)
+                Spacer()
+            }
+            .padding(.leading, 1)
+            
+            HStack(spacing: 10) {
+                Image(.hide)
+                    .frame(width: 24, height: 24)
+                Text("이 설정을 적용하면 서로의 프로필을 확인할 수  없습니다.")
+                    .font(.meetKey(.body3))
+                    .foregroundStyle(.black03)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.top, 34)
+            
+            Divider()
+                .background(.disabled)
+                .padding(.top, 8)
+            
+            HStack(spacing: 10) {
+                Image(.paperFail)
+                    .frame(width: 24, height: 24)
+                Text("상대방은 회원님에게 메시지를 보낼 수 없게 됩니다.")
+                    .font(.meetKey(.body3))
+                    .foregroundStyle(.black03)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.top, 8)
+            Divider()
+                .background(.disabled)
+                .padding(.top, 8)
+            
+            VStack(spacing: 2) {
+                HStack(spacing: 5) {
+                    Image(.dangerTriangle)
+                        .frame(width: 20, height: 20)
+                    Text("상대방이 커뮤니티 가이드라인을 위반했나요?")
+                        .font(.meetKey(.body3))
+                        .foregroundStyle(.black06)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(.top, 14)
+                .padding(.leading, 12)
+                HStack(spacing: 4) {
+                    Text("신고하러 바로가기")
+                        .font(.meetKey(.caption3))
+                        .foregroundStyle(.black03)
+                        .frame(height: 17)
+                    Image(.arrowRight)
+                        .frame(height: 16)
+                    Spacer()
+                }
+                .padding(.leading, 37)
+                .padding(.bottom, 14)
+            }
+            .frame(height: 67)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.background1)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(.background4, lineWidth: 1)
+            )
+            .padding(.top, 43)
+            HStack(spacing: 6) {
+                BlockBtn(title: "취소") {
+                }
+                .frame(width: 106)
+                BlockApplyBtn(title: "차단하기"){
+                    isBlocked = true
+                }
+            }
+            .padding(.top, 10)
+        }
+        .padding(.horizontal, 24)
+        .navigationDestination(isPresented: $isBlocked) {
+            BlockCheckView()
+        }
+    }
+}
