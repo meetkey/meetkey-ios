@@ -9,77 +9,96 @@ import Combine
 import Foundation
 import SwiftUI
 
-enum ReportStep {
-    case none
-    case main
-    case block
-    case blockComplete
-    case report
-    case reportCase
-    case reportReason
-    case reportComplete
-}
+
 
 class HomeViewModel: ObservableObject {
-    @Published private(set) var currentIndex: Int = 0
-    @Published var showMatchView: Bool = false
-    @Published var showFilterView: Bool = false
-    @Published var showDetailExpander: Bool = false
-    @Published var selectedUser: User?  // 디테일 뷰에 넘겨주기 위함
-    @Published var hasReachedLimit: Bool = false
-    @Published var showReportMenu: Bool = false  // 채팅(매칭)에서 신고하기
+    
+    //MARK: - 1. Global State & 홈뷰에서 다뤄야하는 로직 (남길 것)
     @Published var me = User.me  // 로그인한 유저
+    @Published var selectedUser: User?  // 디테일 뷰에 넘겨주기 위함
+    @Published var isDetailViewPresented: Bool = false
+    @Published var isFilterViewPresented: Bool = false
+    
+    
+    //MARK: - 2. 매칭 로직을 위한 아이들 -> 분리..할 예정
+    @Published private(set) var currentIndex: Int = 0
+    @Published var isMatchViewPresented: Bool = false
+    @Published var hasReachedLimit: Bool = false
+    let users: [User] = User.mockData  //확인용 더미데이터
+    
+    //MARK: - 3. Report & Block State -> 이동 예정
+    @Published var isReportMenuPresented: Bool = false  // 채팅(매칭)에서 신고
     @Published var currentReportStep: ReportStep = .none
 
-    let users: [User] = User.mockData  //확인용 더미데이터
-
+    //MARK: - 2
     var currentUser: User? {
         guard users.indices.contains(currentIndex) else { return nil }
         return users[currentIndex]
     }
 
-    func didSelectLike() {  //스와이프 or 관심있음 버튼 -> 매칭화면
-        showMatch()
+    func handleLikeAction() {  //스와이프 or 관심있음 버튼 -> 매칭화면
+        presentMatchView()
     }
 
-    func didSelectUnlike() {  //스와이프 or 관심없음 버튼 -> 다음화면
-        moveToNextUser()
+    func handleSkipAction() {  //스와이프 or 관심없음 버튼 -> 다음화면
+        incrementUserIndex()
     }
-
-    func didSelectFilter() {
-        showFilter()
-    }
-
-    func didSelectHome() {
-        goHome()
-    }
-
-    func didFinishMatch() {  // dismiss 대신
-        showMatchView = false
-        showReportMenu = false
-    }
-
-    func didTapDetail() {
-        showDetailExpander = true
-    }
-
-    func didTapBackFromDetail() {
-        showDetailExpander = false
-    }
-
+    
     func resetDiscovery() {
         currentIndex = 0
         hasReachedLimit = false
     }
+    
+    private func incrementUserIndex() {
+        if currentIndex >= users.count - 1 {
+            hasReachedLimit = true  // 추천친구 끝
+        } else {
+            currentIndex += 1
+        }
+    }
 
-    //MARK: -- Report & Block 처리 로직
-    //2. didTapReport 수정 (토글 방식으로)
-    func didTapReport() {
+    //MARK: - 1
+    func handleFilterAction() {
+        presentFilterView()
+    }
+
+    func handleFilterDismissAction() {
+        dismissFilterView()
+    }
+
+    func dismissMatchView() {  // dismiss 대신
+        isMatchViewPresented = false
+        isReportMenuPresented = false
+    }
+
+    func presentDetailView() {
+        isDetailViewPresented = true
+    }
+
+    func dismissDetailView() {
+        isDetailViewPresented = false
+    }
+    
+    private func presentMatchView() {
+        isMatchViewPresented = true
+    }
+
+    private func dismissFilterView() {
+        isFilterViewPresented = false
+    }
+
+    private func presentFilterView() {
+        isFilterViewPresented = true
+    }
+
+    //MARK: -- 3. Report & Block 처리 로직
+    //2. handleReportMenuTap
+    func handleReportMenuTap() {
         withAnimation(.spring()) {
-            if showReportMenu {
+            if isReportMenuPresented {
                 closeReportMenu()
             } else {
-                showReportMenu = true
+                isReportMenuPresented = true
                 currentReportStep = .main  // 열 때 기본 메뉴부터
             }
         }
@@ -88,7 +107,7 @@ class HomeViewModel: ObservableObject {
     //  3. 메뉴 단계 전환 함수 추가
     func changeReportStep(to step: ReportStep) {
         withAnimation(.easeInOut) {
-            showReportMenu = false
+            isReportMenuPresented = false
             currentReportStep = step
         }
     }
@@ -96,7 +115,7 @@ class HomeViewModel: ObservableObject {
     //  4. 메뉴 닫기 함수 추가
     func closeReportMenu() {
         withAnimation {
-            showReportMenu = false
+            isReportMenuPresented = false
             currentReportStep = .none
         }
     }
@@ -104,10 +123,10 @@ class HomeViewModel: ObservableObject {
     //  5. 프로세스 종료 함수
     func finalizeReportProcess() {
         withAnimation(.easeInOut) {
-            self.showReportMenu = false
+            self.isReportMenuPresented = false
             self.currentReportStep = .none
-            self.didSelectUnlike()
-            self.didFinishMatch()
+            self.handleSkipAction()
+            self.dismissMatchView()
         }
     }
 
@@ -129,28 +148,8 @@ class HomeViewModel: ObservableObject {
             self.currentReportStep = .reportComplete
         }
     }
-    
-
-    private func showMatch() {
-        showMatchView = true
-    }
-
-    private func moveToNextUser() {
-        if currentIndex >= users.count - 1 {
-            hasReachedLimit = true  // 추천친구 끝
-        } else {
-            currentIndex += 1
-        }
-    }
-
-    private func goHome() {
-        showFilterView = false
-    }
-
-    private func showFilter() {
-        showFilterView = true
-    }
 }
+
 
 // MARK: - 유저 목데이터
 extension User {

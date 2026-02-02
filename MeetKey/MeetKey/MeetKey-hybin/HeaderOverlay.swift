@@ -65,7 +65,7 @@ struct HeaderOverlay: View {
                 .padding(.bottom, 12)
                 .padding(.top, 16)
 
-                if homeVM.showReportMenu {
+                if homeVM.isReportMenuPresented {
                     reportMenuList
                 }
             }
@@ -142,8 +142,8 @@ extension HeaderOverlay {
         VStack {
             // 1. 화면 전환 액션
             menuItem(title: "프로필 보기", icon: "person.circle") {
-                homeVM.didTapDetail()  // 기존에 만든 상세 보기 함수 호출
-                homeVM.didFinishMatch()// 일단 homeDetail로 빠지기..
+                homeVM.presentDetailView()  // 기존에 만든 상세 보기 함수 호출
+                homeVM.dismissMatchView()// 일단 homeDetail로 빠지기..
             }
 
             Divider().padding(.horizontal, 10)
@@ -176,7 +176,7 @@ extension HeaderOverlay {
         action: @escaping () -> Void
     ) -> some View {
         Button(action: {
-            withAnimation { homeVM.showReportMenu = false }
+            withAnimation { homeVM.isReportMenuPresented = false }
             action()
         }) {
             HStack(spacing: 15) {

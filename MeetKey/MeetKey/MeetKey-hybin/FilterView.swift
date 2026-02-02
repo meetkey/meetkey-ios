@@ -14,7 +14,7 @@ struct FilterView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 25) {
             Button {
-                homeVM.didSelectHome()
+                homeVM.handleFilterDismissAction()
             } label:{
                 Text("go Home")
             }

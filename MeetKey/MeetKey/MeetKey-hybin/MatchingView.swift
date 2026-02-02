@@ -43,8 +43,8 @@ struct MatchingView: View {
                     safeArea: safeArea,
                     user: homeVM.currentUser ?? homeVM.me,
                     homeVM: homeVM,
-                    onBackAction: homeVM.didFinishMatch,
-                    onFilterAction: homeVM.didTapReport
+                    onBackAction: homeVM.dismissMatchView,
+                    onFilterAction: homeVM.handleReportMenuTap
                 ).zIndex(1)
 
             }

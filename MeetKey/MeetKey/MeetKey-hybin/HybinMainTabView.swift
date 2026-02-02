@@ -41,7 +41,7 @@ struct HybinMainTabView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // 3. 커스텀 탭 바
-            if !homeVM.showDetailExpander {  // 상세화면이 아닐 때만 탭 바 표시
+            if !homeVM.isDetailViewPresented {  // 상세화면이 아닐 때만 탭 바 표시
                 customTabBar
                     .transition(.move(edge: .bottom).combined(with: .opacity))  // 사라질 때 부드럽게
             }

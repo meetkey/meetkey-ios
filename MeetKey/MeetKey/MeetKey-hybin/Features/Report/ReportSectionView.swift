@@ -31,7 +31,7 @@ struct ReportSelectionView: View {
             }
         }
         .padding()
-        // ✅ 단계가 바뀔 때 옆으로 슥 밀리는 애니메이션 추가
+        // 단계가 바뀔 때 옆으로 슥 밀리는 애니메이션 추가
         .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
         .animation(.easeInOut, value: homeVM.currentReportStep)
     }

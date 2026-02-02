@@ -44,7 +44,7 @@ struct HomeView: View {
                 } else {
                     // MARK: - 콘텐츠
                     Group {
-                        if !homeVM.showDetailExpander {
+                        if !homeVM.isDetailViewPresented {
                             ZStack {
                                 if let user = homeVM.currentUser {
                                     ProfileSectionView(
@@ -56,7 +56,7 @@ struct HomeView: View {
                                         y: offset.height * 0.1
                                     )
                                     .gesture(profileDragGesture)
-                                    .onTapGesture { homeVM.didTapDetail() }
+                                    .onTapGesture { homeVM.presentDetailView() }
                                 }
                                 likeButton
                                     .padding(.horizontal, 20)
@@ -71,14 +71,14 @@ struct HomeView: View {
                     }
                 }
                 // MARK: - 헤더
-                if !homeVM.showDetailExpander {
+                if !homeVM.isDetailViewPresented {
                     HeaderOverlay(
                         state: .home,
                         safeArea: safeArea,
                         user: homeVM.me,
                         homeVM: homeVM,
-                        onBackAction: { homeVM.didTapBackFromDetail() },
-                        onFilterAction: { homeVM.didSelectFilter() }
+                        onBackAction: { homeVM.dismissDetailView() },
+                        onFilterAction: { homeVM.handleFilterAction() }
                     ).zIndex(1)
                 } else {
                     HeaderOverlay(
@@ -87,10 +87,10 @@ struct HomeView: View {
                         user: homeVM.me,
                         homeVM: homeVM,
                         onBackAction: {
-                            homeVM.didTapBackFromDetail()
+                            homeVM.dismissDetailView()
                         },
                         onFilterAction: {
-                            homeVM.didSelectFilter()
+                            homeVM.handleFilterAction()
                         }
                     )
                     .zIndex(1)  //항상 최상단
@@ -100,11 +100,11 @@ struct HomeView: View {
         .ignoresSafeArea(.all, edges: .bottom)
 
         //매칭뷰 호출
-        .fullScreenCover(isPresented: $homeVM.showMatchView) {
+        .fullScreenCover(isPresented: $homeVM.isMatchViewPresented) {
             MatchingView(homeVM: homeVM)
         }
         // 필터뷰 호출
-        .fullScreenCover(isPresented: $homeVM.showFilterView) {
+        .fullScreenCover(isPresented: $homeVM.isFilterViewPresented) {
             FilterView(homeVM: homeVM) { offset = .zero }
         }
     }
@@ -133,7 +133,7 @@ struct HomeView: View {
                 offset.width = 1000
             }
             offset = .zero
-            homeVM.didSelectLike()
+            homeVM.handleLikeAction()
 
         } else if translation < -150 {
             // 다음 유저로 전환
@@ -141,7 +141,7 @@ struct HomeView: View {
                 offset.width = -1000
             }
             offset = .zero
-            homeVM.didSelectUnlike()
+            homeVM.handleSkipAction()
         } else {
             withAnimation(.spring()) {
                 offset = .zero
@@ -157,7 +157,7 @@ struct HomeView: View {
                     offset.width = -500
                 }
                 offset = .zero
-                homeVM.didSelectUnlike()
+                homeVM.handleSkipAction()
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 24, weight: .bold))
@@ -173,7 +173,7 @@ struct HomeView: View {
                     offset.width = 500
                 }
                 offset = .zero
-                homeVM.didSelectLike()
+                homeVM.handleLikeAction()
 
             } label: {
                 Image(systemName: "heart.fill")
