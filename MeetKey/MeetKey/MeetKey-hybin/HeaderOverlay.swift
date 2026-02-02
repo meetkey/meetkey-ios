@@ -145,14 +145,14 @@ extension HeaderOverlay {
                 homeVM.didTapDetail()  // 기존에 만든 상세 보기 함수 호출
             }
 
-            Divider().padding(.horizontal, 20)
+            Divider().padding(.horizontal, 10)
 
             // 2. 상태값 변경 액션
             menuItem(title: "차단하기", icon: "nosign") {
                 homeVM.currentReportStep = ReportStep.block  // 차단 확인 단계로 변경
             }
 
-            Divider().padding(.horizontal, 20)
+            Divider().padding(.horizontal, 10)
 
             // 3. 복합적인 액션 (로그 찍기 + 화면 전환)
             menuItem(
@@ -163,6 +163,8 @@ extension HeaderOverlay {
                 print("신고 프로세스 시작: \(homeVM.currentUser?.name ?? "알 수 없음")")
                 homeVM.currentReportStep = ReportStep.report  // 신고 사유 선택 단계로 변경
             }
+            
+            Divider().padding(.horizontal, 10)
         }
     }
 

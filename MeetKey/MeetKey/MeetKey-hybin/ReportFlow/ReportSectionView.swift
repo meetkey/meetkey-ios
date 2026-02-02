@@ -13,8 +13,7 @@ struct ReportSelectionView: View {
     var body: some View {
         VStack {
             switch homeVM.currentReportStep {
-            case .main:
-//                ReportMainListView(homeVM: homeVM) // 첫 번째 메뉴
+
             case .block:
                 BlockConfirmView(homeVM: homeVM)   // 아까 만든 차단 확인 뷰
             case .blockComplete:

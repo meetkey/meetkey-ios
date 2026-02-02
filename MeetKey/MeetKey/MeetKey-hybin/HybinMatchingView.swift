@@ -41,14 +41,27 @@ struct HybinMatchingView: View {
                 HeaderOverlay(
                     state: .chat,
                     safeArea: safeArea,
-                    user: homeVM.currentUser ?? homeVM.me, homeVM: homeVM,
+                    user: homeVM.currentUser ?? homeVM.me,
+                    homeVM: homeVM,
                     onBackAction: homeVM.didFinishMatch,
                     onFilterAction: homeVM.didTapReport
                 ).zIndex(1)
 
             }
             .ignoresSafeArea(.all, edges: .bottom)
-
+            .sheet(
+                isPresented: Binding(
+                    get: {
+                        homeVM.currentReportStep != .none
+                            && homeVM.currentReportStep != .main
+                    },
+                    set: { if !$0 { homeVM.closeReportMenu() } }
+                )
+            ) {
+                ReportSelectionView(homeVM: homeVM)
+                    .presentationDetents([.medium])  // 피그마처럼 중간 높이 설정
+//                    .presentationDragIndicator(.visible)
+            }
         }
     }
 }

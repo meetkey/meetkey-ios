@@ -87,6 +87,7 @@ class HybinHomeViewModel: ObservableObject {
         //  3. 메뉴 단계 전환 함수 추가
         func changeReportStep(to step: ReportStep) {
             withAnimation(.easeInOut) {
+                showReportMenu = false
                 currentReportStep = step
             }
         }
@@ -96,6 +97,7 @@ class HybinHomeViewModel: ObservableObject {
             withAnimation {
                 showReportMenu = false
                 currentReportStep = .none
+                showMatchView = false
             }
         }
 
@@ -103,7 +105,7 @@ class HybinHomeViewModel: ObservableObject {
         func confirmBlock() {
             guard let user = currentUser else { return }
             print("\(user.name) 차단 완료")
-            closeReportMenu()
+            changeReportStep(to: .blockComplete)
             moveToNextUser() // 차단했으니 다음 사람으로 넘기기
         }
 
