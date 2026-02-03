@@ -98,7 +98,7 @@ enum BadgeType: String, CaseIterable, Codable {
         case .normal: return "normal_badge"
         case .bronze: return "bronze_badge"
         case .silver: return "silver_badge"
-        case .gold:   return "safe_badge"
+        case .gold:   return "gold_badge"
         }
     }
     
