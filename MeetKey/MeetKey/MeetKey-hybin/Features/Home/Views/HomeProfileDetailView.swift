@@ -11,7 +11,7 @@ struct HomeProfileDetailView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         // 1. 메인 이미지 (상단 꽉 채우기)
-                        Image(user.profileImageURL)
+                        Image(user.profileImage)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(width: size.width - 40, height: 420)
@@ -31,7 +31,7 @@ struct HomeProfileDetailView: View {
                         personalitySection
                         
                         // 6. 한 줄 소개 섹션
-                        bioSection(bio: user.bio)
+                        bioSection(bio: user.bio ?? "")
                     }
                     .padding(.bottom, 20)
                 }

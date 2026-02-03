@@ -14,11 +14,11 @@ enum SafeBadge : String, CaseIterable{
     case gold = "gold"
 }
 
-struct User: Identifiable, Equatable {
-    let id: UUID
-    let name : String
-    let age: Int
-    let bio : String
-    let profileImageURL: String
-    let safeBadge: SafeBadge
-}
+//struct User: Identifiable, Equatable {
+//    let id: UUID
+//    let name : String
+//    let age: Int
+//    let bio : String
+//    let profileImageURL: String
+//    let safeBadge: SafeBadge
+//}

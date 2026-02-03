@@ -9,14 +9,7 @@ import SwiftUI
 
 struct ProfileSetting: View {
     
-    private var user = User(
-        name: "김밋키",
-        birthDate: Date(),
-        location: "서울시 마포구, 20Km 근처",
-        usingLanguage: "Korean",
-        interestingLanguage: "English",
-        oneLiner: "여행을 사랑하고 새로운 음식을 시도해보는 것을 좋아해요! 문화 교류와 언어 교환에 진심인 사람을 찾고 있어요!🌎✨"
-    )
+    private var user = User.me
     
     var body: some View {
         VStack(spacing: 0) {
@@ -40,7 +33,7 @@ struct ProfileSetting: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 20) {
                     ProfileInfo(title: "이름", context: user.name, contextInfo: "이름은 변경할 수 없습니다.")
-                    ProfileInfo(title: "생년월일", context: birthInfo(from: user.birthDate), contextInfo: "생년월일은 변경할 수 없습니다.")
+                    ProfileInfo(title: "생년월일", context: birthInfo(from: user.birthDate!), contextInfo: "생년월일은 변경할 수 없습니다.")
                     VStack(alignment: .leading, spacing: 0) {
                         HStack {
                             Text("위치")
@@ -51,7 +44,7 @@ struct ProfileSetting: View {
                         }
                         .padding(.bottom, 12)
                         HStack(spacing: 0) {
-                            Text(user.location)
+                            Text(user.location!)
                                 .font(.meetKey(.body3))
                                 .foregroundStyle(.black06)
                                 .frame(height: 22)
