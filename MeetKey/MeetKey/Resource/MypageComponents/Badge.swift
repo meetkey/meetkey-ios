@@ -37,7 +37,7 @@ struct Badge: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            type.image
+            Image(type.assetName)
                 .resizable()
                 .scaledToFit()
             HStack(alignment: .firstTextBaseline, spacing: 2) {
