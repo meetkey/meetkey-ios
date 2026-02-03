@@ -117,11 +117,42 @@ struct User: Identifiable, Codable, Equatable {
 
 // MARK: - 하위 데이터 구조들
 
+// MARK: - 뱃지
+// 1. 기존 Badge.swift에 있는 열거형 이사 (View 의존성 제거)
+enum BadgeType1: String, CaseIterable, Codable {
+    case normal, bronze, silver, gold
+
+    //재사용을 위한 수정
+    var assetName: String {
+        switch self {
+        case .normal: return ""
+        case .bronze: return "bronzeBadge"
+        case .silver: return "silverBadge"
+        case .gold:   return "goldBadge"
+        }
+    }
+
+    // 팀원의 로직을 그대로 static 함수로 유지
+    static func from(score: Int) -> BadgeType1 {
+        let safeScore = min(max(score, 0), 100)
+        switch safeScore {
+        case 0..<70:  return .normal
+        case 70..<80: return .bronze
+        case 80..<90: return .silver
+        default:      return .gold
+        }
+    }
+}
+
 // 기존의 'Badge'와 겹치지 않게 'Info'를 붙였습니다.
 struct BadgeInfo: Codable, Equatable {
     let badgeName: String
     let totalScore: Int
     let histories: [BadgeHistory]?
+
+    var type : BadgeType1 {
+        BadgeType1.from(score: totalScore)
+    }
 }
 
 struct BadgeHistory: Codable, Equatable {
