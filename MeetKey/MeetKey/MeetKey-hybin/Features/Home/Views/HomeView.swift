@@ -21,7 +21,7 @@ struct HomeView: View {
             //MARK: - 배경처리
             ZStack(alignment: .top) {
                 if let user = homeVM.currentUser {
-                    Image(user.profileImageURL)
+                    Image(user.profileImage)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(

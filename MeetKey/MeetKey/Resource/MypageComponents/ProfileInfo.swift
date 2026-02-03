@@ -44,6 +44,7 @@ struct ProfileInfo: View {
     }
 }
 
+
 #Preview {
     var user = MyPageUser(
         name: "김밋키",
@@ -59,3 +60,4 @@ struct ProfileInfo: View {
         contextInfo: "이름은 변경할 수 없습니다."
     )
 }
+

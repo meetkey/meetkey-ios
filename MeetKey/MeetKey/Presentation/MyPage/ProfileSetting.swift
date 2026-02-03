@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProfileSetting: View {
     
+
     private var user = MyPageUser(
         name: "김밋키",
         birthDate: Date(),
@@ -17,6 +18,7 @@ struct ProfileSetting: View {
         interestingLanguage: "English",
         oneLiner: "여행을 사랑하고 새로운 음식을 시도해보는 것을 좋아해요! 문화 교류와 언어 교환에 진심인 사람을 찾고 있어요!🌎✨"
     )
+
     
     var body: some View {
         VStack(spacing: 0) {

@@ -5,6 +5,7 @@
 //  Created by sumin Kong on 1/30/26.
 //
 
+import Foundation
 import SwiftUI
 
 struct MyPageUser {

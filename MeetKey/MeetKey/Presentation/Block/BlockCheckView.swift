@@ -10,7 +10,9 @@ import SwiftUI
 struct BlockCheckView: View {
     var body: some View {
         ZStack {
+
             Image(.meetkeyLock)
+
                 .padding(.leading, 89)
             
             VStack(alignment: .leading,spacing: 0) {

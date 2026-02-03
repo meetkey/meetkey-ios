@@ -15,7 +15,7 @@ struct ProfileSectionView: View {
         ZStack(alignment: .bottomLeading) {
             
             // 1. 배경 사진 (화면 전체 꽉 채우기)
-            Image(user.profileImageURL)
+            Image(user.profileImage)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: size.width, height: size.height) // 전체 사이즈 사용
@@ -78,7 +78,7 @@ struct ProfileSectionView: View {
                         Label("서울시 마포구, 20km 근처", systemImage: "location.fill")
                             .font(.system(size: 14))
                         
-                        Text(user.bio)
+                        Text(user.bio ?? "")
                             .font(.system(size: 14))
                             .lineLimit(1)
                     }
