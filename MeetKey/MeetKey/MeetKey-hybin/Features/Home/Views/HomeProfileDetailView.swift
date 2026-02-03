@@ -55,9 +55,7 @@ private extension HomeProfileDetailView {
             .overlay(alignment: .topTrailing) {
                 // 팀원 뱃지 로직 통합 연동
                 if let badgeData = user.badge {
-                    Badge(score: badgeData.totalScore)
-                        .frame(width: 80, height: 40)
-                        .padding(15)
+                    homeBadgeView(score: badgeData.totalScore)
                 }
             }
     }
@@ -197,5 +195,23 @@ private extension HomeProfileDetailView {
             .padding(.horizontal, 15)
             Divider().padding(.horizontal, 15)
         }
+    }
+}
+
+//MARK: - 홈뷰 전용 뱃지 디자인
+private extension HomeProfileDetailView {
+    @ViewBuilder
+    private func homeBadgeView(score: Int) -> some View{
+        let type = BadgeType1.from(score:score)
+        
+        let tagName = type.assetName.replacingOccurrences(of: "Badge", with: "Tag")
+        
+        HStack{
+            Image(tagName)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width:60 , height:25)
+        }
+        .padding()
     }
 }

@@ -18,87 +18,25 @@ struct HomeView: View {
         GeometryReader { geometry in
             let screenSize = geometry.size
             let safeArea = geometry.safeAreaInsets
-            //MARK: - 배경처리
+            
             ZStack(alignment: .top) {
-                if let user = homeVM.currentUser {
-                    Image(user.profileImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(
-                            width: screenSize.width,
-                            height: screenSize.height
-                        )
-                        .clipped()
-                        .opacity(0.4)
-                } else {
-                    Color.black.ignoresSafeArea()
-                        .opacity(0.1)
-                }
-                //MARK: - 마지막 인덱스 처리
-                if homeVM.hasReachedLimit {
+                backgroundImageView(size: screenSize)  // 배경 분리
+
+                if homeVM.status == .finished {
                     FinishedMatchView(
                         size: screenSize,
                         safeArea: safeArea,
-                        action: homeVM.resetDiscovery,
+                        action: homeVM.resetDiscovery
                     )
                 } else {
-                    // MARK: - 콘텐츠
-                    Group {
-                        if !homeVM.isDetailViewPresented {
-                            ZStack {
-                                if let user = homeVM.currentUser {
-                                    ProfileSectionView(
-                                        size: screenSize,
-                                        user: user
-                                    )
-                                    .offset(
-                                        x: offset.width,
-                                        y: offset.height * 0.1
-                                    )
-                                    .gesture(profileDragGesture)
-                                    .onTapGesture { homeVM.presentDetailView() }
-                                }
-                                likeButton
-                                    .padding(.horizontal, 20)
-                            }
-                        } else {
-                            HomeProfileDetailView(
-                                homeVM: homeVM,
-                                size: screenSize,
-                                safeArea: safeArea
-                            )
-                        }
-                    }
+                    contentStack(size: screenSize, safeArea: safeArea)  // 카드/디테일 분리
                 }
-                // MARK: - 헤더
-                if !homeVM.isDetailViewPresented {
-                    HeaderOverlay(
-                        state: .home,
-                        safeArea: safeArea,
-                        user: homeVM.me,
-                        homeVM: homeVM,
-                        onBackAction: { homeVM.dismissDetailView() },
-                        onFilterAction: { homeVM.handleFilterAction() }
-                    ).zIndex(1)
-                } else {
-                    HeaderOverlay(
-                        state: .detail,
-                        safeArea: safeArea,
-                        user: homeVM.me,
-                        homeVM: homeVM,
-                        onBackAction: {
-                            homeVM.dismissDetailView()
-                        },
-                        onFilterAction: {
-                            homeVM.handleFilterAction()
-                        }
-                    )
-                    .zIndex(1)  //항상 최상단
-                }
+                
+                headerView
             }
         }
         .ignoresSafeArea(.all, edges: .bottom)
-
+        .task { await homeVM.fetchUserAsync() }
         //매칭뷰 호출
         .fullScreenCover(isPresented: $homeVM.isMatchViewPresented) {
             MatchingView(homeVM: homeVM)
@@ -108,82 +46,132 @@ struct HomeView: View {
             FilterView(homeVM: homeVM) { offset = .zero }
         }
     }
+}
 
-    //MARK: - 제스처 메서드
+//MARK: - Contents
+extension HomeView {
 
-    //1. 제스처 본체 분리
-    private var profileDragGesture: some Gesture {
-        DragGesture()
-            .onChanged { gesture in
-                // 드래그 중 위치 업데이트
-                offset = gesture.translation
-            }
-            .onEnded { gesture in
-                // 드래그 종료 시 로직 실행
-                handleDragEnded(gesture: gesture)
-            }
-    }
-
-    // 3. 종료 로직만 따로 메서드로 분리
-    private func handleDragEnded(gesture: _ChangedGesture<DragGesture>.Value) {
-        let translation = gesture.translation.width
-        if translation > 150 {
-            // 오른쪽으로 던짐 -> 매칭 화면 호출
-            withAnimation(.spring()) {
-                offset.width = 1000
-            }
-            offset = .zero
-            homeVM.handleLikeAction()
-
-        } else if translation < -150 {
-            // 다음 유저로 전환
-            withAnimation(.spring()) {
-                offset.width = -1000
-            }
-            offset = .zero
-            homeVM.handleSkipAction()
+    //-----BackGround
+    @ViewBuilder
+    private func backgroundImageView(size: CGSize) -> some View {
+        if let user = homeVM.currentUser {
+            Image(user.profileImage)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: size.width, height: size.height)
+                .clipped()
+                .opacity(0.4)
         } else {
-            withAnimation(.spring()) {
-                offset = .zero
-            }
+            Color.black.opacity(0.1).ignoresSafeArea()
         }
     }
 
-    // MARK: - 관심 버튼
-    private var likeButton: some View {
-        HStack {
-            Button {
-                withAnimation(.spring()) {
-                    offset.width = -500
+    //-----Content
+    @ViewBuilder
+    private func contentStack(size: CGSize, safeArea: EdgeInsets) -> some View {
+        if !homeVM.isDetailViewPresented {
+            ZStack {
+                if let user = homeVM.currentUser {
+                    ProfileSectionView(size: size, user: user)
+                        .offset(x: offset.width, y: offset.height * 0.1)
+                        .gesture(profileDragGesture)
+                        .onTapGesture { homeVM.presentDetailView() }
                 }
-                offset = .zero
-                homeVM.handleSkipAction()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundStyle(Color.white)
-                    .frame(width: 64, height: 64)
-                    .background(Color.black.opacity(0.8))
-                    .clipShape(Circle())
-                    .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                likeButtonSection  // 버튼 섹션 분리
+                    .padding(.horizontal, 20)
             }
-            Spacer()
-            Button {
-                withAnimation(.spring()) {
-                    offset.width = 500
-                }
-                offset = .zero
-                homeVM.handleLikeAction()
+        } else {
+            HomeProfileDetailView(
+                homeVM: homeVM,
+                size: size,
+                safeArea: safeArea
+            )
+        }
+    }
 
-            } label: {
-                Image(systemName: "heart.fill")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundStyle(Color.orange)
-                    .frame(width: 64, height: 64)
-                    .background(Color.white)
-                    .clipShape(Circle())
-                    .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+    //------Header
+    private var headerView: some View {
+        HeaderOverlay(
+            state: homeVM.isDetailViewPresented ? .detail : .home,
+            safeArea: .init(),
+            user: homeVM.me,
+            homeVM: homeVM,
+            onBackAction: {homeVM.dismissDetailView()},
+            onFilterAction: {homeVM.presentFilterView()}
+        )
+        .zIndex(1)
+    }
+}
+
+//MARK: - 버튼 컴포넌트
+extension HomeView {
+    private var likeButtonSection: some View {
+        HStack {
+            actionButton(
+                icon: "xmark",
+                color: .white,
+                bgColor: .black.opacity(0.8),
+                isLike: false
+            )
+            Spacer()
+            actionButton(
+                icon: "heart.fill",
+                color: .orange,
+                bgColor: .white,
+                isLike: true
+            )
+        }
+    }
+
+    private func actionButton(
+        icon: String,
+        color: Color,
+        bgColor: Color,
+        isLike: Bool
+    ) -> some View {
+        Button {
+            triggerAction(isLike: isLike)
+        } label: {
+            Image(systemName: icon)
+                .font(.system(size: 24, weight: .bold))
+                .foregroundStyle(color)
+                .frame(width: 64, height: 64)
+                .background(bgColor)
+                .clipShape(Circle())
+                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+        }
+    }
+}
+
+// MARK: - Gestures & Actions
+extension HomeView {
+    private var profileDragGesture: some Gesture {
+        DragGesture()
+            .onChanged { offset = $0.translation }
+            .onEnded { gesture in
+                let translation = gesture.translation.width
+                if translation > 150 {
+                    triggerAction(isLike: true)
+                } else if translation < -150 {
+                    triggerAction(isLike: false)
+                } else {
+                    withAnimation(.spring()) { offset = .zero }
+                }
             }
+    }
+
+    private func triggerAction(isLike: Bool) {
+        withAnimation(.spring()) {
+            offset.width = isLike ? 1000 : -1000
+        }
+
+        Task {
+            if isLike {
+                await homeVM.handleLikeAction()
+            } else {
+                homeVM.handleSkipAction()
+            }
+            offset = .zero
         }
     }
 }

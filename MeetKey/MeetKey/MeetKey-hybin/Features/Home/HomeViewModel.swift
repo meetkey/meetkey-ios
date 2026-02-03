@@ -9,96 +9,126 @@ import Combine
 import Foundation
 import SwiftUI
 
+//MARK: - 비동기 작업을 위한 Enum
+enum HomeStatus {
+    case loading  // 기본
+    case idle  // 유저 카드를 보여주는 기본 상태
+    case matching  // 매칭 액션 이후
+    case finished // 매칭 성공 화면
+    //    case error
+    //    다른 것은 차차 추가 할 예정
+}
 
-
+@MainActor
 class HomeViewModel: ObservableObject {
-    
-    //MARK: - 1. Global State & 홈뷰에서 다뤄야하는 로직 (남길 것)
+    //MARK: - [상태 관리]
+    @Published var status: HomeStatus = .loading
+
+    //MARK: - [데이터]
     @Published var me = User.me  // 로그인한 유저
-    @Published var selectedUser: User?  // 디테일 뷰에 넘겨주기 위함
+    @Published var allUsers: [User] = []  // 기존 users
+    @Published var currentUser: User?  // 기존 selectedUser
+    @Published private(set) var currentIndex: Int = 0
+
+    //MARK: - [화면 제어]
     @Published var isDetailViewPresented: Bool = false
     @Published var isFilterViewPresented: Bool = false
-    
-    
-    //MARK: - 2. 매칭 로직을 위한 아이들 -> 분리..할 예정
-    @Published private(set) var currentIndex: Int = 0
     @Published var isMatchViewPresented: Bool = false
     @Published var hasReachedLimit: Bool = false
+
     let users: [User] = User.mockData  //확인용 더미데이터
-    
+
     //MARK: -3 Report & Block
     @Published var reportVM = ReportViewModel()
-    
+
     private var cancellables = Set<AnyCancellable>()
-    
+
     init() {
         reportVM.objectWillChange
-                    .sink { [weak self] _ in
-                        // 자식이 바뀌면 부모(나)도 "나 바뀌었어!"라고 외칩니다.
-                        self?.objectWillChange.send()
-                    }
-                    .store(in: &cancellables) // 주머니에 안테나 선 저장
-                    
-                // 비서가 일이 다 끝났다고(onFinalize) 보고할 때의 로직도 여기서 관리!
-                reportVM.onFinalize = { [weak self] in
-                    self?.finalizeReportProcess()
-                }
+            .sink { [weak self] _ in
+                // 자식이 바뀌면 부모(나)도 "나 바뀌었어!"라고 외칩니다.
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)  // 주머니에 안테나 선 저장
+
+        // 비서가 일이 다 끝났다고(onFinalize) 보고할 때의 로직도 여기서 관리!
+        reportVM.onFinalize = { [weak self] in
+            self?.finalizeReportProcess()
+        }
     }
-    
+
     //MARK: -3
     func finalizeReportProcess() {
-            withAnimation(.easeInOut) {
-                // 1. reportVM의 메뉴 닫기, 스텝 초기화
-                reportVM.closeReportMenu()
-                
-                // 2. homeVM의 카드 넘기기, 매칭창 닫기 받기
-                self.handleSkipAction()
-                self.dismissMatchView()
-            }
+        withAnimation(.easeInOut) {
+            // 1. reportVM의 메뉴 닫기, 스텝 초기화
+            reportVM.closeReportMenu()
+
+            // 2. homeVM의 카드 넘기기, 매칭창 닫기 받기
+            self.handleSkipAction()
+            self.dismissMatchView()
         }
-    
+    }
+
     func dismissMatchView() {  // dismiss 대신
         isMatchViewPresented = false
         reportVM.closeReportMenu()
     }
 
-    //MARK: - 2
-    var currentUser: User? {
-        guard users.indices.contains(currentIndex) else { return nil }
-        return users[currentIndex]
-    }
-
-    func handleLikeAction() {  //스와이프 or 관심있음 버튼 -> 매칭화면
-        presentMatchView()
-    }
-
-    func handleSkipAction() {  //스와이프 or 관심없음 버튼 -> 다음화면
-        incrementUserIndex()
+    //MARK: 초기 데이터 로드
+    func fetchUserAsync() async {
+        status = .loading
+        
+        do {
+            try await Task.sleep(nanoseconds: 1_500_000_000)
+            
+            let fetchedData = User.mockData // API 호출 할거임
+            
+            if fetchedData.isEmpty {
+                status = .finished
+            } else {
+                self.allUsers = fetchedData
+                self.currentIndex = 0
+                self.currentUser = fetchedData.first
+                status = .idle
+            }
+        } catch {
+            print("데이터 로딩 실패: \(error)")
+        }
     }
     
-    func resetDiscovery() {
-        currentIndex = 0
-        hasReachedLimit = false
+    //MARK: - Like 액션
+    func handleLikeAction() async {
+        guard let targetUser = currentUser else { return }
+        
+        print("DEBUG: \(targetUser.name)님")
+        do {
+            // try await networkManager.sendLike(to: targetUser.id)
+            try await Task.sleep(nanoseconds: 500_000_000)
+            
+            presentMatchView() // 성공 시 매칭 화면
+
+        } catch {
+            print("Like 처리 실패: \(error)")
+        }
     }
     
-    private func incrementUserIndex() {
-        if currentIndex >= users.count - 1 {
-            hasReachedLimit = true  // 추천친구 끝
-        } else {
+    //MARK: - Skip/Next 액션
+    func handleSkipAction() { //나중에 비동기로?
+        if currentIndex < allUsers.count - 1 {
             currentIndex += 1
+            currentUser = allUsers[currentIndex]
+        } else {
+            self.status = .finished
         }
     }
 
+    func resetDiscovery() {
+        currentIndex = 0
+        currentUser = allUsers.first
+        status = allUsers.isEmpty ? .finished : .idle
+    }
+
     //MARK: - 1
-    func handleFilterAction() {
-        presentFilterView()
-    }
-
-    func handleFilterDismissAction() {
-        dismissFilterView()
-    }
-
-
 
     func presentDetailView() {
         isDetailViewPresented = true
@@ -107,23 +137,19 @@ class HomeViewModel: ObservableObject {
     func dismissDetailView() {
         isDetailViewPresented = false
     }
-    
-    private func presentMatchView() {
+
+    func presentMatchView() {
         isMatchViewPresented = true
     }
 
-    private func dismissFilterView() {
+    func dismissFilterView() {
         isFilterViewPresented = false
     }
 
-    private func presentFilterView() {
+    func presentFilterView() {
         isFilterViewPresented = true
     }
 }
-
-
-// MARK: - 유저 목데이터
-import Foundation
 
 extension User {
     static let mockData: [User] = [
@@ -143,9 +169,19 @@ extension User {
             recommendCount: 100,
             notRecommendCount: 0,
             interests: ["SwiftUI", "Xcode", "Git"],
-            personalities: Personalities(socialType: "EXTROVERT", meetingType: "ONE_ON_ONE", chatType: "INITIATOR", friendType: "ANYONE", relationType: "CASUAL"),
-            badge: BadgeInfo(badgeName: "골드 뱃지", totalScore: 95, histories: nil),
-            birthDate: nil // 필요시 추가
+            personalities: Personalities(
+                socialType: "EXTROVERT",
+                meetingType: "ONE_ON_ONE",
+                chatType: "INITIATOR",
+                friendType: "ANYONE",
+                relationType: "CASUAL"
+            ),
+            badge: BadgeInfo(
+                badgeName: "골드 뱃지",
+                totalScore: 95,
+                histories: nil
+            ),
+            birthDate: nil  // 필요시 추가
         ),
         User(
             memberId: 102,
@@ -164,7 +200,11 @@ extension User {
             notRecommendCount: 2,
             interests: ["Running", "Coffee"],
             personalities: nil,
-            badge: BadgeInfo(badgeName: "실버 뱃지", totalScore: 82, histories: nil),
+            badge: BadgeInfo(
+                badgeName: "실버 뱃지",
+                totalScore: 82,
+                histories: nil
+            ),
             birthDate: nil
         ),
         User(
@@ -182,7 +222,11 @@ extension User {
             level: "ADVANCED",
             interests: ["Photography", "Cafe"],
             personalities: nil,
-            badge: BadgeInfo(badgeName: "브론즈 뱃지", totalScore: 75, histories: nil),
+            badge: BadgeInfo(
+                badgeName: "브론즈 뱃지",
+                totalScore: 75,
+                histories: nil
+            ),
             birthDate: nil
         ),
         User(
@@ -200,7 +244,11 @@ extension User {
             level: "NOVICE",
             interests: ["Java", "Spring"],
             personalities: nil,
-            badge: BadgeInfo(badgeName: "노멀 뱃지", totalScore: 30, histories: nil),
+            badge: BadgeInfo(
+                badgeName: "노멀 뱃지",
+                totalScore: 30,
+                histories: nil
+            ),
             birthDate: nil
         ),
         User(
@@ -218,9 +266,13 @@ extension User {
             level: "NOVICE",
             interests: ["Travel", "Movie"],
             personalities: nil,
-            badge: BadgeInfo(badgeName: "골드 뱃지", totalScore: 92, histories: nil),
+            badge: BadgeInfo(
+                badgeName: "골드 뱃지",
+                totalScore: 92,
+                histories: nil
+            ),
             birthDate: nil
-        )
+        ),
     ]
 
     // 로그인 유저 목데이터

@@ -89,8 +89,8 @@ private extension ProfileSectionView {
                 .font(.system(size: 28, weight: .medium))
             
             if let badgeData = badge {
-                let type = BadgeType.from(score: badgeData.totalScore)
-                let circleBadgeName = type.assetName.replacingOccurrences(of: "_badge", with: "")
+                let type = BadgeType1.from(score: badgeData.totalScore)
+                let circleBadgeName = type.assetName.replacingOccurrences(of: "Badge", with: "")
                 
                 Image(circleBadgeName)
                     .resizable()
