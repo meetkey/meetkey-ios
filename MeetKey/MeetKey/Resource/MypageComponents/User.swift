@@ -92,12 +92,13 @@ struct Personalities: Codable, Equatable {
 enum BadgeType: String, CaseIterable, Codable {
     case normal, bronze, silver, gold
     
-    var image: Image {
+    //재사용을 위한 수정
+    var assetName: String {
         switch self {
-        case .normal: return Image(.normalBadge)
-        case .bronze: return Image(.bronzeBadge)
-        case .silver: return Image(.silverBadge)
-        case .gold:   return Image(.SAFE)
+        case .normal: return "normal_badge"
+        case .bronze: return "bronze_badge"
+        case .silver: return "silver_badge"
+        case .gold:   return "safe_badge"
         }
     }
     
