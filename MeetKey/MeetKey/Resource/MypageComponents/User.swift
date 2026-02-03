@@ -8,28 +8,6 @@
 import SwiftUI
 import Foundation
 
-//struct User {
-//    var name: String
-//    var birthDate: Date
-//    var location: String
-//    var usingLanguage: String
-//    var interestingLanguage: String
-//    var oneLiner: String
-//}
-
-
-//MARK: - UserModel (hybin)
-/*
- struct User: Identifiable, Equatable {
-     let id: UUID
-     let name : String
-     let age: Int (== birthDate)
-     let bio : String  (== oneLiner)
-     let profileImageURL: String -> 필요하고
-     let safeBadge: SafeBadge -> 필요하고 nil?
- }
- */
-
 // MARK: - 서버 응답 전체 구조
 struct UserResponse: Codable {
     let code: String
@@ -101,12 +79,49 @@ struct User: Identifiable, Codable, Equatable {
 }
 
 // MARK: - 하위 데이터 구조들
+struct Personalities: Codable, Equatable {
+    let socialType: String
+    let meetingType: String
+    let chatType: String
+    let friendType: String
+    let relationType: String
+}
+
+// MARK: - 뱃지
+// 1. 기존 Badge.swift에 있는 열거형 이사 (View 의존성 제거)
+enum BadgeType: String, CaseIterable, Codable {
+    case normal, bronze, silver, gold
+    
+    var image: Image {
+        switch self {
+        case .normal: return Image(.normalBadge)
+        case .bronze: return Image(.bronzeBadge)
+        case .silver: return Image(.silverBadge)
+        case .gold:   return Image(.SAFE)
+        }
+    }
+    
+    // 팀원의 로직을 그대로 static 함수로 유지
+    static func from(score: Int) -> BadgeType {
+        let safeScore = min(max(score, 0), 100)
+        switch safeScore {
+        case 0..<70:  return .normal
+        case 70..<80: return .bronze
+        case 80..<90: return .silver
+        default:      return .gold
+        }
+    }
+}
 
 // 기존의 'Badge'와 겹치지 않게 'Info'를 붙였습니다.
 struct BadgeInfo: Codable, Equatable {
     let badgeName: String
     let totalScore: Int
     let histories: [BadgeHistory]?
+    
+    var type: BadgeType {
+        BadgeType.from(score: totalScore)
+    }
 }
 
 struct BadgeHistory: Codable, Equatable {
@@ -115,10 +130,3 @@ struct BadgeHistory: Codable, Equatable {
     let date: String
 }
 
-struct Personalities: Codable, Equatable {
-    let socialType: String
-    let meetingType: String
-    let chatType: String
-    let friendType: String
-    let relationType: String
-}

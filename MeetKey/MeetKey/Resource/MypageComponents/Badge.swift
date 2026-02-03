@@ -7,21 +7,21 @@
 
 import SwiftUI
 
-enum BadgeType: String, CaseIterable {
-    case normal, bronze, silver, gold
-    var image: Image {
-        switch self {
-        case .normal:
-            return Image(.normalBadge)
-        case .bronze:
-            return Image(.bronzeBadge)
-        case .silver:
-            return Image(.silverBadge)
-        case .gold:
-            return Image(.SAFE)
-        }
-    }
-}
+//enum BadgeType: String, CaseIterable {
+//    case normal, bronze, silver, gold
+//    var image: Image {
+//        switch self {
+//        case .normal:
+//            return Image(.normalBadge)
+//        case .bronze:
+//            return Image(.bronzeBadge)
+//        case .silver:
+//            return Image(.silverBadge)
+//        case .gold:
+//            return Image(.SAFE)
+//        }
+//    }
+//}
 
 
 struct Badge: View {
@@ -60,21 +60,21 @@ struct Badge: View {
     }
 }
 
-extension BadgeType {
-    static func from(score: Int) -> BadgeType {
-        let safeScore = min(max(score, 0), 100)
-        switch safeScore {
-            case 0..<70:
-                return .normal
-            case 70..<80:
-                return .bronze
-            case 80..<90:
-                return .silver
-            default:
-                return .gold
-        }
-    }
-}
+//extension BadgeType {
+//    static func from(score: Int) -> BadgeType {
+//        let safeScore = min(max(score, 0), 100)
+//        switch safeScore {
+//            case 0..<70:
+//                return .normal
+//            case 70..<80:
+//                return .bronze
+//            case 80..<90:
+//                return .silver
+//            default:
+//                return .gold
+//        }
+//    }
+//}
 
 private extension Badge {
     var progressBar: some View {

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ProfileSetting: View {
     
-    private var user = User.me
+    private var user = User.me // MARK: MeetKey-hybin/Features/HomeViewModel에 목데이터 extension있어요!
     
     var body: some View {
         VStack(spacing: 0) {
@@ -112,7 +112,7 @@ struct ProfileSetting: View {
 }
 
 
-
+//MARK: - User모델에 계산 파트에 따로 만들어놨어요
 extension ProfileSetting {
     func birthInfo(from birthDate: Date) -> String {
         let calendar = Calendar.current
