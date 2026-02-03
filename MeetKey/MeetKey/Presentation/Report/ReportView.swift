@@ -15,7 +15,7 @@ struct ReportView: View {
             HStack {
                 Text("신고하기")
                     .font(.meetKey(.title4))
-                    .foregroundStyle(.black01)
+                    .foregroundStyle(.text1)
                     .frame(height: 31)
                 Spacer()
             }
@@ -31,7 +31,7 @@ struct ReportView: View {
                 
                 Text("상대방의 부적절한 행동을 신고해주세요\n신고 내용은 비공개로 처리되며,\n밋키 운영팀이 검토 후 결과를 안내합니다.")
                     .font(.meetKey(.body3))
-                    .foregroundStyle(.black03)
+                    .foregroundStyle(.text3)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -44,7 +44,7 @@ struct ReportView: View {
                         .frame(width: 20, height: 20)
                     Text("허위 신고 금지")
                         .font(.meetKey(.body3))
-                        .foregroundStyle(.black06)
+                        .foregroundStyle(.text2)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -53,18 +53,17 @@ struct ReportView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("허위 신고 시 서비스 이용 제한이 발생할 수 있습니다.")
                         .font(.meetKey(.caption3))
-                        .foregroundStyle(.black03)
+                        .foregroundStyle(.text3)
                         .frame(height: 17)
                     Text("신고 내용은 밋키 운영팀이 검토합니다.")
                         .font(.meetKey(.caption3))
-                        .foregroundStyle(.black03)
+                        .foregroundStyle(.text3)
                         .frame(height: 17)
                     Text("검토 결과는 회원님께 안내됩니다.")
                         .font(.meetKey(.caption3))
-                        .foregroundStyle(.black03)
+                        .foregroundStyle(.text3)
                         .frame(height: 17)
                 }
-//                .padding(.leading, 37)
                 .padding(.bottom, 14)
             }
             .frame(height: 107)

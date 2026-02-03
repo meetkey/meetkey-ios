@@ -16,7 +16,7 @@ struct LevelTag: View {
                 .foregroundStyle(.main)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 2)
-                .background(.orange05)
+                .background(.sub1)
                 .clipShape(Capsule())
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)

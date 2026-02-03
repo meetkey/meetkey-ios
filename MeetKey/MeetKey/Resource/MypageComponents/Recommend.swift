@@ -15,14 +15,14 @@ struct Recommend: View {
             VStack(alignment: .leading) {
                 Text("추천")
                     .font(.meetKey(.body5))
-                    .foregroundStyle(.black03)
+                    .foregroundStyle(.text3)
                 HStack(alignment: .bottom) {
                     Image(.recommend)
                         .padding(.top, 8)
                         .padding(.trailing, 12)
                     Text("\(recommend)개")
                         .font(.meetKey(.title5))
-                        .foregroundStyle(.black01)
+                        .foregroundStyle(.text1)
                         .padding(.vertical, 2.5)
                 }
             }
@@ -35,14 +35,14 @@ struct Recommend: View {
             VStack(alignment: .leading) {
                 Text("비추천")
                     .font(.meetKey(.body5))
-                    .foregroundStyle(.black03)
+                    .foregroundStyle(.text3)
                 HStack(alignment: .bottom) {
                     Image(.recommend)
                         .padding(.top, 8)
                         .padding(.trailing, 12)
                     Text("\(notRecommend)개")
                         .font(.meetKey(.title5))
-                        .foregroundStyle(.black01)
+                        .foregroundStyle(.text1)
                         .padding(.vertical, 2.5)
                 }
             }

@@ -13,7 +13,7 @@ struct SafeBadgeRecord: View {
             HStack {
                 Text("SAFE 뱃지 기록")
                     .font(.meetKey(.title5))
-                    .foregroundColor(.black01)
+                    .foregroundColor(.text1)
                 Spacer()
                 Image(.x)
             }
@@ -26,7 +26,7 @@ struct SafeBadgeRecord: View {
             VStack(alignment: .leading) {
                 Text("점수 기록")
                     .font(.meetKey(.body1))
-                    .foregroundColor(.black01)
+                    .foregroundColor(.text1)
                     .padding(.top, 20)
                     .padding(.bottom, 12)
                 ScoreHistory()

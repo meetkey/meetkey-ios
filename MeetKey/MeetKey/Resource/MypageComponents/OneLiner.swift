@@ -15,7 +15,7 @@ struct OneLiner: View {
                 .padding(.leading, 16)
             Text(introduceText)
                 .font(.meetKey(.body5))
-                .foregroundStyle(.black03)
+                .foregroundStyle(.text3)
                 .padding(.trailing, 16)
         }
         .frame(height: 56)
