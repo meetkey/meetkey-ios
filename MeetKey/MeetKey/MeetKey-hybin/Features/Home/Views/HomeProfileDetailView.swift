@@ -8,34 +8,37 @@ struct HomeProfileDetailView: View {
     var body: some View {
         // 1. 현재 선택된 유저가 있을 때만 렌더링
         if let user = homeVM.currentUser {
-            ZStack {
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 0) {
-                        // --- 상단 메인 이미지 섹션 ---
-                        mainProfileImage(user: user)
-                        
-                        // --- 기본 정보 섹션 (이름, 나이, 위치) ---
-                        userInfoSection(user: user)
-                        
-                        // --- 언어 섹션 (사용 언어, 관심 언어) ---
-                        languageSection(user: user)
-                        
-                        // --- 관심사 섹션 (칩 레이아웃) ---
-                        interestSection(user: user)
-                        
-                        // --- 성향 섹션 (리스트) ---
-                        personalitySection(user: user)
-                        
-                        // --- 한 줄 소개 섹션 ---
-                        bioSection(bio: user.bio ?? "소개글이 없습니다.")
+            ZStack(alignment: .bottomLeading){
+                VStack(spacing:15){
+                    // --- 상단 메인 이미지 섹션 ---
+                    mainProfileImage(user: user)
+                        .zIndex(1)
+                    ScrollView(showsIndicators: false) {
+                        VStack(alignment: .leading , spacing: 15) {
+
+                            // --- 언어 섹션 (사용 언어, 관심 언어) ---
+                            languageSection(user: user)
+                            
+                            // --- 관심사 섹션 (칩 레이아웃) ---
+                            interestSection(user: user)
+                            
+                            // --- 성향 섹션 (리스트) ---
+                            personalitySection(user: user)
+                            
+                            // --- 한 줄 소개 섹션 ---
+                            bioSection(bio: user.bio ?? "소개글이 없습니다.")
+                        }
+                        .padding(.top, 15)
+                        .padding(.bottom, 25)
+                        .padding(.horizontal , 20)
+
                     }
-                    .padding(.bottom, 20)
                 }
-                .background(Color.white)
+                .background(Color.white01)
                 .clipShape(RoundedRectangle(cornerRadius: 30))
                 .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
                 .padding(.horizontal, 20)
-                .padding(.top, safeArea.top + 55)
+                .padding(.top, safeArea.top + 15)
                 .padding(.bottom, safeArea.bottom + 20)
             }
         }
@@ -47,17 +50,19 @@ private extension HomeProfileDetailView {
     
     // 1. 메인 프로필 이미지 & 뱃지
     private func mainProfileImage(user: User) -> some View {
-        Image(user.profileImage)
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(width: size.width - 40, height: 420)
-            .clipShape(RoundedRectangle(cornerRadius: 30))
-            .overlay(alignment: .topTrailing) {
-                // 팀원 뱃지 로직 통합 연동
-                if let badgeData = user.badge {
-                    homeBadgeView(score: badgeData.totalScore)
+        ZStack (alignment:.bottom) {
+            Image(user.profileImage)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: size.width - 40, height: 330)
+                .overlay(alignment: .topTrailing) {
+                    // 팀원 뱃지 로직 통합 연동
+                    if let badgeData = user.badge {
+                        homeBadgeView(score: badgeData.totalScore)
+                    }
                 }
-            }
+            userInfoSection(user: user)
+        }
     }
     
     // 2. 유저 기본 정보
@@ -65,55 +70,70 @@ private extension HomeProfileDetailView {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .bottom) {
                 // ageInt 계산 프로퍼티 활용
-                Text("\(user.name) \(user.ageInt)")
-                    .font(.system(size: 28, weight: .bold))
+                Text("\(user.name)")
+                    .font(.meetKey(.title2))
+                    .foregroundStyle(Color.white01)
+                Text("\(user.ageInt)")
+                    .font(.meetKey(.title6))
+                    .foregroundStyle(Color.white01)
                 Spacer()
             }
-            Label("\(user.location ?? "Unknown"), \(user.distance ?? "??")km 근처", systemImage: "location.fill")
-                .font(.system(size: 14))
-                .foregroundColor(.gray)
+            Label("\(user.location ?? "Unknown"), \(user.distance ?? "??")근처", systemImage: "location.fill")
+                .font(.meetKey(.body5))
+                .foregroundStyle(Color.white01.opacity(0.8)) ///#EEEEEE - Color.gray인데 잘 안보여서,,
+            ///Label 출신국가 넣어야함
         }
         .padding(.horizontal, 20)
         .padding(.top, 25)
     }
     
     // 3. 언어 섹션
-    private var languageSection: some View { // body에서 호출 시 가독성을 위해 func로 변경 권장
-        // 하단 languageSection(user:) 참고
-        EmptyView()
-    }
-    
     private func languageSection(user: User) -> some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .top , spacing: 0) {
             languageCard(title: "사용 언어", language: user.first ?? "Unknown", flag: "🌐", level: nil)
+            
+            //중앙 구분선
+            Rectangle()
+                .fill(Color.black04)
+                .frame(width:1)
+                .padding(.vertical, 16)
+            
             languageCard(title: "관심 언어", language: user.target ?? "Unknown", flag: "🌐", level: user.level)
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 30)
+        .background(Color.background1)
+        .clipShape(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+        )
     }
 
     // 4. 관심사 섹션 (동적 칩 생성)
     private func interestSection(user: User) -> some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("관심사").font(.system(size: 18, weight: .bold))
+            Text("관심사").font(.meetKey(.body2))
             
             if let interests = user.interests, !interests.isEmpty {
-                // Flexible한 배치를 위해 LazyVGrid 도입 (하드코딩 탈출!)
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))], alignment: .leading, spacing: 10) {
-                    ForEach(interests, id: \.self) { item in
-                        interestChip(item)
+                // 칩들을 줄 단위로 쪼개주는 함수 호출
+                let rows = generateRows(interests: interests, screenWidth: size.width - 40)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(rows, id: \.self) { row in
+                        HStack(spacing: 8) {
+                            ForEach(row, id: \.self) { item in
+                                interestChip(item)
+                            }
+                        }
                     }
                 }
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 30)
     }
     
     // 5. 내 성향 섹션
     private func personalitySection(user: User) -> some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("내 성향").font(.system(size: 18, weight: .bold))
+            Text("내 성향")
+                .font(.meetKey(.body1))
+                .foregroundStyle(Color.text1)
             
             if let p = user.personalities {
                 VStack(spacing: 0) {
@@ -127,24 +147,24 @@ private extension HomeProfileDetailView {
                 .cornerRadius(15)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 30)
+
     }
 
     // 6. 한 줄 소개
     private func bioSection(bio: String) -> some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("한 줄 소개").font(.system(size: 18, weight: .bold))
+            Text("한 줄 소개")
+                .font(.meetKey(.body1))
+                .foregroundStyle(.text1)
             Text(bio)
-                .font(.system(size: 15))
+                .font(.meetKey(.body5))
+                .foregroundStyle(Color.text3)
                 .lineSpacing(6)
                 .padding(20)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(15)
+                .background(Color.background1)
+                .clipShape(RoundedRectangle(cornerRadius: 15))
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 30)
     }
 }
 
@@ -153,44 +173,53 @@ private extension HomeProfileDetailView {
     
     private func interestChip(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 14))
+            .font(.meetKey(.body2))
+            .foregroundStyle(Color.main)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(Capsule().stroke(Color.orange, lineWidth: 1))
-            .foregroundColor(.orange)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
+            .background(Color.bubble31, in: Capsule())
+            .overlay(alignment: .center) {
+                Capsule()
+                    .stroke(.main, lineWidth: 1)
+            }
     }
     
     private func languageCard(title: String, language: String, flag: String, level: String?) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title).font(.system(size: 14)).foregroundColor(.gray)
+            Text(title).font(.meetKey(.body5)).foregroundStyle(Color.text3)
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 4) {
-                    Text(language).font(.system(size: 18, weight: .bold))
-                    Text(flag)
+                    Text(language).font(.meetKey(.title5))
+                    Text(flag) //이미지로 바꿔야함
                 }
+                
                 if let level = level {
                     Text(level)
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(.orange)
+                        .font(.meetKey(.body4))
+                        .foregroundStyle(Color.main)
                         .padding(.horizontal, 8).padding(.vertical, 4)
-                        .background(Color.orange.opacity(0.1)).cornerRadius(5)
+                        .background(Color.sub1)
+                        .clipShape(RoundedRectangle(cornerRadius:15))
                 }
             }
         }
-        .padding(16)
+        .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.gray.opacity(0.05))
-        .cornerRadius(15)
     }
     
     private func personalityRow(title: String, value: String) -> some View {
         VStack(spacing: 0) {
             HStack {
-                Text(title).foregroundColor(.gray)
+                Text(title)
+                    .foregroundStyle(Color.text3)
+                    .font(.meetKey(.body5))
                 Spacer()
-                Text(value).fontWeight(.medium)
+                Text(value)
+                    .font(.meetKey(.body4))
+                    .foregroundStyle(Color.text2)
             }
-            .font(.system(size: 14))
             .padding(.vertical, 15)
             .padding(.horizontal, 15)
             Divider().padding(.horizontal, 15)
@@ -213,5 +242,38 @@ private extension HomeProfileDetailView {
                 .frame(width:60 , height:25)
         }
         .padding()
+    }
+}
+
+//MARK: - LazyVGrid 대신 사용할 로직 함수,,,
+private extension HomeProfileDetailView {
+    private func generateRows(interests: [String], screenWidth: CGFloat) -> [[String]] {
+        var rows: [[String]] = []
+        var currentRow: [String] = []
+        
+        var totalWidth: CGFloat = 0
+        
+        for interest in interests {
+            // 단어의 대략적인 너비 계산 (폰트 크기 + 패딩)
+            let font = UIFont(name:"Pretendard-Medium", size: 16) // .body2에 맞게 조절
+            let attributes = [NSAttributedString.Key.font: font]
+            let size = (interest as NSString).size(withAttributes: attributes as [NSAttributedString.Key : Any])
+            let chipWidth = size.width + 24 + 8 // (글자너비 + 가로패딩 + 칩간격)
+            
+            if totalWidth + chipWidth > screenWidth {
+                rows.append(currentRow)
+                currentRow = [interest]
+                totalWidth = chipWidth
+            } else {
+                currentRow.append(interest)
+                totalWidth += chipWidth
+            }
+        }
+        
+        if !currentRow.isEmpty {
+            rows.append(currentRow)
+        }
+        
+        return rows
     }
 }
