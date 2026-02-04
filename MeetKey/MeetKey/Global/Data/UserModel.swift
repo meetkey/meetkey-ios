@@ -54,8 +54,7 @@ struct UserResponse: Codable {
 // MARK: - 표준 유저 모델
 struct User: Identifiable, Codable, Equatable {
     // 1. 서버 명세서 기준 필수 데이터
-    let memberId: Int
-    var id: Int { memberId }  // SwiftUI Identifiable 대응 (Int 사용)
+    var id: Int
     let name: String
     let profileImage: String
 
@@ -63,16 +62,16 @@ struct User: Identifiable, Codable, Equatable {
     let age: Int?  // 서버에서 주는 나이
     let gender: String?  // "MALE", "FEMALE"
     let homeTown: String?
-    let location: String?  // 팀원 모델 대응용
+    let location: String // 팀원 모델 대응용
     let distance: String?
     let bio: String?  // bio == oneLiner 통합
 
     // 3. 언어 및 활동 데이터
-    let first: String?  // 모국어 (usingLanguage)
-    let target: String?  // 목표 언어 (interestingLanguage)
-    let level: String?
-    var recommendCount: Int? = nil
-    var notRecommendCount: Int? = nil
+    let first: String  // 모국어 (usingLanguage)
+    let target: String  // 목표 언어 (interestingLanguage)
+    let level: String
+    var recommendCount: Int = 0
+    var notRecommendCount: Int = 0
 
     // 4. 성향 및 관심사
     let interests: [String]?
@@ -82,7 +81,7 @@ struct User: Identifiable, Codable, Equatable {
     let badge: BadgeInfo?
 
     // 6. 프로필 수정 시 사용하는 데이터
-    var birthDate: Date?
+    let birthDate: Date?
 
     // MARK: - 매너 브릿지 & 계산 프로퍼티
 
@@ -97,21 +96,12 @@ struct User: Identifiable, Codable, Equatable {
         guard let birth = birthDate else { return 0 }
         let calendar = Calendar.current
         return calendar.dateComponents([.year], from: birth, to: Date()).year
-            ?? 0
-    }
-
-    // 로직을 이식한 표시용 문자열 (String)
-    var birthInfoString: String {
-        guard let birth = birthDate else { return "정보 없음" }
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy/MM/dd"
-        let dateString = formatter.string(from: birth)
-        return "만 \(ageInt)세 \(dateString)"
+        ?? 0
     }
 
     // Equatable 준수
     static func == (lhs: User, rhs: User) -> Bool {
-        lhs.memberId == rhs.memberId
+        lhs.id == rhs.id
     }
 }
 
@@ -168,4 +158,26 @@ struct Personalities: Codable, Equatable {
     let friendType: String
     let relationType: String
 
+}
+
+extension User {
+
+    var tags: [String] {
+        var result: [String] = []
+
+        let age = ageInt
+        if age > 0 {
+            result.append("\(age)살")
+        }
+
+        if let personalities = personalities {
+            result.append(personalities.socialType)
+        }
+
+        if let interests = interests {
+            result.append(contentsOf: interests.prefix(2))
+        }
+
+        return result
+    }
 }
