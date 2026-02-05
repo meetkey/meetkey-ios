@@ -92,12 +92,12 @@ extension HomeView {
     //------Header
     private var headerView: some View {
         HeaderOverlay(
-            state: homeVM.isDetailViewPresented ? .detail : .home,
-            safeArea: .init(),
+            state: homeVM.isDetailViewPresented ? .homeDetail : .home,
             user: homeVM.me,
-            homeVM: homeVM,
-            onBackAction: {homeVM.dismissDetailView()},
-            onFilterAction: {homeVM.presentFilterView()}
+            reportVM: homeVM.reportVM,
+            onLeftAction: {homeVM.dismissDetailView()},
+            onRightAction: {homeVM.presentFilterView()},
+            onDetailAction: { }
         )
         .zIndex(1)
     }

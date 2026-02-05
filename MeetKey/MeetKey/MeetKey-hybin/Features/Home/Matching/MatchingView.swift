@@ -34,11 +34,11 @@ struct MatchingView: View {
 
                 HeaderOverlay(
                     state: .chat,
-                    safeArea: safeArea,
                     user: homeVM.currentUser ?? homeVM.me,
-                    homeVM: homeVM,
-                    onBackAction: homeVM.dismissMatchView,
-                    onFilterAction: homeVM.reportVM.handleReportMenuTap
+                    reportVM: homeVM.reportVM,
+                    onLeftAction: homeVM.dismissMatchView,
+                    onRightAction: homeVM.reportVM.handleReportMenuTap,
+                    onDetailAction: homeVM.presentDetailView
                 ).zIndex(1)
 
             }
