@@ -69,12 +69,11 @@ private extension ProfileSectionView {
             if let interests = interests {
                 ForEach(interests.prefix(3), id: \.self) { interest in
                     Text(interest)
-                        .font(.system(size: 13, weight: .bold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(Color.black.opacity(0.6))
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .font(.meetKey(.body4))
+                        .padding(.horizontal, 8)
+                        .background(Color.text5)
+                        .foregroundStyle(Color.white01)
+                        .clipShape(RoundedRectangle(cornerRadius:10))
                 }
             }
         }
@@ -95,10 +94,10 @@ private extension ProfileSectionView {
                 Image(circleBadgeName)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 26, height: 26)
+                    .frame(width: 24, height: 24)
             }
         }
-        .foregroundColor(.white)
+        .foregroundStyle(Color.white01)
     }
     
     // 4. 언어 정보 스택
@@ -107,8 +106,8 @@ private extension ProfileSectionView {
             languageLabel(title: "사용 언어", lang: first)
             languageLabel(title: "관심 언어", lang: target)
         }
-        .font(.system(size: 16, weight: .semibold))
-        .foregroundColor(.white)
+        .font(.meetKey(.body2))
+        .foregroundStyle(Color.white01)
     }
     
     // 언어 정보 내의 개별 레이블 (재사용)
