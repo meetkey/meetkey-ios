@@ -8,20 +8,40 @@
 import SwiftUI
 
 struct OneLinerSetting: View {
-    var introduceText: String
+    @Binding var introduceText: String
+    @State private var isEditing = false
+    @FocusState private var isFocused: Bool
+    
     var body: some View {
-        HStack(spacing: 8) {
-            Image(.volume)
-                .padding(.leading, 16)
-            Text(introduceText)
-                .font(.meetKey(.body5))
-                .foregroundStyle(.text3)
-                .padding(.trailing, 16)
+        HStack(spacing: 4) {
+            if isEditing {
+                TextField("한 줄 소개를 입력해주세요.", text: $introduceText)
+                    .font(.meetKey(.body5))
+                    .foregroundStyle(.text2)
+                    .focused($isFocused)
+            }else {
+                Text(introduceText.isEmpty ? "한 줄 소개를 입력해주세요" : introduceText)
+                    .font(.meetKey(.body5))
+                    .foregroundStyle(.text2)
+            }
+            Spacer()
+            Image(.edit)
+                .frame(width: 24, height: 24)
+                .onTapGesture {
+                    isEditing = true
+                    DispatchQueue.main.async {
+                        isFocused = true
+                    }
+                }
         }
-        .frame(height: 56)
+        .padding(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(.disabled, lineWidth: 1)
+        )
         .frame(maxWidth: .infinity)
-        .background(.background1)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .onSubmit {
+            isEditing = false
+        }
     }
 }
-
