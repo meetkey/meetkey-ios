@@ -154,7 +154,7 @@ class HomeViewModel: ObservableObject {
 extension User {
     static let mockData: [User] = [
         User(
-            memberId: 101,
+            id: 101,
             name: "전효빈",
             profileImage: "profileImageSample1",
             age: 27,
@@ -184,7 +184,7 @@ extension User {
             birthDate: nil  // 필요시 추가
         ),
         User(
-            memberId: 102,
+            id: 102,
             name: "김민준",
             profileImage: "profileImageSample2",
             age: 24,
@@ -208,7 +208,7 @@ extension User {
             birthDate: nil
         ),
         User(
-            memberId: 103,
+            id: 103,
             name: "이서연",
             profileImage: "profileImageSample1",
             age: 29,
@@ -230,7 +230,7 @@ extension User {
             birthDate: nil
         ),
         User(
-            memberId: 104,
+            id: 104,
             name: "박지성",
             profileImage: "profileImageSample2",
             age: 31,
@@ -252,7 +252,7 @@ extension User {
             birthDate: nil
         ),
         User(
-            memberId: 105,
+            id: 105,
             name: "최유진",
             profileImage: "profileImageSample1",
             age: 24,
@@ -277,7 +277,7 @@ extension User {
 
     // 로그인 유저 목데이터
     static let me = User(
-        memberId: 1,
+        id: 1,
         name: "김밋키",
         profileImage: "profileImageSample1",
         age: 24,
@@ -289,11 +289,11 @@ extension User {
         first: "KOREAN",
         target: "ENGLISH",
         level: "NOVICE",
-        recommendCount: 0,
+        recommendCount: 10,
         notRecommendCount: 0,
-        interests: ["Language Exchange"],
+        interests: ["Language Exchange", "swimming"],
         personalities: nil,
         badge: BadgeInfo(badgeName: "골드 뱃지", totalScore: 99, histories: nil),
-        birthDate: nil
+        birthDate: DateFormatter.yyyyMMdd.date(from: "2001-01-01")
     )
 }

@@ -26,6 +26,10 @@ struct HybinMainTabView: View {
     @State private var currentTab: HybinTab = .home
     @StateObject private var homeVM = HomeViewModel()
 
+    
+    @State private var user: User = .me
+    
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             Group {
@@ -35,7 +39,7 @@ struct HybinMainTabView: View {
                 case .chat:
                     HybinChatListView()
                 case .profile:
-                    HybinMyProfileView()
+                    MyProfile(user: $user)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
