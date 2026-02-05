@@ -21,12 +21,12 @@ struct MatchingView: View {
             ZStack(alignment: .top) {
 
                 backgroundSection(size: screenSize)
-                
+
                 if homeVM.reportVM.isReportMenuPresented {
                     closeOverlay
                 }
-                
-                VStack{
+
+                VStack {
                     Spacer()
                     ChatInputSection(messageText: $messageText)
                         .padding(.bottom, safeArea.bottom)
@@ -56,6 +56,7 @@ struct MatchingView: View {
                     reportVM: homeVM.reportVM,
                     targetUser: homeVM.currentUser ?? User.mockData[0]
                 )
+                .presentationBackground(Color.white01)  // 시트 배경 색
                 .presentationDetents([.medium])  // 피그마처럼 중간 높이 설정
             }
         }
@@ -65,17 +66,27 @@ struct MatchingView: View {
     private func backgroundSection(size: CGSize) -> some View {
         VStack {
             Spacer()
-            VStack(spacing: 12) {
-                Image("profileImageSample1")  // 나중에 실제 데이터로 교체 가능
+            VStack(spacing: 6) {
+                Image("img_meetkey_matched")  // 나중에 실제 데이터로 교체 가능
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 140, height: 140)
+                    .frame(width: 110, height: 110)
 
-                VStack {
-                    Text("soulMate").font(.headline)
-                    Text("yourFriends").font(.subheadline).foregroundColor(
-                        .gray
-                    )
+                VStack(spacing:0) {
+                    Text("소울 메이트 발견!")
+                        .font(.meetKey(.title4))
+                        .foregroundStyle(Color.text2)
+                        .padding(.bottom, 10)
+                    Text("회원님과 잘 맞을 것 같은 친구를 발견했어요.")
+                        .font(.meetKey(.body5))
+                        .foregroundStyle(Color.text4)
+                    HStack{
+                        Spacer()
+                        Text("바로 대화를 시작해보세요!")
+                            .font(.meetKey(.body5))
+                            .foregroundStyle(Color.text4)
+                        Spacer()
+                    }
                 }
             }
             Spacer()
