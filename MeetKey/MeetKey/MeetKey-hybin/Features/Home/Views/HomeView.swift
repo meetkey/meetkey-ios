@@ -108,36 +108,26 @@ extension HomeView {
     private var likeButtonSection: some View {
         HStack {
             actionButton(
-                icon: "xmark",
-                color: .white,
-                bgColor: .black.opacity(0.8),
+                imageName: "btn_skip",
                 isLike: false
             )
             Spacer()
             actionButton(
-                icon: "heart.fill",
-                color: .orange,
-                bgColor: .white,
+                imageName: "btn_like",
                 isLike: true
             )
         }
     }
 
     private func actionButton(
-        icon: String,
-        color: Color,
-        bgColor: Color,
+        imageName: String,
         isLike: Bool
     ) -> some View {
         Button {
             triggerAction(isLike: isLike)
         } label: {
-            Image(systemName: icon)
-                .font(.system(size: 24, weight: .bold))
-                .foregroundStyle(color)
+            Image(imageName)
                 .frame(width: 64, height: 64)
-                .background(bgColor)
-                .clipShape(Circle())
                 .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
         }
     }

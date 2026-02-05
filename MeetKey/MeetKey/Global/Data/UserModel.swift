@@ -14,36 +14,6 @@ enum SafeBadge : String, CaseIterable{
     case gold = "gold"
 }
 
-//struct User: Identifiable, Equatable {
-//    let id: UUID
-//    let name : String
-//    let age: Int
-//    let bio : String
-//    let profileImageURL: String
-//    let safeBadge: SafeBadge
-//}
-
-//struct User {
-//    var name: String
-//    var birthDate: Date
-//    var location: String
-//    var usingLanguage: String
-//    var interestingLanguage: String
-//    var oneLiner: String
-//}
-
-//MARK: - UserModel (hybin)
-/*
- struct User: Identifiable, Equatable {
- let id: UUID
- let name : String
- let age: Int (== birthDate)
- let bio : String  (== oneLiner)
- let profileImageURL: String -> 필요하고
- let safeBadge: SafeBadge -> 필요하고 nil?
- }
- */
-
 // MARK: - 서버 응답 전체 구조
 struct UserResponse: Codable {
     let code: String
@@ -87,8 +57,9 @@ struct User: Identifiable, Codable, Equatable {
 
     // 기존에 쓰던 이름을 그대로 유지할 수 있게 연결
     var oneLiner: String { bio ?? "" }
-    var usingLanguage: String { first ?? "" }
-    var interestingLanguage: String { target ?? "" }
+    //유저모델 바뀐거에 따른 옵셔널 제거
+    var usingLanguage: String { first }
+    var interestingLanguage: String { target }
 
     // 로직용으로 쓸 순수 숫자 나이 (Int)
     var ageInt: Int {
@@ -179,5 +150,14 @@ extension User {
         }
 
         return result
+    }
+    
+    // User모델의 first와 target을 국기 이미지로 바꿔주는 프로퍼티
+    var nativeNation: Nation? {
+        Nation.from(serverValue:first)
+    }
+    
+    var targetNation: Nation? {
+        Nation.from(serverValue: target)
     }
 }
