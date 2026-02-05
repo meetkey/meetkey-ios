@@ -21,14 +21,14 @@ struct HeaderOverlay: View {
 
     @ObservedObject var homeVM: HomeViewModel
 
-    
+
     var onBackAction: () -> Void
     var onFilterAction: () -> Void
 
     var body: some View {
         ZStack(alignment: .bottom) {
             // 1. 배경 처리
-           
+
 
             // 2. 버튼 및 콘텐츠 레이어
             VStack {
@@ -166,7 +166,7 @@ extension HeaderOverlay {
                 print("신고 프로세스 시작: \(homeVM.currentUser?.name ?? "알 수 없음")")
                 homeVM.reportVM.currentReportStep = ReportStep.report  // 신고 사유 선택 단계로 변경
             }
-            
+
             Divider().padding(.horizontal, 10)
         }
     }
@@ -194,3 +194,189 @@ extension HeaderOverlay {
         }
     }
 }
+
+//enum HeaderType {
+//    case home  //매칭 화면 (HomeView Header)
+//    case homeDetail  //홈에서 진입한 상세 프로필 (HomeProfileDetailView Header)
+//    case matchingSuccess  //홈에서 LikeAction 이후 보이는 채팅방에서의 헤더
+//
+//    case chat  // 블루(은재)님 채팅방에 사용될 헤더
+//
+//    case myProfile  // 수민님의 나의 프로필 헤더
+//    case opponentDetail  // 홈뷰 -> 디테일을 제외한 상대방 프로필 디테일 화면
+//}
+//
+//struct HeaderOverlay: View {
+//    let state: HeaderType
+//    let user: User
+//
+//    var onLeftAction: () -> Void
+//    var onRightAction: () -> Void
+//
+//    var body: some View {
+//        ZStack(alignment: .bottom) {
+//
+//            VStack {
+//                switch state {
+//                case .home, .homeDetail, .opponentDetail:
+//                    //                    homeHeaderLayout
+//                case .myProfile:
+//                    EmptyView()
+//                //수민님 프로필 뷰
+//                case .chat, .matchingSuccess:
+//                    //                    chatHeaderLayout
+//                }
+//                if homeVM.reportVM.isReportMenuPresented {
+//                                    reportMenuList
+//                                }
+//            }
+//            .background(
+//                RoundedRectangle(cornerRadius: 20)
+//                    .fill(.ultraThinMaterial)
+//                    .ignoresSafeArea(edges: .top)
+//            )
+//        }
+//        .fixedSize(horizontal: false, vertical: true)
+//    }
+//}
+//
+////MARK: - homeHeaderView
+//struct HomeHeaderView: View {
+//    var state: HeaderType
+//    let user: User
+//    var onLeftAction: () -> Void
+//    var onRightAction: () -> Void
+//    //타입, 유저, 액션(왼쪽 오른쪽)
+//
+//    var body: some View {
+//        HStack {
+//            switch state {
+//            case .home:
+//                leftSideButton(icon: "")
+//                homeHeaderText
+//                rightSideButton
+//            case .homeDetail:
+//                leftSideButton(icon: "")
+//                homeHeaderText
+//                rightSideButton
+//            case .opponentDetail:
+//                leftSideButton(icon: "")
+//                homeHeaderText
+//                rightSideButton
+//            case .chat, .matchingSuccess, .myProfile:
+//                EmptyView()
+//            }
+//
+//        }
+//    }
+//    private func leftSideButton(icon: String) -> some View {
+//        Button(action: { onLeftAction() }) {
+//            Image(icon)
+//                .font(.system(size: 18, weight: .bold))
+//                .foregroundColor(.black)
+//                .frame(width: 40, height: 40)  // Circle 크기와 동일하게
+//                .background(Color.white.opacity(0.8))
+//                .clipShape(Circle())
+//        }
+//    }
+//
+//    private var homeHeaderText: some View {
+//        VStack(alignment: .leading, spacing: 2) {
+//            Text(user.name + "님,")
+//                .font(.system(size: 12))
+//                .foregroundColor(.white.opacity(0.7))
+//            Text("이런 친구는 어때요?")
+//                .font(.system(size: 18, weight: .bold))
+//                .foregroundColor(.white)
+//        }
+//    }
+//
+//    private var rightSideButton: some View {
+//        FilterButton {
+//            withAnimation(.spring()) { onRightAction() }
+//        }
+//    }
+//}
+//
+////MARK: - 채팅헤더
+//struct ChatHeaderView: View {
+//    //왼쪽 가운데 오른쪽
+//    //타입 , 유저, 액션(왼쪽 오른쪽)
+//    var state: HeaderType
+//    var user: User
+//    var onLeftAction: () -> Void
+//    var onRightAction: () -> Void
+//
+//    var body: some View {
+//        HStack(alignment: .center) {
+//            switch state {
+//            case .chat: // 오른쪽버튼을 눌러 헤더를 확장했을때 나오는 정보가 다름
+//                leftSideButton
+//                Spacer()
+//                centerArea
+//                Spacer()
+//                rightSideButton
+//            case .matchingSuccess: // 오른쪽버튼을 눌러 헤더를 확장했을때 나오는 정보가 다름
+//                leftSideButton
+//                Spacer()
+//                centerArea
+//                Spacer()
+//                rightSideButton
+//            case .homeDetail , .home , .myProfile , .opponentDetail:
+//                EmptyView()
+//            }
+//            leftSideButton
+//            Spacer()
+//            centerArea
+//            Spacer()
+//            rightSideButton
+//        }
+//    }
+//
+//    private var leftSideButton: some View {
+//        Button(action: { onLeftAction() }) {
+//            Image(systemName: "chevron.left")
+//                .font(.system(size: 20, weight: .bold))
+//                .foregroundColor(.black)
+//                .frame(width: 40, height: 40)
+//                .background(Color.white.opacity(0.8))
+//        }
+//    }
+//
+//    private var centerArea: some View {
+//        VStack(alignment: .center) {
+//            Image(user.profileImage)
+//                .resizable()
+//                .scaledToFill()
+//                .clipShape(Circle())
+//            HStack {
+//                Text(user.name)
+//                    .font(.meetKey(.title5))
+//                if let badgeData = user.badge {
+//                    let type = BadgeType1.from(score: badgeData.totalScore)
+//                    let circleBadgeName = type.assetName.replacingOccurrences(
+//                        of: "Badge",
+//                        with: ""
+//                    )
+//
+//                    Image(circleBadgeName)
+//                        .resizable()
+//                        .aspectRatio(contentMode: .fit)
+//                        .frame(width: 20, height: 20)
+//                }
+//            }
+//        }
+//    }
+//
+//    private var rightSideButton: some View {
+//        Button(action: { onRightAction() }) {
+//            Image(systemName: "ellipsis")
+//                .rotationEffect(.degrees(90))
+//                .font(.system(size: 20, weight: .bold))
+//                .foregroundColor(.black)
+//                .frame(width: 40, height: 40)
+//                .background(Color.white.opacity(0.8))
+//                .clipShape(Circle())
+//        }
+//    }
+//}
