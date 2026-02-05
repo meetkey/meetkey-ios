@@ -78,7 +78,7 @@ private extension HomeProfileDetailView {
                     .foregroundStyle(Color.white01)
                 Spacer()
             }
-            Label("\(user.location ?? "Unknown"), \(user.distance ?? "??")근처", systemImage: "location.fill")
+            Label("\(user.location), \(user.distance ?? "??")근처", systemImage: "location.fill")
                 .font(.meetKey(.body5))
                 .foregroundStyle(Color.white01.opacity(0.8)) ///#EEEEEE - Color.gray인데 잘 안보여서,,
             ///Label 출신국가 넣어야함
@@ -90,7 +90,7 @@ private extension HomeProfileDetailView {
     // 3. 언어 섹션
     private func languageSection(user: User) -> some View {
         HStack(alignment: .top , spacing: 0) {
-            languageCard(title: "사용 언어", language: user.first ?? "Unknown", flag: "🌐", level: nil)
+            languageCard(title: "사용 언어", language: user.first, nation: user.nativeNation, level: nil)
             
             //중앙 구분선
             Rectangle()
@@ -98,7 +98,7 @@ private extension HomeProfileDetailView {
                 .frame(width:1)
                 .padding(.vertical, 16)
             
-            languageCard(title: "관심 언어", language: user.target ?? "Unknown", flag: "🌐", level: user.level)
+            languageCard(title: "관심 언어", language: user.target, nation: user.targetNation, level: user.level)
         }
         .background(Color.background1)
         .clipShape(
@@ -186,13 +186,20 @@ private extension HomeProfileDetailView {
             }
     }
     
-    private func languageCard(title: String, language: String, flag: String, level: String?) -> some View {
+    private func languageCard(title: String, language: String, nation: Nation?, level: String?) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title).font(.meetKey(.body5)).foregroundStyle(Color.text3)
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 4) {
                     Text(language).font(.meetKey(.title5))
-                    Text(flag) //이미지로 바꿔야함
+                    if let flagImage = nation?.image {
+                        flagImage
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 16, height: 12)
+                    } else {
+                        Text("??")  // 또는 Nation.from 로직에서 걸러지지 못한 기본 문자열 출력
+                    }
                 }
                 
                 if let level = level {
