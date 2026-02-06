@@ -14,12 +14,13 @@ struct FilterButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: "slider.horizontal.3")
-                .font(.system(size: 20))
-                .foregroundColor(.black)
+                .font(.meetKey(.title6))
+                .foregroundStyle(Color.black)
                 .padding(12)
                 .background(Color.white.opacity(0.8))
                 .clipShape(Circle())
-                .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+
         }
+        .frame(width:50, height: 50)
     }
 }

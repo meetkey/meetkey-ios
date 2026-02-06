@@ -52,7 +52,7 @@ extension HeaderOverlay {
     
     private var defaultHeaderLayout: some View {
         HStack(alignment: .center) {
-            leftArea.frame(width: 40, height: 40)
+            leftArea.frame(width:50,height:50)
             
             if state == .home {
                 homeHeaderText.padding(.leading, 8)
@@ -63,7 +63,7 @@ extension HeaderOverlay {
                 Spacer()
             }
             
-            rightArea.frame(width: 40, height: 40)
+            rightArea.frame(width:50, height: 50)
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 12)
@@ -74,14 +74,21 @@ extension HeaderOverlay {
         switch state {
         case .home:
             Button(action: onLeftAction) {
-                Circle().fill(.gray.opacity(0.3))
-                    .overlay(Text(String(user.name.prefix(1))).foregroundColor(.white))
+                Circle()
+                    .overlay(Image(user.profileImage)
+                        .resizable()
+                        .frame(width: 50, height: 50)
+                        .clipShape(Circle())
+                    )
             }
         default:
             Button(action: onLeftAction) {
                 Image(systemName: state == .chat || state == .matchingSuccess ? "xmark" : "arrow.left")
-                    .font(.system(size: 18, weight: .bold)).foregroundColor(.black)
-                    .frame(width: 40, height: 40).background(Color.white.opacity(0.8)).clipShape(Circle())
+                    .font(.meetKey(.title6))
+                    .foregroundStyle(Color.black)
+                    .frame(width: 50, height: 50)
+                    .background(Color.white01.opacity(0.8))
+                    .clipShape(Circle())
             }
         }
     }
@@ -90,7 +97,10 @@ extension HeaderOverlay {
     private var centerArea: some View {
         if state == .chat || state == .matchingSuccess {
             VStack(spacing: 4) {
-                Image(user.profileImage).resizable().frame(width: 32, height: 32).clipShape(Circle())
+                Image(user.profileImage)
+                    .resizable()
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
                 Text(user.name).font(.meetKey(.title5))
             }
         } else {
@@ -113,19 +123,23 @@ extension HeaderOverlay {
     private var homeHeaderText: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(user.name + "님,")
-                .font(.system(size: 12))
-                .foregroundColor(.white.opacity(0.7))
+                .font(.meetKey(.body5))
+                .foregroundStyle(Color.white01.opacity(0.8))
             Text("이런 친구는 어때요?")
-                .font(.system(size: 18, weight: .bold))
-                .foregroundColor(.white)
+                .font(.meetKey(.body1))
+                .foregroundStyle(Color.white01)
         }
     }
 
     private var ellipsisButton: some View {
         Button(action: { withAnimation(.spring()) { onRightAction() } }) {
-            Image(systemName: "ellipsis").rotationEffect(.degrees(90))
-                .font(.system(size: 20, weight: .bold)).foregroundColor(.black)
-                .frame(width: 40, height: 40).background(Color.white.opacity(0.8)).clipShape(Circle())
+            Image(systemName: "ellipsis")
+                .rotationEffect(.degrees(90))
+                .font(.meetKey(.title6))
+                .foregroundStyle(.text1)
+                .frame(width: 50, height: 50)
+                .background(Color.white01.opacity(0.8))
+                .clipShape(Circle())
         }
     }
 

@@ -7,7 +7,6 @@ struct FinishedMatchView: View {
 
     var body: some View {
         ZStack {
-            //배경 블러 (카드 뒤로 비치는 배경)
             Color.black.opacity(0.4).ignoresSafeArea()
 
             VStack(spacing: 0) {

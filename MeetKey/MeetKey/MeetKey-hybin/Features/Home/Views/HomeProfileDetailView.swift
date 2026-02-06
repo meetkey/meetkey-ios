@@ -69,7 +69,6 @@ private extension HomeProfileDetailView {
     private func userInfoSection(user: User) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .bottom) {
-                // ageInt 계산 프로퍼티 활용
                 Text("\(user.name)")
                     .font(.meetKey(.title2))
                     .foregroundStyle(Color.white01)
@@ -261,7 +260,7 @@ private extension HomeProfileDetailView {
         var totalWidth: CGFloat = 0
         
         for interest in interests {
-            // 단어의 대략적인 너비 계산 (폰트 크기 + 패딩)
+           
             let font = UIFont(name:"Pretendard-Medium", size: 16) // .body2에 맞게 조절
             let attributes = [NSAttributedString.Key.font: font]
             let size = (interest as NSString).size(withAttributes: attributes as [NSAttributedString.Key : Any])
