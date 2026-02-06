@@ -49,8 +49,8 @@ struct MyProfile: View {
             .background(.white01)
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .padding(.top, 27)
-            .padding(.horizontal, 20)
-            
+            .padding(.horizontal, 20)            
+            .padding(.bottom, 130)
         }
         .background(.background1)
         .ignoresSafeArea()
