@@ -46,9 +46,9 @@ enum SafeBadge : String, CaseIterable{
 
 // MARK: - 서버 응답 전체 구조
 struct UserResponse: Codable {
-    let code: String
-    let message: String
-    let data: User
+    var code: String
+    var message: String
+    var data: User
 }
 
 // MARK: - 표준 유저 모델
@@ -63,25 +63,25 @@ struct User: Identifiable, Codable, Equatable {
     let gender: String?  // "MALE", "FEMALE"
     let homeTown: String?
     var location: String // 팀원 모델 대응용
-    let distance: String?
+    var distance: String?
     var bio: String?  // bio == oneLiner 통합
 
     // 3. 언어 및 활동 데이터
-    let first: String  // 모국어 (usingLanguage)
-    let target: String  // 목표 언어 (interestingLanguage)
-    let level: String
+    var first: String  // 모국어 (usingLanguage)
+    var target: String  // 목표 언어 (interestingLanguage)
+    var level: String
     var recommendCount: Int = 0
     var notRecommendCount: Int = 0
 
     // 4. 성향 및 관심사
     var interests: [String]?
-    let personalities: Personalities?
+    var personalities: Personalities?
 
     // 5. 뱃지 데이터 (UI 컴포넌트 'Badge'와 충돌 방지를 위해 BadgeInfo로 명명)
-    let badge: BadgeInfo?
+    var badge: BadgeInfo?
 
     // 6. 프로필 수정 시 사용하는 데이터
-    let birthDate: Date?
+    var birthDate: Date?
 
     // MARK: - 매너 브릿지 & 계산 프로퍼티
 
@@ -137,8 +137,8 @@ enum BadgeType1: String, CaseIterable, Codable {
 // 기존의 'Badge'와 겹치지 않게 'Info'를 붙였습니다.
 struct BadgeInfo: Codable, Equatable {
     let badgeName: String
-    let totalScore: Int
-    let histories: [BadgeHistory]?
+    var totalScore: Int
+    var histories: [BadgeHistory]?
 
     var type : BadgeType1 {
         BadgeType1.from(score: totalScore)
@@ -146,17 +146,17 @@ struct BadgeInfo: Codable, Equatable {
 }
 
 struct BadgeHistory: Codable, Equatable {
-    let reason: String
-    let amount: Int
-    let date: String
+    var reason: String
+    var amount: Int
+    var date: String
 }
 
 struct Personalities: Codable, Equatable {
-    let socialType: String
-    let meetingType: String
-    let chatType: String
-    let friendType: String
-    let relationType: String
+    var socialType: String
+    var meetingType: String
+    var chatType: String
+    var friendType: String
+    var relationType: String
 
 }
 

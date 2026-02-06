@@ -85,7 +85,25 @@ struct MyProfile: View {
                     }
                 )
             case .personality:
-                PersonalityEditView()
+                let initialSelections: [WritableKeyPath<Personalities, String>: String] = {
+                    if let p = user.personalities {
+                        return [
+                            \Personalities.socialType: p.socialType,
+                            \Personalities.meetingType: p.meetingType,
+                            \Personalities.chatType: p.chatType,
+                            \Personalities.friendType: p.friendType,
+                            \Personalities.relationType: p.relationType
+                        ]
+                    } else {
+                        return [:]
+                    }
+                }()
+
+                PersonalityEditView(
+                    viewModel: PersonalityEditViewModel(initialSelections: initialSelections)
+                ) { viewModel in
+                    user.personalities = viewModel.toPersonalities(existing: user.personalities)
+                }
             }
         }
         .onAppear {
