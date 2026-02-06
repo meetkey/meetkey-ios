@@ -10,11 +10,13 @@ import SwiftUI
 struct ProfileHeader: View {
     
     let user: User
+    let profileImageName: String
     let onTapSetting: () -> Void
+    
     private var usingLanguageImage: Image? {
         Nation.from(serverValue: user.usingLanguage)?.image
     }
-
+    
     private var interestingLanguageImage: Image? {
         Nation.from(serverValue: user.interestingLanguage)?.image
     }
@@ -34,11 +36,19 @@ struct ProfileHeader: View {
             }
             HStack(spacing: 20) {
                 ZStack {
-                    Image(user.profileImage)
+                    if let uiImage = loadImageFromDocuments(profileImageName) {
+                        Image(uiImage: uiImage)
                             .resizable()
                             .scaledToFill()
                             .frame(width: 75, height: 75)
                             .clipShape(Circle())
+                    } else {
+                        Image(profileImageName) // 에셋 fallback
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 75, height: 75)
+                            .clipShape(Circle())
+                    }
                     Image(.editSquare)
                         .padding(.leading, 57)
                         .padding(.top, 57)
@@ -90,5 +100,15 @@ struct ProfileHeader: View {
                 corners: [.bottomLeft, .bottomRight]
             )
         )
+    }
+}
+
+extension ProfileHeader {
+    func loadImageFromDocuments(_ filename: String) -> UIImage? {
+        let url = FileManager.default
+            .urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(filename)
+        
+        return UIImage(contentsOfFile: url.path)
     }
 }

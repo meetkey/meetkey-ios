@@ -56,15 +56,15 @@ struct User: Identifiable, Codable, Equatable {
     // 1. 서버 명세서 기준 필수 데이터
     var id: Int
     let name: String
-    let profileImage: String
+    var profileImage: String
 
     // 2. 상세 정보 (명세서 기준 + 옵셔널 처리)
     let age: Int?  // 서버에서 주는 나이
     let gender: String?  // "MALE", "FEMALE"
     let homeTown: String?
-    let location: String // 팀원 모델 대응용
+    var location: String // 팀원 모델 대응용
     let distance: String?
-    let bio: String?  // bio == oneLiner 통합
+    var bio: String?  // bio == oneLiner 통합
 
     // 3. 언어 및 활동 데이터
     let first: String  // 모국어 (usingLanguage)
