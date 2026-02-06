@@ -74,7 +74,7 @@ struct User: Identifiable, Codable, Equatable {
     var notRecommendCount: Int = 0
 
     // 4. 성향 및 관심사
-    let interests: [String]?
+    var interests: [String]?
     let personalities: Personalities?
 
     // 5. 뱃지 데이터 (UI 컴포넌트 'Badge'와 충돌 방지를 위해 BadgeInfo로 명명)

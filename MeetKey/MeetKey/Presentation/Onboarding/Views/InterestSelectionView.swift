@@ -77,17 +77,17 @@ struct InterestTagButton: View {
     var body: some View {
         Button(action: action) {
             Text(text)
-                .font(.custom(isSelected ? "Pretendard-SemiBold" : "Pretendard-Medium", size: 16))
-                .foregroundColor(isSelected ? .meetKeyOrange04 : .meetKeyBlack05)
+                .font(.meetKey(.body2))
+                .foregroundColor(isSelected ? .main : .text4)
                 .padding(.horizontal, 14)
                 .frame(height: 38)
                 .background(
                     Capsule()
-                        .fill(isSelected ? Color.meetKeyOrange05 : Color.meetKeyBlack07)
+                        .fill(isSelected ? Color.sub1 : Color.background4)
                 )
                 .overlay(
                     Capsule()
-                        .strokeBorder(isSelected ? Color.meetKeyOrange04 : Color.clear, lineWidth: isSelected ? 2 : 0) //
+                        .strokeBorder(isSelected ? Color.main : Color.clear, lineWidth: isSelected ? 2 : 0)
                 )
         }
     }
@@ -96,7 +96,7 @@ struct InterestTagButton: View {
 // [레이아웃] FlowLayout
 struct FlowLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
     let items: Data
-    let spacing: CGFloat = 8 // 태그 사이 간격 (가로)
+    let spacing: CGFloat = 6
     let content: (Data.Element) -> Content
     
     @State private var totalHeight: CGFloat = .zero

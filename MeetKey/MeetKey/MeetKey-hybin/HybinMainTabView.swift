@@ -28,7 +28,7 @@ struct HybinMainTabView: View {
 
     
     @State private var user: User = .me
-    
+    @State private var profilePath = NavigationPath()
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -39,7 +39,9 @@ struct HybinMainTabView: View {
                 case .chat:
                     HybinChatListView()
                 case .profile:
-                    MyProfile(user: $user)
+                    NavigationStack(path: $profilePath) {
+                        MyProfile(user: $user, path: $profilePath)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
