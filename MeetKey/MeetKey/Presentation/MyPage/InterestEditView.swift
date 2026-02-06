@@ -18,6 +18,9 @@ struct InterestEditView: View {
                 HStack(spacing: 0) {
                     Image(.arrowLeft2)
                         .frame(width: 24, height: 24)
+                        .onTapGesture {
+                            dismiss()
+                        }
                     Spacer()
                     Text("관심사를 입력해주세요.")
                         .font(.meetKey(.title2))
@@ -80,6 +83,6 @@ struct InterestEditView: View {
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 20)
-        .navigationBarBackButtonHidden(false)
+        .navigationBarBackButtonHidden()
     }
 }

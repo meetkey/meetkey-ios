@@ -26,9 +26,9 @@ struct HybinMainTabView: View {
     @State private var currentTab: HybinTab = .home
     @StateObject private var homeVM = HomeViewModel()
 
-    
     @State private var user: User = .me
     @State private var profilePath = NavigationPath()
+    @State private var isTabBarHidden = false
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -40,16 +40,20 @@ struct HybinMainTabView: View {
                     HybinChatListView()
                 case .profile:
                     NavigationStack(path: $profilePath) {
-                        MyProfile(user: $user, path: $profilePath)
+                        MyProfile(
+                            user: $user,
+                            path: $profilePath,
+                            isTabBarHidden: $isTabBarHidden
+                        )
                     }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // 3. 커스텀 탭 바
-            if !homeVM.isDetailViewPresented {  // 상세화면이 아닐 때만 탭 바 표시
+            if !homeVM.isDetailViewPresented && !isTabBarHidden {
                 customTabBar
-                    .transition(.move(edge: .bottom).combined(with: .opacity))  // 사라질 때 부드럽게
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .ignoresSafeArea(.keyboard)  // 키보드 올라올 때 탭 바 밀림 방지

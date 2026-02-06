@@ -18,10 +18,9 @@ struct MyProfile: View {
     @Binding var user: User
     @State private var isEditProfilePresented = false
     @Binding var path: NavigationPath
-    
+    @Binding var isTabBarHidden: Bool
     
     var body: some View {
-        NavigationStack(path: $path) {
             ScrollView {
                 ProfileHeader(user: user, profileImageName: user.profileImage){
                     isEditProfilePresented = true
@@ -32,13 +31,13 @@ struct MyProfile: View {
                             .padding(.top, 5)
                         Recommend(recommend: user.recommendCount ?? 0, notRecommend: user.notRecommendCount ?? 0)
                         Section(title: "SAFE 뱃지 점수", isMore: true, onTapMore: {
-                            path.append(MyProfileRoute.badge)
+                            push(.badge)
                         })
                         .padding(.top, 5)
                         Badge(score: user.badge?.totalScore ?? 0)
                         BadgeNotice()
                         Section(title: "관심사", isMore: true, onTapMore: {
-                            path.append(MyProfileRoute.interest)
+                            push(.interest)
                         })
                         TagFlowLayout {
                             ForEach(user.interests ?? [], id: \.self) { i in
@@ -47,7 +46,7 @@ struct MyProfile: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         Section(title: "내 성향", isMore: true, onTapMore: {
-                            path.append(MyProfileRoute.personality)
+                            push(.personality)
                         })
                         Tendency(personality: "성격", value: user.personalities?.socialType ?? "외향적")
                         Tendency(personality: "선호하는 만남 방식", value: user.personalities?.meetingType ?? "상관 없어요")
@@ -71,7 +70,7 @@ struct MyProfile: View {
             .sheet(isPresented: $isEditProfilePresented) {
                 ProfileSettingView(user: $user)
             }
-        }
+        
         .navigationDestination(for: MyProfileRoute.self) { route in
             switch route {
             case .badge:
@@ -89,5 +88,13 @@ struct MyProfile: View {
                 PersonalityEditView()
             }
         }
+        .onAppear {
+            isTabBarHidden = false
+        }
+    }
+    
+    private func push(_ route: MyProfileRoute) {
+        isTabBarHidden = true
+        path.append(route)
     }
 }
