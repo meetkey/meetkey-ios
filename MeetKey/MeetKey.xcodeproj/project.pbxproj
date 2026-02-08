@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		219A90F22F38B6B600476C5D /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 219A90F12F38B6B600476C5D /* CombineMoya */; };
+		219A90F42F38B6B600476C5D /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 219A90F32F38B6B600476C5D /* Moya */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		215F25832F18AF08000BEB64 /* MeetKey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetKey.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				219A90F42F38B6B600476C5D /* Moya in Frameworks */,
+				219A90F22F38B6B600476C5D /* CombineMoya in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = MeetKey;
 			packageProductDependencies = (
+				219A90F12F38B6B600476C5D /* CombineMoya */,
+				219A90F32F38B6B600476C5D /* Moya */,
 			);
 			productName = MeetKey;
 			productReference = 215F25832F18AF08000BEB64 /* MeetKey.app */;
@@ -107,6 +116,9 @@
 			);
 			mainGroup = 215F257A2F18AF08000BEB64;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				219A90F02F38B6B600476C5D /* XCRemoteSwiftPackageReference "Moya" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 215F25842F18AF08000BEB64 /* Products */;
 			projectDirPath = "";
@@ -173,7 +185,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = CJX79LBA76;
+				DEVELOPMENT_TEAM = MU9M64Q465;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -237,7 +249,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = CJX79LBA76;
+				DEVELOPMENT_TEAM = MU9M64Q465;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -266,7 +278,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CJX79LBA76;
+				DEVELOPMENT_TEAM = MU9M64Q465;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MeetKey/Info.plist;
@@ -281,7 +293,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.meetkey.MeetKey;
+				PRODUCT_BUNDLE_IDENTIFIER = com.umc.meetkey;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -300,7 +312,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CJX79LBA76;
+				DEVELOPMENT_TEAM = MU9M64Q465;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MeetKey/Info.plist;
@@ -315,7 +327,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.meetkey.MeetKey;
+				PRODUCT_BUNDLE_IDENTIFIER = com.umc.meetkey;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -349,6 +361,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		219A90F02F38B6B600476C5D /* XCRemoteSwiftPackageReference "Moya" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Moya/Moya";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 15.0.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		219A90F12F38B6B600476C5D /* CombineMoya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 219A90F02F38B6B600476C5D /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = CombineMoya;
+		};
+		219A90F32F38B6B600476C5D /* Moya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 219A90F02F38B6B600476C5D /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = Moya;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 215F257B2F18AF08000BEB64 /* Project object */;
 }
