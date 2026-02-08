@@ -18,10 +18,10 @@ struct BadgeNotice: View {
             VStack(alignment: .leading, spacing: 0) {
                 Text("SAFE 뱃지는 활발한 교류, 본인인증, 미션 참여,")
                     .font(.meetKey(.body5))
-                    .foregroundStyle(.black03)
+                    .foregroundStyle(.text3)
                 Text("추천을 기반으로 산정됩니다.")
                     .font(.meetKey(.body5))
-                    .foregroundStyle(.black03)
+                    .foregroundStyle(.text3)
                     .padding(.bottom, 21)
                 VStack(alignment: .leading, spacing: 4) {
                     Text("• 브론즈 : 70점 이상")

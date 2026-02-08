@@ -22,19 +22,19 @@ struct InterestTag: View {
     }
         
     var body: some View {
-            Text(title)
-                .font(.meetKey(.body2))
-                .foregroundStyle(.orange04)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 4)
-                .background(gradient)
-                .clipShape(Capsule())
-                .overlay(
-                    Capsule()
-                        .stroke(.orange04, lineWidth: 1)
-                )
-                .lineLimit(1)
-                .fixedSize(horizontal: true, vertical: false)
+        Text(title)
+            .font(.meetKey(.body2))
+            .foregroundStyle(.main)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 4)
+            .background(gradient)
+            .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(.main, lineWidth: 1)
+            )
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
     }
 }
 

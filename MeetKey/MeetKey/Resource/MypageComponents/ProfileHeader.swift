@@ -8,17 +8,25 @@
 import SwiftUI
 
 struct ProfileHeader: View {
-    var profileImage: Image? = Image(.meetKeyCharacter)
-    var name: String = "김밋키"
-    var usingLanguage: Image? = Image(.krKoreaSouth)
-    var interestingLanguages: Image? = Image(.usUnitedStates)
-    var badge: Image?
-    var tags: [String] = ["24살", "외향적", "반려동물", "여행"]
+    
+    let user: User
+    let onTapSetting: () -> Void
+    private var usingLanguageImage: Image? {
+        Nation.from(serverValue: user.usingLanguage)?.image
+    }
+
+    private var interestingLanguageImage: Image? {
+        Nation.from(serverValue: user.interestingLanguage)?.image
+    }
     
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Image(.setting)
+                Button {
+                    onTapSetting()
+                } label: {
+                    Image(.setting)
+                }
                 Spacer()
                 Text("내 프로필")
                 Spacer()
@@ -26,7 +34,7 @@ struct ProfileHeader: View {
             }
             HStack(spacing: 20) {
                 ZStack {
-                    profileImage?
+                    Image(user.profileImage)
                             .resizable()
                             .scaledToFill()
                             .frame(width: 75, height: 75)
@@ -39,31 +47,31 @@ struct ProfileHeader: View {
                 .padding(.bottom, 21)
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(spacing: 3.5) {
-                        Text(name)
+                        Text(user.name)
                             .font(.meetKey(.title4))
-                            .foregroundStyle(.black01)
+                            .foregroundStyle(.text1)
                             .padding(.bottom, 3.5)
                         Image(.bronze)
                     }
                     HStack(spacing: 0) {
                         Text("사용 언어")
                             .font(.meetKey(.body3))
-                            .foregroundStyle(.black06)
+                            .foregroundStyle(.text2)
                             .padding(.trailing, 2)
-                        usingLanguage
+                        usingLanguageImage
                             .padding(.trailing, 6)
                         Text("관심 언어")
                             .font(.meetKey(.body3))
-                            .foregroundStyle(.black06)
+                            .foregroundStyle(.text2)
                             .padding(.trailing, 2)
-                        interestingLanguages
+                        interestingLanguageImage
                     }
                     .padding(.top, 7.5)
                     HStack(spacing: 4) {
-                        ForEach(tags, id: \.self) { tag in
+                        ForEach(user.tags, id: \.self) { tag in
                             Text("#\(tag)")
                                 .font(.meetKey(.caption2))
-                                .foregroundStyle(.black03)
+                                .foregroundStyle(.text3)
                         }
                     }
                     .padding(.top, 4)
@@ -83,8 +91,4 @@ struct ProfileHeader: View {
             )
         )
     }
-}
-
-#Preview {
-    ProfileHeader()
 }

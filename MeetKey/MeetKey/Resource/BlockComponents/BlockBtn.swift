@@ -16,7 +16,7 @@ struct BlockBtn: View {
         Button(action: action) {
             Text(title)
                 .font(.meetKey(.title5))
-                .foregroundStyle(.black06)
+                .foregroundStyle(.text2)
                 .frame(height: 25)
                 
         }

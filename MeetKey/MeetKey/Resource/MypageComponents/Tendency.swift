@@ -16,11 +16,11 @@ struct Tendency: View {
         HStack {
             Text(personality)
                 .font(.meetKey(.body5))
-                .foregroundStyle(.black03)
+                .foregroundStyle(.text3)
             Spacer()
             Text(value)
                 .font(.meetKey(.body4))
-                .foregroundStyle(.black06)
+                .foregroundStyle(.text2)
         }
         .frame(height: 44)
         

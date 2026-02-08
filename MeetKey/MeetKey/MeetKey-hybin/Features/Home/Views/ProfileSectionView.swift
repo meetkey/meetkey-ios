@@ -10,94 +10,157 @@ import SwiftUI
 struct ProfileSectionView: View {
     let size: CGSize
     let user: User
-    
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            
-            // 1. 배경 사진 (화면 전체 꽉 채우기)
-            Image(user.profileImageURL)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: size.width, height: size.height) // 전체 사이즈 사용
-                .clipped()
-                .ignoresSafeArea() //  안전 영역 무시하고 꽉 채우기
-            
-            // 2. 가독성을 위한 전체 그라데이션
-            LinearGradient(
-                colors: [.black.opacity(0.8), .clear, .black.opacity(0.3)],
-                startPoint: .bottom,
-                endPoint: .top
-            )
-            .ignoresSafeArea()
+            // 1. 배경 레이어
+            backgroundLayer
 
-            // 3. 상단 및 하단 콘텐츠 레이어
+            // 2. 콘텐츠 레이어
             VStack(alignment: .leading, spacing: 0) {
-                
-                // [상단] SAFE 배지 영역
-                HStack {
-                    Spacer()
-                    Text("✓ SAFE")
-                        .font(.system(size: 12, weight: .bold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color.yellow)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-                .padding(.top, 85) // 상단 노치 고려
-                .padding(.trailing, 20)
-                
-                Spacer() // 중간 비우기
-                
-                // [하단] 유저 정보 영역
-                VStack(alignment: .leading, spacing: 12) {
-                    
-                    // 성향 태그 칩
-                    HStack(spacing: 8) {
-                        profileChip(text: "외향적")
-                        profileChip(text: "반려동물")
-                        profileChip(text: "여행")
-                    }
-                    
-                    // 이름과 나이, 인증 마크
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text(user.name)
-                            .font(.system(size: 32, weight: .bold))
-                        Text("\(user.age)")
-                            .font(.system(size: 24, weight: .medium))
-                        Image(systemName: "checkmark.seal.fill")
-                            .foregroundColor(.yellow)
-                    }
-                    .foregroundColor(.white)
-                    
-                    // 언어 및 위치 상세
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("사용 언어 🇺🇸   관심 언어 🇰🇷")
-                            .font(.system(size: 15, weight: .semibold))
-                        
-                        Label("서울시 마포구, 20km 근처", systemImage: "location.fill")
-                            .font(.system(size: 14))
-                        
-                        Text(user.bio)
-                            .font(.system(size: 14))
-                            .lineLimit(1)
-                    }
-                    .foregroundColor(.white.opacity(0.9))
+                Spacer()
+
+                VStack(alignment: .leading, spacing: 14) {
+                    // 성향 태그 섹션
+                    interestTagStack(interests: user.interests)
+
+                    // 이름, 나이, 뱃지 섹션 (피그마 핵심)
+                    nameAndBadgeStack(
+                        name: user.name,
+                        age: user.ageInt,
+                        badge: user.badge
+                    )
+
+                    // 언어 정보 섹션
+                    languageInfoStack(user: user)
+
+                    // 위치 및 소개 섹션
+                    locationStack(
+                        location: user.location,
+                        distance: user.distance
+                    )
+
+                    bioStack(bio: user.bio)
                 }
                 .padding(.leading, 20)
-                .padding(.bottom, 140) // 하단 탭바 높이 고려
+                .padding(.bottom, 150)  // 하단 탭바 여백 고려
             }
         }
     }
-    
-    // 칩 컴포넌트
-    private func profileChip(text: String) -> some View {
-        Text(text)
-            .font(.system(size: 12, weight: .bold))
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Color.black.opacity(0.5))
-            .foregroundColor(.white)
-            .cornerRadius(15)
+}
+
+// MARK: - [Private Components] 하위 컴포넌트 분리
+extension ProfileSectionView {
+
+    // 1. 배경 이미지 및 그라데이션
+    private var backgroundLayer: some View {
+        ZStack {
+            Image(user.profileImage)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: size.width, height: size.height)
+                .clipped()
+
+            LinearGradient(
+                colors: [.black.opacity(0.9), .clear],
+                startPoint: .bottom,
+                endPoint: .center
+            )
+        }
+        .ignoresSafeArea()
+    }
+
+    // 2. 성향 태그 스택
+    private func interestTagStack(interests: [String]?) -> some View {
+        HStack(spacing: 6) {
+            if let interests = interests {
+                ForEach(interests.prefix(3), id: \.self) { interest in
+                    Text(interest)
+                        .font(.meetKey(.body4))
+                        .padding(.horizontal, 8)
+                        .background(Color.text5)
+                        .foregroundStyle(Color.white01)
+                        .clipShape(Capsule())
+                }
+            }
+        }
+    }
+
+    // 3. 이름, 나이 및 동그란 뱃지 스택
+    private func nameAndBadgeStack(name: String, age: Int, badge: BadgeInfo?)
+        -> some View
+    {
+        HStack(alignment: .center, spacing: 8) {
+            Text(name)
+                .font(.meetKey(.title2))
+            Text("\(age)")
+                .font(.meetKey(.title6))
+
+            if let badgeData = badge {
+                let type = BadgeType1.from(score: badgeData.totalScore)
+                let circleBadgeName = type.assetName.replacingOccurrences(
+                    of: "Badge",
+                    with: ""
+                )
+
+                Image(circleBadgeName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 24, height: 24)
+            }
+        }
+        .foregroundStyle(Color.white01)
+    }
+
+    // 4. 언어 정보 스택
+    private func languageInfoStack(user: User) -> some View {
+        HStack(spacing: 12) {
+            languageLabel(title: "사용 언어", nation: user.nativeNation)
+            languageLabel(title: "관심 언어", nation: user.targetNation)
+        }
+        .font(.meetKey(.body2))
+        .foregroundStyle(Color.white01)
+    }
+
+    // 언어 정보 내의 개별 레이블 (재사용)
+    private func languageLabel(title: String, nation: Nation?) -> some View {
+        HStack(spacing: 4) {
+            Text(title)
+            // 국기 데이터가 모델에 있다면 연동, 없다면 텍스트 출력
+            if let flagImage = nation?.image {
+                flagImage
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 16, height: 12)
+            } else {
+                Text("??")  // 또는 Nation.from 로직에서 걸러지지 못한 기본 문자열 출력
+            }
+        }
+    }
+
+    // 5. 위치 및 한 줄 소개 스택
+    private func locationStack(location: String?, distance: String?)
+        -> some View
+    {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(
+                "\(location ?? "서울"), \(distance ?? "??") 근처",
+                systemImage: "location.fill"
+            )
+            .font(.meetKey(.body5))
+        }
+        .foregroundStyle(Color.white01.opacity(0.8))
+    }
+
+    private func bioStack(bio: String?) -> some View {
+        HStack(alignment: .top, spacing: 6) {
+            Image(systemName: "ellipsis.bubble.fill")
+                .font(.meetKey(.body5))
+                .padding(.top, 2)
+            Text(bio ?? "")
+                .font(.meetKey(.body5))
+                .lineLimit(1)
+        }
+        .foregroundStyle(Color.white01.opacity(0.8))
     }
 }
