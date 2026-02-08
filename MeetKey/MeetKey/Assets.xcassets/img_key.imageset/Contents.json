@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "열쇠.png",
+      "filename" : "열쇠 (1) 1.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "열쇠 (1).png",
+      "filename" : "열쇠 (2) 1.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "열쇠 (2).png",
+      "filename" : "열쇠.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
