@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PersonalityEditView: View {
     @ObservedObject var viewModel: PersonalityEditViewModel
-    let onSave: (PersonalityEditViewModel) -> Void
+    let onSave: (Personalities) -> Void
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
@@ -51,13 +51,14 @@ struct PersonalityEditView: View {
                         )
                     }
                 }
-                    .padding(.bottom, 40)
+                .padding(.bottom, 40)
             }
             
             
             Button {
                 guard viewModel.canSave else { return }
-                onSave(viewModel)
+                let result = viewModel.toPersonalities()
+                onSave(result)
                 dismiss()
             } label: {
                 Text("저장")
@@ -90,21 +91,30 @@ struct PersonalityEditSection: View {
     
     @ObservedObject var viewModel: PersonalityEditViewModel
     
+    let columns = [
+        GridItem(.fixed(112), spacing: 12),
+        GridItem(.fixed(112), spacing: 12),
+        GridItem(.fixed(112), spacing: 12)
+    ]
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(question)
                 .font(.meetKey(.body4))
                 .foregroundColor(.text3)
             
-            FlowLayout(items: options) { option in
-                PersonalityOptionButton(
-                    text: option,
-                    isSelected: viewModel.selectedOptions[keyPath] == option
-                ) {
-                    viewModel.selectOption(
-                        keyPath: keyPath,
-                        option: option
-                    )
+            
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(options, id: \.self) {
+                    option in PersonalityOptionButton(
+                        text: option,
+                        isSelected: viewModel.selectedOptions[keyPath] == option
+                    ) {
+                        viewModel.selectOption(
+                            keyPath: keyPath,
+                            option: option
+                        )
+                    }
                 }
             }
         }

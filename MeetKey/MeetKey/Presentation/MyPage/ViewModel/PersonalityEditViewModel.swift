@@ -44,7 +44,9 @@ final class PersonalityEditViewModel: ObservableObject {
         for (keyPath, value) in selectedOptions {
             p[keyPath: keyPath] = value
         }
-        
         return p
     }
+    
+    
 }
+

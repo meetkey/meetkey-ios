@@ -101,8 +101,8 @@ struct MyProfile: View {
 
                 PersonalityEditView(
                     viewModel: PersonalityEditViewModel(initialSelections: initialSelections)
-                ) { viewModel in
-                    user.personalities = viewModel.toPersonalities(existing: user.personalities)
+                ) { personalities in
+                    user.personalities = personalities
                 }
             }
         }
