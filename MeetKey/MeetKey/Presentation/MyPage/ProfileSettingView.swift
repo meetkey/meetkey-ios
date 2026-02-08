@@ -146,7 +146,7 @@ struct ProfileSettingView: View {
                             Spacer()
                         }
                         .padding(.bottom, 12)
-                        Language(isSetting: true)
+                        Language(usingLanguage: $user.first, interestingLanguage: $user.target)
                         .padding(.bottom, 2)
                     }
                     .frame(height: 149)
