@@ -24,24 +24,28 @@ enum HybinTab: String, CaseIterable {
 
 struct HybinMainTabView: View {
     @State private var currentTab: HybinTab = .home
-    @StateObject private var homeVM = HybinHomeViewModel()
+    @StateObject private var homeVM = HomeViewModel()
 
+    
+    @State private var user: User = .me
+    
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             Group {
                 switch currentTab {
                 case .home:
-                    HybinHomeView(homeVM: homeVM)
+                    HomeView(homeVM: homeVM)
                 case .chat:
                     HybinChatListView()
                 case .profile:
-                    HybinMyProfileView()
+                    MyProfile(user: $user)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // 3. 커스텀 탭 바
-            if !homeVM.showDetailExpander {  // 상세화면이 아닐 때만 탭 바 표시
+            if !homeVM.isDetailViewPresented {  // 상세화면이 아닐 때만 탭 바 표시
                 customTabBar
                     .transition(.move(edge: .bottom).combined(with: .opacity))  // 사라질 때 부드럽게
             }
