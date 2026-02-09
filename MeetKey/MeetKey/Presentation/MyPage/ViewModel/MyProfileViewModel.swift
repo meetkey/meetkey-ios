@@ -12,6 +12,7 @@ final class MyProfileViewModel: ObservableObject {
     @Published var user: User?
     
     private let provider = MoyaProvider<MyAPI>()
+    
     func fetchMyProfile() {
         provider.request(.myInfo) { result in
             switch result {

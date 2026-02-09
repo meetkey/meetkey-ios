@@ -25,7 +25,6 @@ struct InterestEditView: View {
                     Text("관심사를 입력해주세요.")
                         .font(.meetKey(.title2))
                         .frame(height: 36)
-                        .padding(.leading, )
                     Spacer()
                     Image(.arrowLeft2)
                         .frame(width: 24, height: 24)
@@ -55,7 +54,7 @@ struct InterestEditView: View {
                                         text: item,
                                         isSelected: viewModel.selectedInterests.contains(item)
                                     ) {
-                                        viewModel.toggleInterest(item)
+                                        viewModel.toggleInterest(code: item)
                                     }
                                 }
                             }
@@ -64,10 +63,11 @@ struct InterestEditView: View {
                     .padding(.bottom, 39)
                 }
                 Button {
-                    // viewModel.result 저장 / 서버 호출 예정
-                    guard viewModel.canSave else { return }
-                    onSave(viewModel.result)
-                    dismiss()
+//                    guard viewModel.canSave else { return }
+//                    viewModel.saveInterests {
+                        onSave(viewModel.result)
+                        dismiss()
+//                    }
                 } label: {
                     Text("저장")
                         .font(.meetKey(.title5))

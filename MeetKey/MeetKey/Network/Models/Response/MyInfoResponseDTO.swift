@@ -5,13 +5,13 @@
 //  Created by sumin Kong on 2/9/26.
 //
 
-struct MyInfoResponseDTO: Codable {
+struct MyInfoResponseDTO: Decodable {
     let code: String
     let message: String
     let data: MyInfoDTO
 }
 
-struct MyInfoDTO: Codable {
+struct MyInfoDTO: Decodable {
     let memberId: Int
     let name: String
     let first: String

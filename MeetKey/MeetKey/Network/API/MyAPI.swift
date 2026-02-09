@@ -22,6 +22,8 @@ enum MasterToken {
 
 enum MyAPI {
     case myInfo
+    case getInterest
+    case getMyProfileImages
 }
 
 extension MyAPI: TargetType {
@@ -45,19 +47,23 @@ extension MyAPI: TargetType {
         switch self {
         case .myInfo:
             return "/me"
+        case .getInterest:
+            return "/interest"
+        case .getMyProfileImages:
+            return "/photos"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .myInfo:
+        case .myInfo, .getInterest, .getMyProfileImages:
             return .get
         }
     }
     
     var task: Task {
         switch self {
-        case .myInfo:
+        case .myInfo, .getInterest, .getMyProfileImages:
             return .requestPlain
         }
     }
