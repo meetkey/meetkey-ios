@@ -64,3 +64,42 @@ enum Nation: String, CaseIterable, Codable {
         }
     }
 }
+
+extension Nation {
+    static func autoComplete(from input: String) -> String {
+        let value = input.uppercased()
+
+        switch value {
+        case "EN", "ENG", "ENGLISH":
+            return "ENGLISH"
+        case "US", "USA":
+            return "ENGLISH"
+
+        case "KO", "KOR", "KOREAN":
+            return "KOREAN"
+        case "KR":
+            return "KOREAN"
+
+        case "JP", "JPN", "JAPANESE":
+            return "JAPANESE"
+
+        case "CN", "CHN", "CHINESE":
+            return "CHINESE"
+
+        case "DE", "GER", "GERMAN":
+            return "GERMAN"
+
+        case "FR", "FRE", "FRENCH":
+            return "FRENCH"
+
+        case "ES", "SPA", "SPANISH":
+            return "SPANISH"
+
+        case "IT", "ITA", "ITALIAN":
+            return "ITALIAN"
+
+        default:
+            return value
+        }
+    }
+}
