@@ -27,7 +27,7 @@ struct ProfileSectionView: View {
                     // 이름, 나이, 뱃지 섹션 (피그마 핵심)
                     nameAndBadgeStack(
                         name: user.name,
-                        age: user.ageInt,
+                        age: user.age,
                         badge: user.badge
                     )
 

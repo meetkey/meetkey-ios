@@ -10,23 +10,20 @@ import SwiftUI
 struct ProfileHeader: View {
     
     let user: User
-    let profileImageName: String
     let onTapSetting: () -> Void
     
     private var usingLanguageImage: Image? {
-        Nation.from(serverValue: user.usingLanguage)?.image
+        Nation.from(serverValue: user.first)?.image
     }
     
     private var interestingLanguageImage: Image? {
-        Nation.from(serverValue: user.interestingLanguage)?.image
+        Nation.from(serverValue: user.target)?.image
     }
     
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Button {
-                    onTapSetting()
-                } label: {
+                Button(action: onTapSetting){
                     Image(.setting)
                 }
                 Spacer()
@@ -36,19 +33,10 @@ struct ProfileHeader: View {
             }
             HStack(spacing: 20) {
                 ZStack {
-                    if let uiImage = loadImageFromDocuments(profileImageName) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 75, height: 75)
-                            .clipShape(Circle())
-                    } else {
-                        Image(profileImageName) // 에셋 fallback
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 75, height: 75)
-                            .clipShape(Circle())
-                    }
+                    ProfileImage(
+                        imageString: user.profileImage,
+                        size: 75
+                    )
                     Image(.editSquare)
                         .padding(.leading, 57)
                         .padding(.top, 57)
@@ -60,7 +48,6 @@ struct ProfileHeader: View {
                         Text(user.name)
                             .font(.meetKey(.title4))
                             .foregroundStyle(.text1)
-                            .padding(.bottom, 3.5)
                         Image(.bronze)
                     }
                     HStack(spacing: 0) {
@@ -100,15 +87,5 @@ struct ProfileHeader: View {
                 corners: [.bottomLeft, .bottomRight]
             )
         )
-    }
-}
-
-extension ProfileHeader {
-    func loadImageFromDocuments(_ filename: String) -> UIImage? {
-        let url = FileManager.default
-            .urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent(filename)
-        
-        return UIImage(contentsOfFile: url.path)
     }
 }

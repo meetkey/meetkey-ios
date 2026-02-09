@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum SafeBadge : String, CaseIterable{
     case none  = "none"
@@ -29,16 +30,15 @@ struct User: Identifiable, Codable, Equatable {
     var profileImage: String
 
     // 2. 상세 정보 (명세서 기준 + 옵셔널 처리)
-    let age: Int?  // 서버에서 주는 나이
-    let gender: String?  // "MALE", "FEMALE"
-    let homeTown: String?
+    var age: Int  // 서버에서 주는 나이
+//    let gender: String?  // "MALE", "FEMALE"
     var location: String // 팀원 모델 대응용
     var distance: String?
     var bio: String?  // bio == oneLiner 통합
 
     // 3. 언어 및 활동 데이터
-    var first: String  // 모국어 (usingLanguage)
-    var target: String  // 목표 언어 (interestingLanguage)
+    var first: String
+    var target: String
     var level: String
     var recommendCount: Int = 0
     var notRecommendCount: Int = 0
@@ -57,19 +57,6 @@ struct User: Identifiable, Codable, Equatable {
 
     // 기존에 쓰던 이름을 그대로 유지할 수 있게 연결
     var oneLiner: String { bio ?? "" }
-    //유저모델 바뀐거에 따른 옵셔널 제거
-    var usingLanguage: String { first }
-    var interestingLanguage: String { target }
-
-    // 로직용으로 쓸 순수 숫자 나이 (Int)
-    var ageInt: Int {
-        if let age = age { return age }
-        guard let birth = birthDate else { return 0 }
-        let calendar = Calendar.current
-        return calendar.dateComponents([.year], from: birth, to: Date()).year
-        ?? 0
-    }
-
     // Equatable 준수
     static func == (lhs: User, rhs: User) -> Bool {
         lhs.id == rhs.id
@@ -105,7 +92,6 @@ enum BadgeType1: String, CaseIterable, Codable {
     }
 }
 
-// 기존의 'Badge'와 겹치지 않게 'Info'를 붙였습니다.
 struct BadgeInfo: Codable, Equatable {
     let badgeName: String
     var totalScore: Int
@@ -135,8 +121,6 @@ extension User {
 
     var tags: [String] {
         var result: [String] = []
-
-        let age = ageInt
         if age > 0 {
             result.append("\(age)살")
         }
@@ -159,5 +143,24 @@ extension User {
     
     var targetNation: Nation? {
         Nation.from(serverValue: target)
+    }
+}
+
+extension User {
+    init(dto: MyInfoDTO) {
+        self.id = dto.memberId
+        self.name = dto.name
+        self.profileImage = dto.profileImage
+        self.first = dto.first
+        self.target = dto.target
+        self.recommendCount = dto.recommendCount
+        self.notRecommendCount = dto.notRecommendCount
+        self.badge = dto.badge
+        self.interests = dto.interests
+        self.personalities = dto.personalities
+        self.bio = dto.bio
+        self.age = dto.age
+        self.location = "KOREA_DEFAULT"
+        self.level = "BEGINNER"
     }
 }

@@ -17,7 +17,7 @@ struct OtherProfile: View {
     var age: Int = 30
     var location: String = "서울시 마포구, 20Km 근처"
     var nation: String = "미국"
-    var sex: String = "남성"
+    var gender: String = "남성"
     var safeTag: Image = Image(.bronzeTag)
 
     @Binding var user: User
@@ -57,7 +57,7 @@ struct OtherProfile: View {
                             .padding(.bottom, 2)
                             HStack {
                                 Image(.moreCircle)
-                                Text("출신국가 : \(nation) / 성별 : \(sex)")
+                                Text("출신국가 : \(nation) / 성별 : \(gender)")
                                     .font(.meetKey(.body5))
                                     .foregroundStyle(.background2)
                             }
