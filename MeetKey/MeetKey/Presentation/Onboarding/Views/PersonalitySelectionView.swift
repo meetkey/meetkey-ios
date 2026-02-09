@@ -112,22 +112,22 @@ struct PersonalityOptionButton: View {
                 
                 // 텍스트 줄바꿈 처리
                 Text(text)
-                    .font(.custom("Pretendard-SemiBold", size: 18))
-                    .foregroundColor(isSelected ? .meetKeyOrange04 : .meetKeyBlack05)
+                    .font(.meetKey(.title5))
+                    .foregroundColor(isSelected ? .main : .text4)
                     .multilineTextAlignment(.center)
                     .lineLimit(2) // 최대 2줄 허용
-                    .fixedSize(horizontal: false, vertical: true) // 높이가 늘어나도록 허용
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 4) // 좌우 여백
                     .padding(.bottom, 24)    // 하단 여백 조정
             }
             .frame(width: 112, height: 121)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.meetKeyOrange05 : Color(hex: "C2C2C2").opacity(0.2))
+                    .fill(isSelected ? Color.sub1 : Color.background4)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(isSelected ? Color.meetKeyOrange04 : Color.clear, lineWidth: isSelected ? 2 : 0)
+                    .strokeBorder(isSelected ? Color.main : Color.clear, lineWidth: isSelected ? 2 : 0)
             )
         }
     }

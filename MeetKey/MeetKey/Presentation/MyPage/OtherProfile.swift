@@ -20,6 +20,8 @@ struct OtherProfile: View {
     var sex: String = "남성"
     var safeTag: Image = Image(.bronzeTag)
 
+    @Binding var user: User
+    
     var body: some View {
         ZStack {
             Image(.otherProfileBack)
@@ -71,7 +73,7 @@ struct OtherProfile: View {
                             .padding(.top, 5)
                         Badge(score: 90)
                         Section(title: "사용 언어", isMore: false)
-                        Language()
+                        Language(usingLanguage: $user.first, interestingLanguage: $user.target, )
                         Section(title: "관심사", isMore: false)
                         
                         LazyVGrid(
@@ -112,8 +114,4 @@ struct OtherProfile: View {
         .ignoresSafeArea()
         
     }
-}
-
-#Preview {
-    OtherProfile()
 }

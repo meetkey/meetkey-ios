@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SafeBadgeRecord: View {
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
@@ -16,6 +18,9 @@ struct SafeBadgeRecord: View {
                     .foregroundColor(.text1)
                 Spacer()
                 Image(.x)
+                    .onTapGesture {
+                        dismiss()
+                    }
             }
             .padding(.vertical, 18)
             .padding(.horizontal, 20)
@@ -29,12 +34,15 @@ struct SafeBadgeRecord: View {
                     .foregroundColor(.text1)
                     .padding(.top, 20)
                     .padding(.bottom, 12)
-                ScoreHistory()
-                ScoreHistory()
-                ScoreHistory()
-                ScoreHistory()
+                ScrollView {
+                    ScoreHistory()
+                    ScoreHistory()
+                    ScoreHistory()
+                    ScoreHistory()
+                }
             }
             .padding(.horizontal, 20)
+            Spacer()
         }
         .clipShape(
             MyRoundedCorner(
@@ -42,9 +50,6 @@ struct SafeBadgeRecord: View {
                 corners: [.topLeft, .topRight]
             )
         )
+        .navigationBarBackButtonHidden()
     }
-}
-
-#Preview {
-    SafeBadgeRecord()
 }
