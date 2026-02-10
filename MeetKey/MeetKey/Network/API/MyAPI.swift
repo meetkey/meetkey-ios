@@ -17,7 +17,7 @@ enum TokenStorage {
 }
 
 enum MasterToken {
-    static let value = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZSI6IlJPTEVfQURNSU4iLCJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNzcwMjg1OTQwLCJleHAiOjE4MDE4MjE5NDB9.yWoGhcB-vPHz5504eeAAhg8i1Lb9GxH1dO8kc6NiJjc"
+    static let value = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZSI6IlJPTEVfQURNSU4iLCJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNzcwNjkyODc1LCJleHAiOjE4MDIyMjg4NzV9.l6I1k82Oc9RMuA37w_X1-xp2xrbXP8CCY87MhbmBmMs"
 }
 
 enum MyAPI {
@@ -27,12 +27,18 @@ enum MyAPI {
 }
 
 extension MyAPI: TargetType {
-    var headers: [String : String]? {
-        var headers: [String: String] = ["Content-Type": "application/json"]
+    var headers: [String: String]? {
+        var headers: [String: String] = [
+            "Content-Type": "application/json"
+        ]
+
         let token = TokenStorage.accessToken
+        print("🔑 accessToken:", token)
+
         if !token.isEmpty {
             headers["Authorization"] = "Bearer \(token)"
         }
+        print("🔑 headers:", headers)
         return headers
     }
     
