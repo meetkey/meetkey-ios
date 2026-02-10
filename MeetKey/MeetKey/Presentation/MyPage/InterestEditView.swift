@@ -65,7 +65,6 @@ struct InterestEditView: View {
                     guard viewModel.canSave else { return }
                     viewModel.saveInterests { success in
                         if success {
-                            onSave(viewModel.result)
                             dismiss()
                         }else {
                             print("⚠️ 관심사 저장 실패")

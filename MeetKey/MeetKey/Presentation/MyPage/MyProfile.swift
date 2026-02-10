@@ -59,10 +59,8 @@ struct MyProfile: View {
                 }()
 
                 PersonalityEditView(
-                    viewModel: PersonalityEditViewModel(initialSelections: initialSelections)
-                ) { personalities in
-                    user.personalities = personalities
-                }
+                    viewModel: PersonalityEditViewModel()
+                )
             }
         }
         .onAppear {

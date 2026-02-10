@@ -9,20 +9,13 @@ import SwiftUI
 import Combine
 import Moya
 
-struct InterestItem: Identifiable, Hashable {
-    let id = UUID()
-    let code: String
-    let name: String
-}
 
 final class InterestEditViewModel: ObservableObject {
 
-    @Published var selectedInterests: Set<String> = []
+    @Published var selectedInterests: Set<String>
     @Published var orderedInterests: [(category: String, items: [InterestItemDTO])] = []
 
-    private let provider = MoyaProvider<MyAPI>(
-        plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]
-    )
+    private let provider = MoyaProvider<MyAPI>()
 
     init(initialInterests: [String] = []) {
         self.selectedInterests = Set(initialInterests)
@@ -52,10 +45,15 @@ final class InterestEditViewModel: ObservableObject {
     }
     
     func saveInterests(completion: @escaping (Bool) -> Void) {
-        let dto = MyInterestEditRequestDTO(interests: Array(selectedInterests))
+        let interestsArray = Array(selectedInterests)
+        print("📤 저장 요청 interests:", interestsArray)
+        let dto = MyInterestEditRequestDTO(interests: interestsArray)
         provider.request(.updateInterest(dto: dto)) { result in
             switch result {
             case .success(let response):
+                print("📦 save statusCode:", response.statusCode)
+                print("📦 save response:", String(data: response.data, encoding: .utf8) ?? "nil")
+
                 if 200..<300 ~= response.statusCode {
                     DispatchQueue.main.async { completion(true) }
                 } else {
@@ -78,8 +76,5 @@ final class InterestEditViewModel: ObservableObject {
     
     var canSave: Bool {
         selectedInterests.count >= 3
-    }
-    var result: [String] {
-        Array(selectedInterests)
     }
 }

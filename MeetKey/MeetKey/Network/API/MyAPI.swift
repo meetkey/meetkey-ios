@@ -24,6 +24,8 @@ enum MyAPI {
     case myInfo
     case getInterest
     case updateInterest(dto: MyInterestEditRequestDTO)
+    case getPersonality
+    case updatePersonality(dto: MyPersonalityEditRequestDTO)
     case getMyProfileImages
 }
 
@@ -55,6 +57,10 @@ extension MyAPI: TargetType {
             return "/me/interest"
         case .updateInterest:
             return "/me/interest"
+        case .getPersonality:
+            return "/me/personality"
+        case .updatePersonality:
+            return "/me/personality"
         case .getMyProfileImages:
             return "/photos"
         }
@@ -62,19 +68,21 @@ extension MyAPI: TargetType {
     
     var method: Moya.Method {
         switch self {
-        case .myInfo, .getInterest, .getMyProfileImages:
+        case .myInfo, .getInterest, .getPersonality, .getMyProfileImages:
             return .get
-        case .updateInterest:
-            return .post
+        case .updateInterest, .updatePersonality:
+            return .put
         }
     }
     
     var task: Task {
     switch self {
-        case .myInfo, .getInterest, .getMyProfileImages:
+    case .myInfo, .getInterest, .getPersonality, .getMyProfileImages:
             return .requestPlain
         case .updateInterest(let dto):
             return .requestJSONEncodable(dto)
-        }
+    case .updatePersonality(dto: let dto):
+        return .requestJSONEncodable(dto)
+    }
     }
 }
