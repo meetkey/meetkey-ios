@@ -44,7 +44,7 @@ struct HomeView: View {
         }
         // 필터뷰 호출
         .fullScreenCover(isPresented: $homeVM.isFilterViewPresented) {
-            FilterView(homeVM: homeVM) { offset = .zero }
+            FilterView(homeVM: homeVM)
         }
     }
 }

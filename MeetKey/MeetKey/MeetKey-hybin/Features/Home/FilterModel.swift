@@ -41,7 +41,6 @@ struct FilterModel:Equatable {
 }
 
 
-//personality에 genDeR 도 이씅ㅁ
 enum socialType: String, CaseIterable, Identifiable {
     case extrovert = "EXTROVERT"
     case introvert = "INTROVERT"
@@ -59,8 +58,8 @@ enum socialType: String, CaseIterable, Identifiable {
 }
 
 enum meetingType: String, CaseIterable, Identifiable {
-    case group = "GROUP" // 다인 대화
-    case one = "ONE"     // 1:1 대화
+    case group = "GROUP"
+    case one = "ONE"
     case any = "ANY"
     
     var id: String { self.rawValue }
@@ -139,6 +138,7 @@ enum InterestType: String, CaseIterable, Identifiable {
     case photo = "PHOTO"
     case life = "LIFE"
     case develop = "DEVELOP"
+    //일상 라이프스타일
     case movie = "MOVIE"
     case drama = "DRAMA"
     case music = "MUSIC"
@@ -150,6 +150,7 @@ enum InterestType: String, CaseIterable, Identifiable {
     case animation = "ANIMATION"
     case game = "GAME"
     case book = "BOOK"
+    //문화 콘텐츠
     case language = "LANGUAGE"
     case stock = "STOCK"
     case investment = "INVESTMENT"
@@ -161,11 +162,9 @@ enum InterestType: String, CaseIterable, Identifiable {
     case marketing = "MARKETING"
     case career = "CAREER"
     case job = "JOB"
-
-    // Identifiable을 위한 id
+    //지식 시사
     var id: String { self.rawValue }
 
-    // UI에서 보여줄 한글 이름 (피그마 보고 나중에 수정하세요!)
     var displayName: String {
         switch self {
         case .travel: return "여행"
@@ -200,6 +199,80 @@ enum InterestType: String, CaseIterable, Identifiable {
         case .marketing: return "마케팅"
         case .career: return "커리어"
         case .job: return "취업"
+        }
+    }
+}
+
+enum NationalityType: String, CaseIterable, Identifiable {
+    case southKorea = "SOUTH_KOREA"
+    case usa = "USA"
+    case japan = "JAPAN"
+    case germany = "GERMANY"
+    case italy = "ITALY"
+    case uk = "UK"
+    case france = "FRANCE"
+    case spain = "SPAIN"
+    case china = "CHINA"
+
+    var id: String { self.rawValue }
+
+    var displayName: String {
+        switch self {
+        case .southKorea: return "South Korea"
+        case .usa: return "USA"
+        case .japan: return "Japan"
+        case .germany: return "Germany"
+        case .italy: return "Italy"
+        case .uk: return "UK"
+        case .france: return "France"
+        case .spain: return "Spain"
+        case .china: return "China"
+        }
+    }
+}
+
+enum LanguageType: String, CaseIterable, Identifiable {
+    case korean = "KOREAN"
+    case english = "ENGLISH"
+    case japanese = "JAPANESE"
+    case chinese = "CHINESE"
+    case spanish = "SPANISH"
+    case german = "GERMAN"
+    case french = "FRENCH"
+    case italian = "ITALIAN"
+
+    var id: String { self.rawValue }
+
+    var displayName: String {
+        switch self {
+        case .korean: return "한국어"
+        case .english: return "영어"
+        case .japanese: return "일본어"
+        case .chinese: return "중국어"
+        case .spanish: return "스페인어"
+        case .german: return "독일어"
+        case .french: return "프랑스어"
+        case .italian: return "이탈리아어"
+        }
+    }
+}
+
+enum LanguageLevelType: String, CaseIterable, Identifiable {
+    case novice = "NOVICE"
+    case beginner = "BEGINNER"
+    case intermediate = "INTERMEDIATE"
+    case advanced = "ADVANCED"
+    case native = "NATIVE"
+
+    var id: String { self.rawValue }
+
+    var displayName: String {
+        switch self {
+        case .novice: return "입문"
+        case .beginner: return "초급"
+        case .intermediate: return "중급"
+        case .advanced: return "고급"
+        case .native: return "원어민 수준"
         }
     }
 }

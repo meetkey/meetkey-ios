@@ -14,7 +14,7 @@ enum HomeStatus {
     case loading  // 기본
     case idle  // 유저 카드를 보여주는 기본 상태
     case matching  // 매칭 액션 이후
-    case finished // 매칭 성공 화면
+    case finished  // 매칭 성공 화면
     //    case error
     //    다른 것은 차차 추가 할 예정
 }
@@ -23,6 +23,7 @@ enum HomeStatus {
 class HomeViewModel: ObservableObject {
     //MARK: - [상태 관리]
     @Published var status: HomeStatus = .loading
+    @Published var filter = FilterModel()
 
     //MARK: - [데이터]
     @Published var me = User.me  // 로그인한 유저
@@ -37,10 +38,10 @@ class HomeViewModel: ObservableObject {
     @Published var hasReachedLimit: Bool = false
 
     let users: [User] = User.mockData  //확인용 더미데이터
-    
+
     //MARK: - 서비스 주입
     @Published var currentFilter = RecommendationRequest()
-    
+
     private let recommendationService = RecommendationService.shared
 
     //MARK: -3 Report & Block
@@ -54,7 +55,7 @@ class HomeViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
-        
+
         reportVM.onFinalize = { [weak self] in
             self?.finalizeReportProcess()
         }
@@ -75,15 +76,17 @@ class HomeViewModel: ObservableObject {
         reportVM.closeReportMenu()
     }
 
-    //MARK: 서비스 연동
+    //MARK: 유저
     func fetchUserAsync() async {
         print("패치유저")
         status = .loading
-        
+
         do {
-            let fetchedData = try await recommendationService.getRecommendation(filter: currentFilter)
+            let fetchedData = try await recommendationService.getRecommendation(
+                filter: currentFilter
+            )
             print("서버에서 받은 유저수: \(fetchedData.count)")
-            
+
             if fetchedData.isEmpty {
                 status = .finished
             } else {
@@ -96,23 +99,59 @@ class HomeViewModel: ObservableObject {
             print("데이터 로딩 실패: \(error)")
         }
     }
-    
+
+    //MARK: - 필터
+    func fetchRecommendations(latitude: Double, longitude: Double) {
+        let request = RecommendationRequest(
+            maxDistance: filter.maxDistance,
+            minAge: filter.minAge,
+            maxAge: filter.maxAge,
+            interests: filter.interests,
+            hometown: filter.hometown,
+            nativeLanguage: filter.nativeLanguage,
+            targetLanguage: filter.targetLanguage,
+            targetLanguageLevel: filter.targetLanguageLevel,
+            latitude: latitude,
+            longitude: longitude
+        )
+
+        _ = request.toDictionary()
+        // API.request(parameters) ...
+    }
+
+    struct InterestGroup: Identifiable {
+        let id = UUID() // ForEach가 식별할 수 있게 해줌
+        let category: String
+        let items: [InterestType]
+    }
+
+    // ViewModel의 프로퍼티 수정
+    var groupedInterests: [InterestGroup] {
+        let all = InterestType.allCases
+        // 인덱스 기반 슬라이싱 (모델 순서대로)
+        return [
+            InterestGroup(category: "일상 · 라이프스타일", items: Array(all[0...9])),
+            InterestGroup(category: "문화 · 콘텐츠", items: Array(all[10...20])),
+            InterestGroup(category: "지식 · 시사", items: Array(all[21...31]))
+        ]
+    }
+
     //MARK: - Like 액션
     func handleLikeAction() async {
         guard let targetUser = currentUser else { return }
-        
+
         print("DEBUG: \(targetUser.name)님")
         do {
             // try await networkManager.sendLike(to: targetUser.id)
             try await Task.sleep(nanoseconds: 500_000_000)
-            
-            presentMatchView() // 성공 시 매칭 화면
+
+            presentMatchView()  // 성공 시 매칭 화면
 
         } catch {
             print("Like 처리 실패: \(error)")
         }
     }
-    
+
     //MARK: - Skip/Next 액션
     func handleSkipAction() {
         if currentIndex < allUsers.count - 1 {
