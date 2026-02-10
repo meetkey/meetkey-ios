@@ -1,6 +1,6 @@
 import SwiftUI
 
-// 역삼각형 도형
+// Tooltip 꼬리 모양
 struct Triangle: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -13,22 +13,20 @@ struct Triangle: Shape {
 }
 
 struct LoginView: View {
+    @StateObject private var viewModel = LoginViewModel()
+    @StateObject private var appleSignInCoordinator = AppleSignInCoordinator()
+    @StateObject private var kakaoSignInCoordinator = KakaoSignInCoordinator()
+    @State private var navigateToOnboarding = false
+    
     var body: some View {
-        // 화면 이동을 위해 NavigationStack 추가
         NavigationStack {
             ZStack {
-                // 배경 그라데이션
-                LinearGradient(
-                    gradient: Gradient(colors: [.bgTop, .bgBottom]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
-                
+                LinearGradient.meetKeySplash
+                    .ignoresSafeArea()
+
                 VStack {
                     Spacer()
                     
-                    // 메인 캐릭터 & 로고 영역
                     VStack(spacing: 16) {
                         Image("img_char_meetkey_main")
                             .resizable()
@@ -43,11 +41,9 @@ struct LoginView: View {
                     
                     Spacer()
                     
-                    // 로그인 버튼 영역
                     VStack(spacing: 12) {
-                        
-                        // 검증된 소셜 계정 툴팁
-                        VStack(spacing: -1) { // 틈새 없애기 위해 -1
+                        // Social 로그인 안내 툴팁
+                        VStack(spacing: -1) {
                             HStack(spacing: 0) {
                                 Text("검증된 소셜 계정")
                                     .font(.meetKey(.caption1))
@@ -61,72 +57,127 @@ struct LoginView: View {
                             .background(Color.white)
                             .cornerRadius(5)
                             
-                            // 역삼각형 꼬리 추가
                             Triangle()
                                 .fill(Color.white)
                                 .frame(width: 20, height: 11)
                         }
-                        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2) // 그림자 통합 적용
+                        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                         .padding(.bottom, 4)
                         
-                        // 카카오톡 로그인 버튼 -> NavigationLink로 변경 (API 연결 전 임시)
-                        NavigationLink(destination: OnboardingIntroView()) {
-                            ZStack {
-                                // Layer 1: 아이콘 (왼쪽 정렬)
-                                HStack {
-                                    Image("img_kakao")
-                                        .resizable()
-                                        .frame(width: 20, height: 20)
-                                        .padding(.leading, 20) // 왼쪽 여백
-                                    Spacer()
-                                }
-                                
-                                // Layer 2: 텍스트 (가운데 정렬)
-                                Text("카카오톡으로 시작하기")
-                                    .font(.meetKey(.body2))
-                                    .foregroundColor(.black)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(Color.meetKeyYellow01)
-                            .cornerRadius(14)
-                        }
-                        
-                        // Apple 로그인 버튼 (동작 없음)
                         Button(action: {
-                            print("애플 로그인")
+                            handleKakaoLogin()
                         }) {
                             ZStack {
-                                // Layer 1: 아이콘
-                                HStack {
-                                    Image("img_apple")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(height: 20)
-                                        .foregroundColor(.meetKeyBlack01)
-                                        .padding(.leading, 20)
-                                    Spacer()
+                                if viewModel.isLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                                } else {
+                                    HStack {
+                                        Image("img_kakao")
+                                            .resizable()
+                                            .frame(width: 20, height: 20)
+                                            .padding(.leading, 20)
+                                        Spacer()
+                                    }
+                                    
+                                    Text("카카오톡으로 시작하기")
+                                        .font(.meetKey(.body2))
+                                        .foregroundColor(.black)
                                 }
-                                
-                                // Layer 2: 텍스트
-                                Text("Apple로 시작하기")
-                                    .font(.meetKey(.body2))
-                                    .foregroundColor(.meetKeyBlack01)
                             }
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
-                            .background(Color.meetKeyWhite01)
+                            .background(Color.meetKey.yellow01)
+                            .cornerRadius(14)
+                        }
+                        .disabled(viewModel.isLoading)
+                        
+                        Button(action: {
+                            handleAppleLogin()
+                        }) {
+                            ZStack {
+                                if viewModel.isLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                                } else {
+                                    // Layer 1 아이콘
+                                    HStack {
+                                        Image("img_apple")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(height: 20)
+                                            .padding(.leading, 20)
+                                        Spacer()
+                                    }
+
+                                    // Layer 2 텍스트
+                                    Text("Apple로 시작하기")
+                                        .font(.meetKey(.body2))
+                                        .foregroundColor(.black)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .background(Color.meetKey.background1)
                             .cornerRadius(14)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 14)
-                                    .stroke(Color.meetKeyBlack01, lineWidth: 1)
+                                    .stroke(Color.meetKey.text1, lineWidth: 1)
                             )
                         }
+                        .disabled(viewModel.isLoading)
                         .padding(.top, 1)
+                        
+                        if let errorMessage = viewModel.errorMessage {
+                            Text(errorMessage)
+                                .font(.meetKey(.caption3))
+                                .foregroundColor(.red)
+                                .padding(.top, 8)
+                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 50)
                 }
+            }
+            .navigationDestination(isPresented: $navigateToOnboarding) {
+                OnboardingIntroView()
+            }
+            .onChange(of: viewModel.isLoginSuccess) { _, success in
+                if success {
+                    navigateToOnboarding = true
+                }
+            }
+            .navigationDestination(isPresented: $viewModel.shouldNavigateToSignup) {
+                OnboardingIntroView()
+            }
+            .navigationDestination(isPresented: $viewModel.shouldNavigateToHome) {
+                HybinMainTabView()
+            }
+        }
+    }
+    
+    // Kakao 로그인
+    private func handleKakaoLogin() {
+        viewModel.errorMessage = nil
+        kakaoSignInCoordinator.startSignIn { result in
+            switch result {
+            case .success(let token):
+                viewModel.loginWithKakao(idToken: token)
+            case .failure(let error):
+                viewModel.errorMessage = error.localizedDescription
+            }
+        }
+    }
+    
+    // Apple 로그인
+    private func handleAppleLogin() {
+        viewModel.errorMessage = nil
+        appleSignInCoordinator.startSignIn { result in
+            switch result {
+            case .success(let tokens):
+                viewModel.loginWithApple(idToken: tokens.identityToken)
+            case .failure(let error):
+                viewModel.errorMessage = error.localizedDescription
             }
         }
     }
