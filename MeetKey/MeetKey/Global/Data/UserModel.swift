@@ -7,8 +7,8 @@
 
 import Foundation
 
-enum SafeBadge : String, CaseIterable{
-    case none  = "none"
+enum SafeBadge: String, CaseIterable {
+    case none = "none"
     case bronze = "bronze"
     case silver = "silver"
     case gold = "gold"
@@ -32,7 +32,7 @@ struct User: Identifiable, Codable, Equatable {
     let age: Int?  // 서버에서 주는 나이
     let gender: String?  // "MALE", "FEMALE"
     let homeTown: String?
-    var location: String // 팀원 모델 대응용
+    var location: String  // 팀원 모델 대응용
     var distance: String?
     var bio: String?  // bio == oneLiner 통합
 
@@ -67,7 +67,7 @@ struct User: Identifiable, Codable, Equatable {
         guard let birth = birthDate else { return 0 }
         let calendar = Calendar.current
         return calendar.dateComponents([.year], from: birth, to: Date()).year
-        ?? 0
+            ?? 0
     }
 
     // Equatable 준수
@@ -89,7 +89,7 @@ enum BadgeType1: String, CaseIterable, Codable {
         case .normal: return ""
         case .bronze: return "bronzeBadge"
         case .silver: return "silverBadge"
-        case .gold:   return "goldBadge"
+        case .gold: return "goldBadge"
         }
     }
 
@@ -97,10 +97,10 @@ enum BadgeType1: String, CaseIterable, Codable {
     static func from(score: Int) -> BadgeType1 {
         let safeScore = min(max(score, 0), 100)
         switch safeScore {
-        case 0..<70:  return .normal
+        case 0..<70: return .normal
         case 70..<80: return .bronze
         case 80..<90: return .silver
-        default:      return .gold
+        default: return .gold
         }
     }
 }
@@ -111,7 +111,7 @@ struct BadgeInfo: Codable, Equatable {
     var totalScore: Int
     var histories: [BadgeHistory]?
 
-    var type : BadgeType1 {
+    var type: BadgeType1 {
         BadgeType1.from(score: totalScore)
     }
 }
@@ -151,13 +151,57 @@ extension User {
 
         return result
     }
-    
+
     // User모델의 first와 target을 국기 이미지로 바꿔주는 프로퍼티
     var nativeNation: Nation? {
-        Nation.from(serverValue:first)
+        Nation.from(serverValue: first)
     }
-    
+
     var targetNation: Nation? {
         Nation.from(serverValue: target)
+    }
+}
+
+//MARK: - 홈화면 유저 매칭을 위한 Response
+extension User {
+    init(from dto: RecommendationDTO) {
+        self.id = dto.targetMemberId
+        self.name = dto.nickname
+        self.age = dto.age
+        self.homeTown = dto.hometown
+        self.distance = String(
+            format: "%.1fkm",
+            dto.distance ?? "거리를 확인할 수 없습니다"
+        )
+        self.gender = dto.gender
+        self.first = dto.nativeLanguage.language
+        self.target = dto.targetLanguage.language
+        self.level = dto.targetLanguage.level
+        self.interests = dto.interests
+        if let p = dto.personality {
+            self.personalities = Personalities(
+                socialType: p.socialType,
+                meetingType: p.meetingType,
+                chatType: p.chatType,
+                friendType: p.friendType,
+                relationType: p.relationType
+            )
+        } else {
+            self.personalities = nil
+        }
+        self.profileImage = dto.photoUrls.first ?? "profileImageSample1"
+        self.bio = dto.introduction
+
+        self.location = dto.location ?? "위치를 찾을 수 없습니다"
+        
+        if let badgeData = dto.badge {
+            self.badge = BadgeInfo(
+                badgeName: badgeData.level ?? "일반",
+                totalScore: badgeData.score ?? 0,
+                histories: nil
+            )
+        } else { self.badge = nil }
+        
+        self.birthDate = nil
     }
 }

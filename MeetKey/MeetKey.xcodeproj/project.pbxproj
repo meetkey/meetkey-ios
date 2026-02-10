@@ -107,7 +107,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 215F257E2F18AF08000BEB64 /* Build configuration list for PBXProject "MEETKEY" */;
+			buildConfigurationList = 215F257E2F18AF08000BEB64 /* Build configuration list for PBXProject "MeetKey" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -342,7 +342,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		215F257E2F18AF08000BEB64 /* Build configuration list for PBXProject "MEETKEY" */ = {
+		215F257E2F18AF08000BEB64 /* Build configuration list for PBXProject "MeetKey" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				215F258C2F18AF09000BEB64 /* Debug */,

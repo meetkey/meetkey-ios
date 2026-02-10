@@ -16,23 +16,22 @@ struct ReportSelectionView: View {
             switch reportVM.currentReportStep {
 
             case .block:
-                BlockConfirmView(reportVM: reportVM, targetUser: targetUser)  // 아까 만든 차단 확인 뷰
+                BlockConfirmView(reportVM: reportVM, targetUser: targetUser)
             case .blockComplete:
                 BlockCompleteView(reportVM: reportVM, targetUser: targetUser)
             case .report:
-                ReportConfirmView(reportVM: reportVM, targetUser: targetUser)  // 신고 사유 선택 뷰
+                ReportConfirmView(reportVM: reportVM, targetUser: targetUser)
             case .reportCase:
                 ReportCaseView(reportVM: reportVM, targetUser: targetUser)
             case .reportReason:
                 ReportReasonView(reportVM: reportVM, targetUser: targetUser)
             case .reportComplete:
-                ReportCompleteView(reportVM: reportVM, targetUser: targetUser)  // 완료 화면
+                ReportCompleteView(reportVM: reportVM, targetUser: targetUser)
             default:
                 EmptyView()
             }
         }
         .padding()
-        // 단계가 바뀔 때 옆으로 슥 밀리는 애니메이션 추가
         .transition(
             .asymmetric(
                 insertion: .move(edge: .trailing),

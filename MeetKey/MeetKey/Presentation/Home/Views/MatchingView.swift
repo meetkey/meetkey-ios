@@ -56,7 +56,7 @@ struct MatchingView: View {
                     reportVM: homeVM.reportVM,
                     targetUser: homeVM.currentUser ?? User.mockData[0]
                 )
-                .presentationDetents([.medium])  // 피그마처럼 중간 높이 설정
+                .presentationDetents([.medium])  
             }
         }
 
