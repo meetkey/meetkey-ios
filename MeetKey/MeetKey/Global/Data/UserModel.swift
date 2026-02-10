@@ -189,7 +189,7 @@ extension User {
         } else {
             self.personalities = nil
         }
-        self.profileImage = dto.photoUrls.first ?? ""
+        self.profileImage = dto.photoUrls.first ?? "profileImageSample1"
         self.bio = dto.introduction
 
         self.location = dto.location ?? "위치를 찾을 수 없습니다"

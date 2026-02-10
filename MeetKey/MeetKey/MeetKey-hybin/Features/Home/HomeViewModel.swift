@@ -37,6 +37,11 @@ class HomeViewModel: ObservableObject {
     @Published var hasReachedLimit: Bool = false
 
     let users: [User] = User.mockData  //확인용 더미데이터
+    
+    //MARK: - 서비스 주입
+    @Published var currentFilter = RecommendationRequest()
+    
+    private let recommendationService = RecommendationService.shared
 
     //MARK: -3 Report & Block
     @Published var reportVM = ReportViewModel()
@@ -46,12 +51,10 @@ class HomeViewModel: ObservableObject {
     init() {
         reportVM.objectWillChange
             .sink { [weak self] _ in
-                // 자식이 바뀌면 부모(나)도 "나 바뀌었어!"라고 외칩니다.
                 self?.objectWillChange.send()
             }
-            .store(in: &cancellables)  // 주머니에 안테나 선 저장
-
-        // 비서가 일이 다 끝났다고(onFinalize) 보고할 때의 로직도 여기서 관리!
+            .store(in: &cancellables)
+        
         reportVM.onFinalize = { [weak self] in
             self?.finalizeReportProcess()
         }
@@ -60,28 +63,26 @@ class HomeViewModel: ObservableObject {
     //MARK: -3
     func finalizeReportProcess() {
         withAnimation(.easeInOut) {
-            // 1. reportVM의 메뉴 닫기, 스텝 초기화
             reportVM.closeReportMenu()
 
-            // 2. homeVM의 카드 넘기기, 매칭창 닫기 받기
             self.handleSkipAction()
             self.dismissMatchView()
         }
     }
 
-    func dismissMatchView() {  // dismiss 대신
+    func dismissMatchView() {
         isMatchViewPresented = false
         reportVM.closeReportMenu()
     }
 
-    //MARK: 초기 데이터 로드
+    //MARK: 서비스 연동
     func fetchUserAsync() async {
+        print("패치유저")
         status = .loading
         
         do {
-            try await Task.sleep(nanoseconds: 1_500_000_000)
-            
-            let fetchedData = User.mockData // API 호출 할거임
+            let fetchedData = try await recommendationService.getRecommendation(filter: currentFilter)
+            print("서버에서 받은 유저수: \(fetchedData.count)")
             
             if fetchedData.isEmpty {
                 status = .finished
