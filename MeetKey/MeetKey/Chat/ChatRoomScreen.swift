@@ -41,9 +41,6 @@ struct ChatRoomScreen: View {
     @State private var audioPlayer: AVAudioPlayer? = nil
     @State private var playingMessageID: UUID? = nil
 
-    // ✅ 전화 화면 이동
-    @State private var isCallActive: Bool = false
-
     var body: some View {
         ZStack(alignment: .top) {
             pageBg.ignoresSafeArea()
@@ -152,13 +149,6 @@ struct ChatRoomScreen: View {
             .presentationDetents([.medium])
             .presentationDragIndicator(.hidden)
         }
-        // ✅ 전화 아이콘 탭 → VoiceCallView로 이동
-        .navigationDestination(isPresented: $isCallActive) {
-            VoiceCallView(
-                userName: chat.name,
-                userBadge: .gold
-            )
-        }
     }
 
     // MARK: - Header Slot (자리만 120)
@@ -174,13 +164,7 @@ struct ChatRoomScreen: View {
             badgeImageName: "gold",
             title: chat.name,
             onTapBack: { dismiss() },
-            onTapCall: {
-                // 헤더 펼쳐져 있으면 닫고 이동
-                withAnimation(.easeInOut(duration: 0.18)) {
-                    isSettingExpanded = false
-                }
-                isCallActive = true
-            },
+            onTapCall: { print("call") },
             isExpanded: $isSettingExpanded
         )
         .frame(maxWidth: .infinity, alignment: .top)
@@ -218,17 +202,19 @@ struct ChatRoomScreen: View {
                                     }
                                 }
                             )
+                            .padding(.top, 10)
                         }
 
-                        // ✅ 메시지들
-                        ForEach(messages) { msg in
-                            ChatMessageRow(
-                                message: msg,
-                                orange: orange,
-                                isPlaying: playingMessageID == msg.id,
-                                onTapVoice: togglePlay
-                            )
-                            .id(msg.id)
+                        VStack(spacing: 18) {
+                            ForEach(messages) { msg in
+                                ChatMessageRow(
+                                    message: msg,
+                                    orange: orange,
+                                    isPlaying: playingMessageID == msg.id,
+                                    onTapVoice: { tapped in togglePlay(for: tapped) }
+                                )
+                                .id(msg.id)
+                            }
                         }
 
                         Spacer(minLength: 110)
