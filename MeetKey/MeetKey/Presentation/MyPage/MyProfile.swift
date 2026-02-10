@@ -15,10 +15,12 @@ enum MyProfileRoute: Hashable {
 
 struct MyProfile: View {
     @StateObject private var viewModel = MyProfileViewModel()
+    
     @Binding var user: User
-    @State private var isEditProfilePresented = false
     @Binding var path: NavigationPath
     @Binding var isTabBarHidden: Bool
+    
+    @State private var isEditProfilePresented = false
     
     var body: some View {
         
@@ -44,20 +46,6 @@ struct MyProfile: View {
                     }
                 )
             case .personality:
-                let initialSelections: [WritableKeyPath<Personalities, String>: String] = {
-                    if let p = user.personalities {
-                        return [
-                            \Personalities.socialType: p.socialType,
-                            \Personalities.meetingType: p.meetingType,
-                            \Personalities.chatType: p.chatType,
-                            \Personalities.friendType: p.friendType,
-                            \Personalities.relationType: p.relationType
-                        ]
-                    } else {
-                        return [:]
-                    }
-                }()
-
                 PersonalityEditView(
                     viewModel: PersonalityEditViewModel()
                 )
@@ -71,9 +59,17 @@ struct MyProfile: View {
     
     private func profileContent(user: User) -> some View {
         ScrollView {
-            ProfileHeader(user: user){
-                isEditProfilePresented = true
-            }
+//            ProfileHeader(user: user){
+//                isEditProfilePresented = true
+//            }
+            ProfileHeader(
+                user: user,
+                onTapSetting: {
+                    viewModel.getMyProfileForEdit {
+                        isEditProfilePresented = true
+                    }
+                }
+            )
             HStack(spacing: 0) {
                 VStack(spacing: 18) {
                     Section(title: "내 평판", isMore: false)
@@ -116,9 +112,21 @@ struct MyProfile: View {
         }
         .background(.background1)
         .ignoresSafeArea()
-        .sheet(isPresented: $isEditProfilePresented) {
-            ProfileSettingView(user: $user)
+        .sheet(isPresented: $isEditProfilePresented, onDismiss: {
+            if let editedUser = viewModel.user {
+                self.user = editedUser
+            }
+        }) {
+            if viewModel.user != nil {
+                ProfileSettingView(
+                    user: Binding(
+                        get: { viewModel.user! },
+                        set: { viewModel.user = $0 }
+                    )
+                )
+            }
         }
+
     }
     
     private func push(_ route: MyProfileRoute) {

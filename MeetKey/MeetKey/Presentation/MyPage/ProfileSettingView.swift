@@ -175,9 +175,6 @@ struct ProfileSettingView: View {
         }
         .padding(.horizontal, 20)
         .navigationBarBackButtonHidden(true)
-        .onAppear {
-            oneLinerText = user.oneLiner
-        }
         .onChange(of: selectedItem) { newItem in
             guard let newItem else { return }
 
