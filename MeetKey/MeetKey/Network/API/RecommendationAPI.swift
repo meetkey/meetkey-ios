@@ -42,7 +42,8 @@ extension RecommendationAPI: TargetType {
 
     var headers: [String: String]? {
         var headers: [String: String] = [
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+//            "Authorization" : "Bearer \(testToken)"
         ]
 
         // Authorizaiton 넣어야함

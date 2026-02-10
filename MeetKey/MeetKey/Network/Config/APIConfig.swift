@@ -1,7 +1,7 @@
 import Foundation
 
 struct APIConfig {
-    static let baseURL = "http://3.36.96.193"
+    static let baseURL = "https://meetkey.test-route53.shop"
     
     // 개발/프로덕션 환경 분리 예시
     #if DEBUG

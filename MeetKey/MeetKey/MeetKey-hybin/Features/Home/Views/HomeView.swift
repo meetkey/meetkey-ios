@@ -20,6 +20,7 @@ struct HomeView: View {
             let safeArea = geometry.safeAreaInsets
 
             ZStack(alignment: .top) {
+                
                 backgroundImageView(size: screenSize)  // 배경 분리
 
                 if homeVM.status == .finished {
