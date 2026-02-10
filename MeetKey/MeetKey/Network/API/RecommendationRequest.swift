@@ -17,7 +17,7 @@ struct RecommendationRequest : Codable {
     var nativeLanguage: String?
     var targetLanguage: String?
     var targetLanguageLevel: String?
-    var latitude: Double?
+    var latitude: Double? // 위도 경도는 APP에서 쏴주는 형식으로 (따로 홈뷰에서 관리하다가 한번에 쏴주는 형식)
     var longitude: Double?
     
 }
