@@ -40,7 +40,7 @@ struct InterestEditView: View {
                     .lineSpacing(4)
                     .padding(.bottom, 37)
                     .padding(.top, 13)
-                
+
                 ScrollView {
                     VStack(alignment: .leading, spacing: 32) {
                         ForEach(viewModel.orderedInterests, id: \.category) { group in
@@ -48,13 +48,12 @@ struct InterestEditView: View {
                                 Text(group.category)
                                     .font(.meetKey(.body4))
                                     .foregroundColor(.text3)
-                                
                                 FlowLayout(items: group.items) { item in
                                     InterestTagButton(
-                                        text: item,
-                                        isSelected: viewModel.selectedInterests.contains(item)
+                                        text: item.name,
+                                        isSelected: viewModel.selectedInterests.contains(item.code)
                                     ) {
-                                        viewModel.toggleInterest(code: item)
+                                        viewModel.toggleInterest(code: item.code)
                                     }
                                 }
                             }
@@ -63,11 +62,15 @@ struct InterestEditView: View {
                     .padding(.bottom, 39)
                 }
                 Button {
-//                    guard viewModel.canSave else { return }
-//                    viewModel.saveInterests {
-                        onSave(viewModel.result)
-                        dismiss()
-//                    }
+                    guard viewModel.canSave else { return }
+                    viewModel.saveInterests { success in
+                        if success {
+                            onSave(viewModel.result)
+                            dismiss()
+                        }else {
+                            print("⚠️ 관심사 저장 실패")
+                        }
+                    }
                 } label: {
                     Text("저장")
                         .font(.meetKey(.title5))
@@ -84,5 +87,8 @@ struct InterestEditView: View {
         .padding(.horizontal, 20)
         .padding(.bottom, 20)
         .navigationBarBackButtonHidden()
+        .onAppear {
+            viewModel.fetchMyInterests()
+        }
     }
 }

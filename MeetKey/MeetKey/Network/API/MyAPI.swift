@@ -23,6 +23,7 @@ enum MasterToken {
 enum MyAPI {
     case myInfo
     case getInterest
+    case updateInterest(dto: MyInterestEditRequestDTO)
     case getMyProfileImages
 }
 
@@ -33,12 +34,9 @@ extension MyAPI: TargetType {
         ]
 
         let token = TokenStorage.accessToken
-        print("🔑 accessToken:", token)
-
         if !token.isEmpty {
             headers["Authorization"] = "Bearer \(token)"
         }
-        print("🔑 headers:", headers)
         return headers
     }
     
@@ -54,7 +52,9 @@ extension MyAPI: TargetType {
         case .myInfo:
             return "/me"
         case .getInterest:
-            return "/interest"
+            return "/me/interest"
+        case .updateInterest:
+            return "/me/interest"
         case .getMyProfileImages:
             return "/photos"
         }
@@ -64,13 +64,17 @@ extension MyAPI: TargetType {
         switch self {
         case .myInfo, .getInterest, .getMyProfileImages:
             return .get
+        case .updateInterest:
+            return .post
         }
     }
     
     var task: Task {
-        switch self {
+    switch self {
         case .myInfo, .getInterest, .getMyProfileImages:
             return .requestPlain
+        case .updateInterest(let dto):
+            return .requestJSONEncodable(dto)
         }
     }
 }

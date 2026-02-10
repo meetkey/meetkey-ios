@@ -22,13 +22,10 @@ final class MyProfileViewModel: ObservableObject {
 
                 if let body = String(data: response.data, encoding: .utf8),
                    !body.isEmpty {
-                    print("📦 response body:", body)
+//                    print("📦 response body:", body)
                 } else {
                     print("📦 response body: (empty)")
                 }
-
-                print("📦 response headers:", response.response?.allHeaderFields ?? [:])
-
                 switch response.statusCode {
 
                 case 200:
@@ -58,7 +55,6 @@ final class MyProfileViewModel: ObservableObject {
 
             case .failure(let error):
                 print("❌ 네트워크 실패:", error)
-
                 if let moyaError = error as? MoyaError {
                     switch moyaError {
                     case .statusCode(let response):

@@ -18,25 +18,13 @@ struct InterestItem: Identifiable, Hashable {
 final class InterestEditViewModel: ObservableObject {
 
     @Published var selectedInterests: Set<String> = []
+    @Published var orderedInterests: [(category: String, items: [InterestItemDTO])] = []
 
-    var orderedInterests: [(category: String, items: [String])] = [
-        ("일상 · 라이프스타일", [
-            "여행", "카페 탐방", "맛집 찾기", "산책", "반려동물",
-            "일상 브이로그", "사진찍기", "뜨개질", "미니멀 라이프", "자기계발"
-        ]),
-        ("문화 · 콘텐츠", [
-            "영화", "드라마", "음악", "K-POP", "해외 팝송",
-            "넷플릭스", "유튜브", "웹툰/만화", "애니메이션", "게임", "책"
-        ]),
-        ("지식 · 시사", [
-            "언어 공부", "주식", "투자", "뉴스", "사회 이슈",
-            "테크/IT", "비즈니스", "디자인", "마케팅", "취업", "커리어"
-        ])
-    ]
-    
-    private let provider = MoyaProvider<MyAPI>()
+    private let provider = MoyaProvider<MyAPI>(
+        plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]
+    )
 
-    init(initialInterests: [String]) {
+    init(initialInterests: [String] = []) {
         self.selectedInterests = Set(initialInterests)
     }
     
@@ -45,17 +33,13 @@ final class InterestEditViewModel: ObservableObject {
             switch result {
             case .success(let response):
                 print("📦 statusCode:", response.statusCode)
-                print("📦 raw data:", String(data: response.data, encoding: .utf8) ?? "nil")
+                print("📦 myInterest_raw data:", String(data: response.data, encoding: .utf8) ?? "nil")
                 do {
-                    let decoded = try JSONDecoder().decode(
-                        MyInterestResponseDTO.self,
-                        from: response.data
-                    )
-                    
-                    let codes = decoded.categories.flatMap { $0.items}.map{$0.code}
-                    
+                    let decoded = try JSONDecoder().decode(MyInterestResponseDTOWrapper.self, from: response.data)
+                    let categories = decoded.data.categories
                     DispatchQueue.main.async {
-                        self.selectedInterests = Set(codes)
+                        self.orderedInterests = categories.map { ($0.category, $0.items) }
+                        self.selectedInterests = Set()
                     }
                 } catch {
                     print("❌ 관심사 조회 디코딩 실패", error)
@@ -67,6 +51,23 @@ final class InterestEditViewModel: ObservableObject {
         }
     }
     
+    func saveInterests(completion: @escaping (Bool) -> Void) {
+        let dto = MyInterestEditRequestDTO(interests: Array(selectedInterests))
+        provider.request(.updateInterest(dto: dto)) { result in
+            switch result {
+            case .success(let response):
+                if 200..<300 ~= response.statusCode {
+                    DispatchQueue.main.async { completion(true) }
+                } else {
+                    print("🚫 관심사 저장 실패, statusCode:", response.statusCode)
+                }
+            case .failure(let error):
+                print("❌ 관심사 저장 요청 실패", error)
+                DispatchQueue.main.async { completion(false) }
+            }
+        }
+    }
+
     func toggleInterest(code: String) {
         if selectedInterests.contains(code) {
             selectedInterests.remove(code)
@@ -75,13 +76,6 @@ final class InterestEditViewModel: ObservableObject {
         }
     }
     
-//    func toggleInterest(_ interest: String) {
-//        if selectedInterests.contains(interest) {
-//            selectedInterests.remove(interest)
-//        } else {
-//            selectedInterests.insert(interest)
-//        }
-//    }
     var canSave: Bool {
         selectedInterests.count >= 3
     }
