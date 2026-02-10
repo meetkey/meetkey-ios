@@ -75,6 +75,51 @@ class NetworkProvider {
             }
         }
     }
+    // 1. 프로바이더를 함수 밖(클래스 속성)으로 빼야 메모리에서 안 사라집니다!
+    private let recommendationProvider = MoyaProvider<RecommendationAPI>(
+        plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]
+    )
+
+    // MARK: - 추천 전용 API 요청 함수
+    func requestRecommendation<T: Codable>(
+        _ target: RecommendationAPI,
+        type: T.Type,
+        completion: @escaping (Result<T, Error>) -> Void
+    ) {
+        print("서버로 요청")
+        
+        recommendationProvider.request(target) { result in
+            print("서버 대답 도착")
+            
+            switch result {
+            case .success(let response):
+                print("성공 (상태코드: \(response.statusCode))")
+                do {
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .iso8601
+                    
+                    if (200...299).contains(response.statusCode) {
+                        let decodedData = try decoder.decode(T.self, from: response.data)
+                        completion(.success(decodedData))
+                    } else {
+                        // 에러 응답 처리 (서버에서 준 에러 메시지 파싱)
+                        if let errorBody = try? decoder.decode(ErrorResponse.self, from: response.data) {
+                            completion(.failure(NetworkError.serverError(code: errorBody.code, message: errorBody.message)))
+                        } else {
+                            completion(.failure(NetworkError.serverError(code: "\(response.statusCode)", message: "Unknown Error")))
+                        }
+                    }
+                } catch {
+                    print(" 디코딩 실패: \(error)")
+                    completion(.failure(NetworkError.decodingError(error)))
+                }
+                
+            case .failure(let error):
+                print(" 네트워크 에러: \(error.localizedDescription)")
+                completion(.failure(NetworkError.networkError(error)))
+            }
+        }
+    }
 }
 
 // MARK: - Network Error

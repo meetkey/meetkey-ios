@@ -18,8 +18,9 @@ struct HomeView: View {
         GeometryReader { geometry in
             let screenSize = geometry.size
             let safeArea = geometry.safeAreaInsets
-            
+
             ZStack(alignment: .top) {
+                
                 backgroundImageView(size: screenSize)  // 배경 분리
 
                 if homeVM.status == .finished {
@@ -31,7 +32,7 @@ struct HomeView: View {
                 } else {
                     contentStack(size: screenSize, safeArea: safeArea)  // 카드/디테일 분리
                 }
-                
+
                 headerView
             }
         }
@@ -55,14 +56,16 @@ extension HomeView {
     @ViewBuilder
     private func backgroundImageView(size: CGSize) -> some View {
         if let user = homeVM.currentUser {
-            Image(user.profileImage)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: size.width, height: size.height)
-                .clipped()
-                .opacity(0.4)
-        } else {
-            Color.black.opacity(0.1).ignoresSafeArea()
+            AsyncImage(url: URL(string: user.profileImage)) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } placeholder: {
+                Color.black.opacity(0.1)  // 이미지 로딩 전까지 보여줄 색상
+            }
+            .frame(width: size.width, height: size.height)
+            .clipped()
+            .opacity(0.4)
         }
     }
 
@@ -96,8 +99,8 @@ extension HomeView {
             safeArea: .init(),
             user: homeVM.me,
             homeVM: homeVM,
-            onBackAction: {homeVM.dismissDetailView()},
-            onFilterAction: {homeVM.presentFilterView()}
+            onBackAction: { homeVM.dismissDetailView() },
+            onFilterAction: { homeVM.presentFilterView() }
         )
         .zIndex(1)
     }

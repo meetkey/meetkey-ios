@@ -13,28 +13,22 @@ struct ProfileSectionView: View {
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            // 1. 배경 레이어
             backgroundLayer
 
-            // 2. 콘텐츠 레이어
             VStack(alignment: .leading, spacing: 0) {
                 Spacer()
 
                 VStack(alignment: .leading, spacing: 14) {
-                    // 성향 태그 섹션
                     interestTagStack(interests: user.interests)
 
-                    // 이름, 나이, 뱃지 섹션 (피그마 핵심)
                     nameAndBadgeStack(
                         name: user.name,
                         age: user.ageInt,
                         badge: user.badge
                     )
 
-                    // 언어 정보 섹션
                     languageInfoStack(user: user)
 
-                    // 위치 및 소개 섹션
                     locationStack(
                         location: user.location,
                         distance: user.distance
@@ -52,7 +46,6 @@ struct ProfileSectionView: View {
 // MARK: - [Private Components] 하위 컴포넌트 분리
 extension ProfileSectionView {
 
-    // 1. 배경 이미지 및 그라데이션
     private var backgroundLayer: some View {
         ZStack {
             Image(user.profileImage)
@@ -70,7 +63,6 @@ extension ProfileSectionView {
         .ignoresSafeArea()
     }
 
-    // 2. 성향 태그 스택
     private func interestTagStack(interests: [String]?) -> some View {
         HStack(spacing: 6) {
             if let interests = interests {
@@ -86,7 +78,6 @@ extension ProfileSectionView {
         }
     }
 
-    // 3. 이름, 나이 및 동그란 뱃지 스택
     private func nameAndBadgeStack(name: String, age: Int, badge: BadgeInfo?)
         -> some View
     {
@@ -112,7 +103,6 @@ extension ProfileSectionView {
         .foregroundStyle(Color.white01)
     }
 
-    // 4. 언어 정보 스택
     private func languageInfoStack(user: User) -> some View {
         HStack(spacing: 12) {
             languageLabel(title: "사용 언어", nation: user.nativeNation)
@@ -122,23 +112,20 @@ extension ProfileSectionView {
         .foregroundStyle(Color.white01)
     }
 
-    // 언어 정보 내의 개별 레이블 (재사용)
     private func languageLabel(title: String, nation: Nation?) -> some View {
         HStack(spacing: 4) {
             Text(title)
-            // 국기 데이터가 모델에 있다면 연동, 없다면 텍스트 출력
             if let flagImage = nation?.image {
                 flagImage
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 16, height: 12)
             } else {
-                Text("??")  // 또는 Nation.from 로직에서 걸러지지 못한 기본 문자열 출력
+                Text("??")
             }
         }
     }
 
-    // 5. 위치 및 한 줄 소개 스택
     private func locationStack(location: String?, distance: String?)
         -> some View
     {
