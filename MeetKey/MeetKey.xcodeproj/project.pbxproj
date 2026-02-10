@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A9CE50EA2F3B6863008D8C47 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = A9CE50E92F3B6863008D8C47 /* CombineMoya */; };
+		A9CE50EC2F3B6863008D8C47 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = A9CE50EB2F3B6863008D8C47 /* Moya */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		215F25832F18AF08000BEB64 /* MeetKey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetKey.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9CE50EC2F3B6863008D8C47 /* Moya in Frameworks */,
+				A9CE50EA2F3B6863008D8C47 /* CombineMoya in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = MeetKey;
 			packageProductDependencies = (
+				A9CE50E92F3B6863008D8C47 /* CombineMoya */,
+				A9CE50EB2F3B6863008D8C47 /* Moya */,
 			);
 			productName = MeetKey;
 			productReference = 215F25832F18AF08000BEB64 /* MeetKey.app */;
@@ -98,7 +107,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 215F257E2F18AF08000BEB64 /* Build configuration list for PBXProject "MeetKey" */;
+			buildConfigurationList = 215F257E2F18AF08000BEB64 /* Build configuration list for PBXProject "MEETKEY" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -107,6 +116,9 @@
 			);
 			mainGroup = 215F257A2F18AF08000BEB64;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A9CE50E82F3B6863008D8C47 /* XCRemoteSwiftPackageReference "Moya" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 215F25842F18AF08000BEB64 /* Products */;
 			projectDirPath = "";
@@ -330,7 +342,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		215F257E2F18AF08000BEB64 /* Build configuration list for PBXProject "MeetKey" */ = {
+		215F257E2F18AF08000BEB64 /* Build configuration list for PBXProject "MEETKEY" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				215F258C2F18AF09000BEB64 /* Debug */,
@@ -349,6 +361,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A9CE50E82F3B6863008D8C47 /* XCRemoteSwiftPackageReference "Moya" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Moya/Moya";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 15.0.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A9CE50E92F3B6863008D8C47 /* CombineMoya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A9CE50E82F3B6863008D8C47 /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = CombineMoya;
+		};
+		A9CE50EB2F3B6863008D8C47 /* Moya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A9CE50E82F3B6863008D8C47 /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = Moya;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 215F257B2F18AF08000BEB64 /* Project object */;
 }

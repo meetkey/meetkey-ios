@@ -75,10 +75,70 @@ class NetworkProvider {
             }
         }
     }
+    
+    /*private let chatProvider = MoyaProvider<ChatAPI>(
+        plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]
+    ) */
+
     // 1. 프로바이더를 함수 밖(클래스 속성)으로 빼야 메모리에서 안 사라집니다!
     private let recommendationProvider = MoyaProvider<RecommendationAPI>(
         plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]
     )
+    
+    /*func requestChat<T: Codable>(
+        _ target: ChatAPI,
+        type: T.Type,
+        completion: @escaping (Result<T, Error>) -> Void
+    ) {
+
+        chatProvider.request(target) { result in
+            switch result {
+
+            case .success(let response):
+
+                do {
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .iso8601
+
+                    if (200...299).contains(response.statusCode) {
+
+                        if let apiResponse = try? decoder.decode(APIResponse<T>.self, from: response.data),
+                           let data = apiResponse.data {
+                            completion(.success(data))
+                            return
+                        }
+
+                        let decoded = try decoder.decode(T.self, from: response.data)
+                        completion(.success(decoded))
+
+                    } else {
+
+                        if let errorBody = try? decoder.decode(ErrorResponse.self, from: response.data) {
+                            completion(.failure(
+                                NetworkError.serverError(
+                                    code: errorBody.code,
+                                    message: errorBody.message
+                                )
+                            ))
+                        } else {
+                            completion(.failure(
+                                NetworkError.serverError(
+                                    code: "\(response.statusCode)",
+                                    message: "Unknown Error"
+                                )
+                            ))
+                        }
+                    }
+
+                } catch {
+                    completion(.failure(NetworkError.decodingError(error)))
+                }
+
+            case .failure(let error):
+                completion(.failure(NetworkError.networkError(error)))
+            }
+        }
+    }*/
 
     // MARK: - 추천 전용 API 요청 함수
     func requestRecommendation<T: Codable>(
