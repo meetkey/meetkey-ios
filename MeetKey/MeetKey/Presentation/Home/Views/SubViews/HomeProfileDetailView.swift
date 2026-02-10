@@ -6,26 +6,21 @@ struct HomeProfileDetailView: View {
     let safeArea: EdgeInsets
     
     var body: some View {
-        // 1. 현재 선택된 유저가 있을 때만 렌더링
         if let user = homeVM.currentUser {
             ZStack(alignment: .bottomLeading){
                 VStack(spacing:15){
-                    // --- 상단 메인 이미지 섹션 ---
+                    
                     mainProfileImage(user: user)
                         .zIndex(1)
                     ScrollView(showsIndicators: false) {
                         VStack(alignment: .leading , spacing: 15) {
 
-                            // --- 언어 섹션 (사용 언어, 관심 언어) ---
                             languageSection(user: user)
                             
-                            // --- 관심사 섹션 (칩 레이아웃) ---
                             interestSection(user: user)
                             
-                            // --- 성향 섹션 (리스트) ---
                             personalitySection(user: user)
                             
-                            // --- 한 줄 소개 섹션 ---
                             bioSection(bio: user.bio ?? "소개글이 없습니다.")
                         }
                         .padding(.top, 15)
@@ -48,7 +43,6 @@ struct HomeProfileDetailView: View {
 // MARK: - [Private Components] UI 부품들
 private extension HomeProfileDetailView {
     
-    // 1. 메인 프로필 이미지 & 뱃지
     private func mainProfileImage(user: User) -> some View {
         ZStack (alignment:.bottom) {
             Image(user.profileImage)
@@ -65,7 +59,6 @@ private extension HomeProfileDetailView {
         }
     }
     
-    // 2. 유저 기본 정보
     private func userInfoSection(user: User) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .bottom) {
@@ -87,12 +80,10 @@ private extension HomeProfileDetailView {
         .padding(.top, 25)
     }
     
-    // 3. 언어 섹션
     private func languageSection(user: User) -> some View {
         HStack(alignment: .top , spacing: 0) {
             languageCard(title: "사용 언어", language: user.first, nation: user.nativeNation, level: nil)
             
-            //중앙 구분선
             Rectangle()
                 .fill(Color.black04)
                 .frame(width:1)
@@ -106,13 +97,11 @@ private extension HomeProfileDetailView {
         )
     }
 
-    // 4. 관심사 섹션 (동적 칩 생성)
     private func interestSection(user: User) -> some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("관심사").font(.meetKey(.body2))
             
             if let interests = user.interests, !interests.isEmpty {
-                // 칩들을 줄 단위로 쪼개주는 함수 호출
                 let rows = generateRows(interests: interests, screenWidth: size.width - 40)
                 
                 VStack(alignment: .leading, spacing: 8) {
@@ -128,7 +117,6 @@ private extension HomeProfileDetailView {
         }
     }
     
-    // 5. 내 성향 섹션
     private func personalitySection(user: User) -> some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("내 성향")
@@ -149,8 +137,7 @@ private extension HomeProfileDetailView {
         }
 
     }
-
-    // 6. 한 줄 소개
+    
     private func bioSection(bio: String) -> some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("한 줄 소개")
@@ -252,7 +239,6 @@ private extension HomeProfileDetailView {
     }
 }
 
-//MARK: - LazyVGrid 대신 사용할 로직 함수,,,
 private extension HomeProfileDetailView {
     private func generateRows(interests: [String], screenWidth: CGFloat) -> [[String]] {
         var rows: [[String]] = []
@@ -261,8 +247,8 @@ private extension HomeProfileDetailView {
         var totalWidth: CGFloat = 0
         
         for interest in interests {
-            // 단어의 대략적인 너비 계산 (폰트 크기 + 패딩)
-            let font = UIFont(name:"Pretendard-Medium", size: 16) // .body2에 맞게 조절
+            
+            let font = UIFont(name:"Pretendard-Medium", size: 16) 
             let attributes = [NSAttributedString.Key.font: font]
             let size = (interest as NSString).size(withAttributes: attributes as [NSAttributedString.Key : Any])
             let chipWidth = size.width + 24 + 8 // (글자너비 + 가로패딩 + 칩간격)

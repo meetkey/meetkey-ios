@@ -41,12 +41,12 @@ extension RecommendationAPI: TargetType {
     }
 
     var headers: [String: String]? {
-        var headers: [String: String] = [
+        let testToken : String
+        let headers: [String: String] = [
             "Content-Type": "application/json",
 //            "Authorization" : "Bearer \(testToken)"
         ]
 
-        // Authorizaiton 넣어야함
 
         switch self {
         case .getRecommendations:

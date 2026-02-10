@@ -114,7 +114,7 @@ class HomeViewModel: ObservableObject {
     }
     
     //MARK: - Skip/Next 액션
-    func handleSkipAction() { //나중에 비동기로?
+    func handleSkipAction() {
         if currentIndex < allUsers.count - 1 {
             currentIndex += 1
             currentUser = allUsers[currentIndex]
