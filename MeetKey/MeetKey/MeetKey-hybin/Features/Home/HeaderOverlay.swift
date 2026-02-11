@@ -5,7 +5,7 @@ enum HeaderType {
     case homeDetail
     case matchingSuccess
     case chat
-    case myProfile
+//    case myProfile
     case opponentDetail
 }
 
@@ -69,14 +69,17 @@ extension HeaderOverlay {
                             .foregroundColor(.white)
                     )
             }
+        case .chat, .matchingSuccess:
+            Button(action: onLeftAction) {
+                Image("btn_x_header") // X 아이콘 적용
+                    .resizable()
+                    .frame(width: 40, height: 40)
+            }
         default:
             Button(action: onLeftAction) {
-                Image(systemName: state == .chat || state == .matchingSuccess ? "xmark" : "arrow.left")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.black)
+                Image("btn_arrow_header") // 뒤로가기 화살표 적용
+                    .resizable()
                     .frame(width: 40, height: 40)
-                    .background(Color.white.opacity(0.8))
-                    .clipShape(Circle())
             }
         }
     }
@@ -93,20 +96,20 @@ extension HeaderOverlay {
     @ViewBuilder
     private var rightArea: some View {
         if state == .home || state == .homeDetail {
-            FilterButton {
+            Button(action: {
                 withAnimation(.spring()) { onRightAction() }
+            }) {
+                Image("btn_filter_header") // 필터 아이콘 적용
+                    .resizable()
+                    .frame(width: 40, height: 40)
             }
         } else {
             Button(action: {
                 withAnimation(.spring()) { onRightAction() }
             }) {
-                Image(systemName: "ellipsis")
-                    .rotationEffect(.degrees(90))
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.black)
+                Image("btn_ellipsis_header") // 더보기(점세개) 아이콘 적용
+                    .resizable()
                     .frame(width: 40, height: 40)
-                    .background(Color.white.opacity(0.8))
-                    .clipShape(Circle())
             }
         }
     }
@@ -114,25 +117,25 @@ extension HeaderOverlay {
     private var homeHeaderText: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(user.name + "님,")
-                .font(.system(size: 12))
-                .foregroundColor(.white.opacity(0.7))
+                .font(.meetKey(.body5))
+                .foregroundStyle(Color.text5)
             Text("이런 친구는 어때요?")
-                .font(.system(size: 18, weight: .bold))
-                .foregroundColor(.white)
+                .font(.meetKey(.body1))
+                .foregroundStyle(Color.text3)
         }
     }
 
     private var reportMenuList: some View {
         VStack(spacing: 0) {
-            menuItem(title: "프로필 보기", icon: "person.circle") {
+            menuItem(title: "프로필 보기", icon: "btn_profile_header") {
                 onDetailAction()
             }
             Divider().padding(.horizontal, 10)
-            menuItem(title: "차단하기", icon: "nosign") {
+            menuItem(title: "차단하기", icon: "btn_block_header") {
                 reportVM.currentReportStep = .block
             }
             Divider().padding(.horizontal, 10)
-            menuItem(title: "신고하기", icon: "exclamationmark.bubble", isDestructive: true) {
+            menuItem(title: "신고하기", icon: "btn_report_header", isDestructive: true) {
                 reportVM.currentReportStep = .report
             }
         }
@@ -147,8 +150,9 @@ extension HeaderOverlay {
             }
         }) {
             HStack(spacing: 15) {
-                Image(systemName: icon)
-                    .frame(width: 24)
+                Image(icon) // 메뉴 아이콘 커스텀 에셋 적용
+                    .resizable()
+                    .frame(width: 24, height: 24)
                 Text(title)
                 Spacer()
             }
