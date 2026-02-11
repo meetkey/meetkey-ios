@@ -30,8 +30,8 @@ struct FilterModel:Equatable {
     
 
     var maxDistance: Double? = nil
-    var minAge : Int? = 18
-    var maxAge : Int? = 50
+    var minAge : Int? = nil
+    var maxAge : Int? = nil
     var interests: [String]?
     var hometown: String?
     var nativeLanguage: String?

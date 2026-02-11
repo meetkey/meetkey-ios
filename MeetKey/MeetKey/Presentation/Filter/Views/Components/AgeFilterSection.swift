@@ -5,17 +5,20 @@ struct AgeFilterSection: View {
     @Binding var minAge: Int?
     @Binding var maxAge: Int?
     @State private var isIgnored: Bool = false
-    
+
+    private let minLimit = 18
+    private let maxLimit = 100
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 12) {
             // 섹션 타이틀
             HStack {
-                Text("나이")
-                    .font(.meetKey(.body4))
-                    .foregroundColor(.text3)
-                
+                Text("나이 범위")
+                    .font(.meetKey(.body1))
+                    .foregroundColor(.text1)
+
                 Spacer()
-                
+
                 // 상관없음 체크박스
                 Button(action: {
                     withAnimation(.easeInOut(duration: 0.2)) {
@@ -24,41 +27,56 @@ struct AgeFilterSection: View {
                             minAge = nil
                             maxAge = nil
                         } else {
-                            minAge = 18
-                            maxAge = 50
+                            minAge = minLimit
+                            maxAge = maxLimit
                         }
                     }
                 }) {
                     HStack(spacing: 8) {
-                        Image(systemName: isIgnored ? "checkmark.square.fill" : "square")
-                            .foregroundColor(isIgnored ? .blue : .gray)
+                        Image(
+                            systemName: isIgnored
+                                ? "checkmark.square.fill" : "square"
+                        )
+                        .foregroundColor(isIgnored ? .orange01 : .gray)
                         Text("상관없음")
                             .foregroundColor(.primary)
                             .font(.subheadline)
                     }
                 }
             }
-            
-            VStack(spacing: 24) {
+
+            VStack(spacing: 8) {
                 // 최소 나이 슬라이더
                 AgeSlider(
                     title: "최소 나이",
                     age: Binding(
-                        get: { minAge ?? 18 },
-                        set: { minAge = $0 }
+                        get: { minAge ?? minLimit },
+                        set: { newValue in
+                            minAge = newValue
+                            // 역전 방지: 최소 나이가 현재 최대 나이보다 커지면 최대 나이도 같이 올림
+                            if let currentMax = maxAge, newValue > currentMax {
+                                maxAge = newValue
+                            }
+                        }
                     ),
-                    range: 18...50,
+                    range: minLimit...maxLimit,
                     isDisabled: isIgnored
                 )
-                
+
                 // 최대 나이 슬라이더
                 AgeSlider(
                     title: "최대 나이",
                     age: Binding(
-                        get: { maxAge ?? 50 },
-                        set: { maxAge = $0 }
+                        get: { maxAge ?? maxLimit },
+                        set: { newValue in
+                            maxAge = newValue
+                            // 역전 방지: 최대 나이가 현재 최소 나이보다 작아지면 최소 나이도 같이 내림
+                            if let currentMin = minAge, newValue < currentMin {
+                                minAge = newValue
+                            }
+                        }
                     ),
-                    range: 18...50,
+                    range: minLimit...maxLimit,
                     isDisabled: isIgnored
                 )
             }
@@ -81,85 +99,82 @@ struct AgeSlider: View {
     @State private var isEditingText = false
     @FocusState private var isFocused: Bool
     @State private var textInput: String = ""
-    @State private var sliderPosition: CGFloat? = nil // 드래그 중 위치 추적
+    @State private var sliderPosition: CGFloat? = nil
     
-    // 디자인 속성
-    private let trackHeight: CGFloat = 4
+    // 디자인 속성 (피그마 기준 업데이트)
+    private let trackHeight: CGFloat = 14 // 4 + 10 반영
     private let thumbSize: CGFloat = 28
+    private let bubbleWidth: CGFloat = 50
     private let bubbleColor: Color = .orange
-    private let activeTrackColor: Color = .gray.opacity(0.3)
-    private let inactiveTrackColor: Color = .gray.opacity(0.15)
+    private let activeTrackColor: Color = .orange01
+    private let inactiveTrackColor: Color = .background3
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // 타이틀
+        VStack(alignment: .leading, spacing: 20) { // 나이 타이틀과 슬라이더 간격
             Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(.meetKey(.body2))
+                .foregroundStyle(Color.text2)
             
-            // 슬라이더
             GeometryReader { geometry in
+                // 트랙의 실제 가동 범위
                 let trackWidth = geometry.size.width - thumbSize
                 let normalizedValue = Double(age - range.lowerBound) / Double(range.upperBound - range.lowerBound)
-                let calculatedPosition = CGFloat(normalizedValue) * trackWidth
-                let thumbPosition = sliderPosition ?? calculatedPosition
+                let thumbPosition = sliderPosition ?? (CGFloat(normalizedValue) * trackWidth)
+                
+                // 말풍선 클램핑 로직
+                let bubbleHalfWidth = bubbleWidth / 2
+                let totalWidth = geometry.size.width
+                let preferredCenter = thumbPosition + (thumbSize / 2)
+                let clampedBubbleCenter = max(bubbleHalfWidth, min(totalWidth - bubbleHalfWidth, preferredCenter))
                 
                 ZStack(alignment: .leading) {
-                    // 트랙 배경
+                    // 1. 전체 트랙 배경 (화면 너비 전체 활용)
                     RoundedRectangle(cornerRadius: trackHeight / 2)
                         .fill(inactiveTrackColor)
-                        .frame(height: trackHeight)
-                        .offset(x: thumbSize / 2)
+                        .frame(width: geometry.size.width, height: trackHeight)
                     
-                    // 활성 트랙
+                    // 2. 활성 트랙 (Thumb의 중앙까지 채움)
                     RoundedRectangle(cornerRadius: trackHeight / 2)
-                        .fill(activeTrackColor)
-                        .frame(width: thumbPosition, height: trackHeight)
-                        .offset(x: thumbSize / 2)
+                        .fill(isDisabled ? inactiveTrackColor : activeTrackColor)
+                        .frame(width: thumbPosition + (thumbSize / 2), height: trackHeight)
                     
-                    // Thumb + 말풍선
-                    VStack(spacing: 8) {
-                        // 말풍선 (숫자 표시 + 편집 가능)
+                    // 3. 커스텀 Thumb 이미지
+                    Image(isDisabled ? "slider_thumb_unselect" : "slider_thumb")
+                        .resizable()
+                        .frame(width: thumbSize, height: thumbSize + 8) // 세로로 살짝 긴 피그마 느낌 반영
+                        .offset(x: thumbPosition)
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { gesture in
+                                    if isDisabled { return }
+                                    isDragging = true
+                                    let absoluteX = gesture.location.x - thumbSize / 2
+                                    let clampedX = max(0, min(trackWidth, absoluteX))
+                                    sliderPosition = clampedX
+                                    
+                                    let newNormalizedValue = Double(clampedX / trackWidth)
+                                    let rawValue = Double(range.lowerBound) + newNormalizedValue * Double(range.upperBound - range.lowerBound)
+                                    age = Int(round(rawValue))
+                                }
+                                .onEnded { _ in
+                                    isDragging = false
+                                    sliderPosition = nil
+                                }
+                        )
+
+                    // 4. 말풍선 (Thumb과의 간격 최적화)
+                    if !isDisabled {
                         ageBubble
-                        
-                        // Thumb (동그라미)
-                        Circle()
-                            .fill(bubbleColor)
-                            .frame(width: thumbSize, height: thumbSize)
-                            .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 2)
+                            .frame(width: bubbleWidth)
+                            // y값을 미세 조정하여 슬라이더와 겹치지 않으면서 가깝게 배치
+                            .position(x: clampedBubbleCenter, y: -5)
                     }
-                    .offset(x: thumbPosition)
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { gesture in
-                                if isDisabled { return }
-                                isDragging = true
-                                
-                                // 절대 위치 기반 계산
-                                let absoluteX = gesture.location.x - thumbSize / 2
-                                let clampedPosition = max(0, min(trackWidth, absoluteX))
-                                
-                                sliderPosition = clampedPosition
-                                
-                                let newNormalizedValue = Double(clampedPosition / trackWidth)
-                                let rawValue = Double(range.lowerBound) + newNormalizedValue * Double(range.upperBound - range.lowerBound)
-                                
-                                // 정수로 반올림
-                                let newAge = Int(round(rawValue))
-                                age = max(range.lowerBound, min(range.upperBound, newAge))
-                            }
-                            .onEnded { _ in
-                                isDragging = false
-                                sliderPosition = nil // 드래그 종료 시 계산된 위치로 복귀
-                            }
-                    )
                 }
-                .frame(height: thumbSize + 40) // 말풍선 공간 포함
+                .frame(maxHeight: .infinity, alignment: .center) // ZStack을 GeometryReader 중앙에 배치
             }
-            .frame(height: thumbSize + 40)
+            .frame(height: 60) // 슬라이더 터치 및 말풍선 영역 확보
         }
     }
-    
     // 말풍선 뷰
     private var ageBubble: some View {
         Group {
@@ -168,8 +183,8 @@ struct AgeSlider: View {
                 TextField("", text: $textInput)
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.center)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.white)
+                    .font(.meetKey(.title4))
+                    .foregroundColor(.main)
                     .frame(width: 50, height: 32)
                     .background(bubbleColor)
                     .cornerRadius(8)
@@ -200,7 +215,7 @@ struct AgeSlider: View {
             }
         }
     }
-    
+
     // 편집 시작
     private func startEditing() {
         textInput = "\(age)"
@@ -210,7 +225,7 @@ struct AgeSlider: View {
             isFocused = true
         }
     }
-    
+
     // 텍스트 입력 적용
     private func applyTextInput() {
         if let newAge = Int(textInput), range.contains(newAge) {
@@ -220,4 +235,3 @@ struct AgeSlider: View {
         isFocused = false
     }
 }
-
