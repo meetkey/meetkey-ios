@@ -56,6 +56,7 @@ struct MatchingView: View {
                     reportVM: homeVM.reportVM,
                     targetUser: homeVM.currentUser ?? User.mockData[0]
                 )
+                .presentationBackground(Color.white01)
                 .presentationDetents([.medium])
             }
         }
