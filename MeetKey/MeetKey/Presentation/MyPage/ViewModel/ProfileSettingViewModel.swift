@@ -138,8 +138,8 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
         
         let dto = MyProfileSettingsRequestDTO(
             location: user.location,
-            latitude: currentLatitude,  // 여기 실제 Double 값 필요
-            longitude: currentLongitude, // 실제 Double 값 필요
+            latitude: currentLatitude,
+            longitude: currentLongitude,
             bio: user.bio ?? "",
             first: user.first,
             target: user.target,
@@ -165,14 +165,16 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
                 completion(.failure(error))
             }
         }
-        
-        
     }
     
-    func uploadProfileImage(completion: @escaping (Result<Void, Error>) -> Void) {
+    func uploadProfileImage(
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
         
-        guard selectedImage != nil else {
-            completion(.success(()))
+        guard let image = selectedImage,
+              let imageData = image.jpegData(compressionQuality: 0.8)
+        else {
+            completion(.failure(NSError(domain: "ImageError", code: 0)))
             return
         }
         
@@ -185,26 +187,25 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
             )
         ]
         
-        // presigned 요청
         provider.request(.getURLForImageUpload(dto: requestDTO)) { [weak self] result in
             
             switch result {
                 
             case .success(let response):
-                print("📦 presigned raw response:",
-                      String(data: response.data, encoding: .utf8) ?? "nil")
                 do {
                     let decoded = try JSONDecoder()
                         .decode(ImageUploadResponseDTO.self, from: response.data)
                     
                     guard let uploadInfo = decoded.data.first else {
-                        completion(.failure(NSError()))
+                        completion(.failure(NSError(domain: "NoData", code: 0)))
                         return
                     }
-                    print("✅ 발급받은 key:", uploadInfo.key)
                     
-                    self?.registerImageKey(
-                        keys: [uploadInfo.key],
+                    self?.uploadToS3(
+                        uploadURL: uploadInfo.url,
+                        imageData: imageData,
+                        key: uploadInfo.key,
+                        imageURL: uploadInfo.url.components(separatedBy: "?").first ?? "",
                         completion: completion
                     )
                     
@@ -218,26 +219,74 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
         }
     }
     
-    func registerImageKey(
-        keys: [String],
+    private func uploadToS3(
+        uploadURL: String,
+        imageData: Data,
+        key: String,
+        imageURL: String,
         completion: @escaping (Result<Void, Error>) -> Void
     ) {
-        provider.request(.registerProfileImages(keys: keys)) { result in
+        
+        guard let url = URL(string: uploadURL) else {
+            completion(.failure(NSError(domain: "BadURL", code: 0)))
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+        request.httpBody = imageData
+        
+        URLSession.shared.dataTask(with: request) { [weak self] _, response, error in
+            
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200 else {
+                completion(.failure(NSError(domain: "S3UploadFail", code: 0)))
+                return
+            }
+            
+            // key DB 저장
+            self?.registerImageKey(
+                keys: [key],
+                imageURL: imageURL,
+                completion: completion
+            )
+        }.resume()
+    }
+    
+    
+    private func registerImageKey(
+        keys: [String],
+        imageURL: String,
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
+        
+        provider.request(.registerProfileImages(keys: keys)) { [weak self] result in
             
             switch result {
-            case .success(let response):
-                print("📦 register status:", response.statusCode)
-                print("📦 register body:",
-                      String(data: response.data, encoding: .utf8) ?? "nil")
+                
+            case .success:
+                DispatchQueue.main.async {
+                    if var currentUser = self?.user {
+                        currentUser.profileImage = imageURL
+                        self?.user = currentUser
+                    }
+                    print("🔥 최종 profileImage:", self?.user.profileImage ?? "nil")
+                }
+                
                 print("🔥 이미지 key 저장 완료")
                 completion(.success(()))
+                
             case .failure(let error):
-                print("❌ register 실패:", error)
                 completion(.failure(error))
             }
         }
     }
-    
     
     func saveProfile(completion: @escaping (Result<User, Error>) -> Void) {
         print("🔥 saveProfile 진입")
@@ -246,6 +295,7 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
             uploadProfileImage { [weak self] result in
                 switch result {
                 case .success:
+                    print("✅ 이미지 업로드 완료 → updateProfile 실행")
                     self?.updateProfile(completion: completion)
                 case .failure(let error):
                     completion(.failure(error))

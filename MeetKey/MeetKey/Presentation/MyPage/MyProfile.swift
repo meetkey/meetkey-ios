@@ -59,9 +59,6 @@ struct MyProfile: View {
     
     private func profileContent(user: User) -> some View {
         ScrollView {
-            //            ProfileHeader(user: user){
-            //                isEditProfilePresented = true
-            //            }
             ProfileHeader(
                 user: user,
                 onTapSetting: {
@@ -117,6 +114,11 @@ struct MyProfile: View {
                 ProfileSettingView(user: user) { editedUser in
                     self.user = editedUser
                 }
+            }
+        }
+        .onChange(of: isEditProfilePresented) { isPresented in
+            if !isPresented {
+                viewModel.fetchMyProfile()
             }
         }
     }
