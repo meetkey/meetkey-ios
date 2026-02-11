@@ -21,12 +21,12 @@ struct MatchingView: View {
             ZStack(alignment: .top) {
 
                 backgroundSection(size: screenSize)
-                
+
                 if homeVM.reportVM.isReportMenuPresented {
                     closeOverlay
                 }
-                
-                VStack{
+
+                VStack {
                     Spacer()
                     ChatInputSection(messageText: $messageText)
                         .padding(.bottom, safeArea.bottom)
@@ -34,11 +34,11 @@ struct MatchingView: View {
 
                 HeaderOverlay(
                     state: .chat,
-                    safeArea: safeArea,
                     user: homeVM.currentUser ?? homeVM.me,
-                    homeVM: homeVM,
-                    onBackAction: homeVM.dismissMatchView,
-                    onFilterAction: homeVM.reportVM.handleReportMenuTap
+                    reportVM: homeVM.reportVM,
+                    onLeftAction: homeVM.dismissMatchView,
+                    onRightAction: homeVM.reportVM.handleReportMenuTap,
+                    onDetailAction: homeVM.presentDetailView
                 ).zIndex(1)
 
             }
@@ -56,7 +56,8 @@ struct MatchingView: View {
                     reportVM: homeVM.reportVM,
                     targetUser: homeVM.currentUser ?? User.mockData[0]
                 )
-                .presentationDetents([.medium])  
+                .presentationBackground(Color.white01)
+                .presentationDetents([.medium])
             }
         }
 
@@ -66,16 +67,21 @@ struct MatchingView: View {
         VStack {
             Spacer()
             VStack(spacing: 12) {
-                Image("profileImageSample1")  // 나중에 실제 데이터로 교체 가능
+                Image("img_meetkey_matched")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 140, height: 140)
 
-                VStack {
-                    Text("soulMate").font(.headline)
-                    Text("yourFriends").font(.subheadline).foregroundColor(
-                        .gray
-                    )
+                VStack(alignment:.center) {
+                    Text("소울 메이트 발견!")
+                        .font(.meetKey(.title4))
+                        .foregroundStyle(Color.text2)
+                    Text("회원님과 잘 맞을 것 같은 친구를 발견했어요.")
+                        .font(.meetKey(.body5))
+                        .foregroundStyle(Color.text4)
+                    Text("바로 대화를 시작해보세요!")
+                        .font(.meetKey(.body5))
+                        .foregroundStyle(Color.text4)
                 }
             }
             Spacer()

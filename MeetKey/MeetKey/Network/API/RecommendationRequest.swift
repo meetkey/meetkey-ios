@@ -17,7 +17,8 @@ struct RecommendationRequest : Codable {
     var nativeLanguage: String?
     var targetLanguage: String?
     var targetLanguageLevel: String?
-    var latitude: Double?
+    var personality: [String]?
+    var latitude: Double? // 위도 경도는 APP에서 쏴주는 형식으로 (따로 홈뷰에서 관리하다가 한번에 쏴주는 형식)
     var longitude: Double?
     
 }
@@ -34,6 +35,8 @@ extension RecommendationRequest {
         if let home = hometown {dict["hometown"] = home }
         if let natLang = nativeLanguage {dict["nativeLanguage"] = natLang }
         if let tarLang = targetLanguage {dict["targetLanguage"] = tarLang }
+        if let tarLangLevel = targetLanguageLevel { dict["targetLanguageLevel"] = tarLangLevel }
+        if let pers = personality { dict["personality"] = pers }
         if let lat = latitude {dict["latitude"] = lat }
         if let long = longitude {dict["longitude"] = long}
         

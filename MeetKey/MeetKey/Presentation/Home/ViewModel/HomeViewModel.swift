@@ -6,84 +6,124 @@
 //
 
 import Combine
+import CoreLocation
 import Foundation
 import SwiftUI
 
-//MARK: - 비동기 작업을 위한 Enum
+//MARK: - HomeStatus Enum
 enum HomeStatus {
-    case loading  // 기본
-    case idle  // 유저 카드를 보여주는 기본 상태
-    case matching  // 매칭 액션 이후
-    case finished // 매칭 성공 화면
-    //    case error
-    //    다른 것은 차차 추가 할 예정
+    case loading
+    case idle
+    case matching
+    case finished
 }
 
+//MARK: - HomeViewModel
 @MainActor
 class HomeViewModel: ObservableObject {
-    //MARK: - [상태 관리]
-    @Published var status: HomeStatus = .loading
 
-    //MARK: - [데이터]
-    @Published var me = User.me  // 로그인한 유저
-    @Published var allUsers: [User] = []  // 기존 users
-    @Published var currentUser: User?  // 기존 selectedUser
+    //MARK: - Properties
+
+    // State
+    @Published var status: HomeStatus = .loading
+    @Published var filter = FilterModel()
+
+    // Data
+    @Published var me = User.me
+    @Published var allUsers: [User] = []
+    @Published var currentUser: User?
     @Published private(set) var currentIndex: Int = 0
 
-    //MARK: - [화면 제어]
+    // View Control
     @Published var isDetailViewPresented: Bool = false
     @Published var isFilterViewPresented: Bool = false
     @Published var isMatchViewPresented: Bool = false
     @Published var hasReachedLimit: Bool = false
 
-    let users: [User] = User.mockData  //확인용 더미데이터
-    
-    //MARK: - 서비스 주입
+    // Services
     @Published var currentFilter = RecommendationRequest()
-    
-    private let recommendationService = RecommendationService.shared
-
-    //MARK: -3 Report & Block
     @Published var reportVM = ReportViewModel()
 
+    private let locationManager = LocationManager.shared
+    private let locationService = LocationService.shared
+    private let recommendationService = RecommendationService.shared
     private var cancellables = Set<AnyCancellable>()
 
+    let users: [User] = User.mockData
+
+    //MARK: - Initialization
+
     init() {
+        setupReportViewModel()
+        setupLocationManager()
+    }
+
+    private func setupReportViewModel() {
         reportVM.objectWillChange
             .sink { [weak self] _ in
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
-        
+
         reportVM.onFinalize = { [weak self] in
             self?.finalizeReportProcess()
         }
     }
 
-    //MARK: -3
-    func finalizeReportProcess() {
-        withAnimation(.easeInOut) {
-            reportVM.closeReportMenu()
+    private func setupLocationManager() {
+        locationManager.$currentLocation
+            .compactMap { $0 }
+            .first()
+            .sink { [weak self] location in
+                print("📍 HomeViewModel이 위치 받음")
 
-            self.handleSkipAction()
-            self.dismissMatchView()
+                Task {
+                    // 1. 서버에 위치 저장 (PATCH /me/location)
+                    await self?.sendLocationToServer(
+                        latitude: location.coordinate.latitude,
+                        longitude: location.coordinate.longitude
+                    )
+
+                    // 2. 추천 요청 (좌표 포함해서)
+                    await self?.fetchRecommendations(
+                        latitude: location.coordinate.latitude,
+                        longitude: location.coordinate.longitude
+                    )
+                }
+            }
+            .store(in: &cancellables)
+
+        print("📍 위치 요청 시작")
+        locationManager.requestLocation()
+    }
+
+    // 위치 저장
+    private func sendLocationToServer(latitude: Double, longitude: Double) async
+    {
+        print("📍 서버로 위치 전송 중...")
+        do {
+            try await locationService.updateMyLocation(
+                latitude: latitude,
+                longitude: longitude
+            )
+            print("✅ 위치 전송 완료")
+        } catch {
+            print("❌ 위치 전송 실패: \(error)")
         }
     }
 
-    func dismissMatchView() {
-        isMatchViewPresented = false
-        reportVM.closeReportMenu()
-    }
+    //MARK: - API Requests
 
-    //MARK: 서비스 연동
     func fetchUserAsync() async {
         print("패치유저")
         status = .loading
-        
+
         do {
-            let fetchedData = try await recommendationService.getRecommendation(filter: currentFilter)
+            let fetchedData = try await recommendationService.getRecommendation(
+                filter: currentFilter
+            )
             print("서버에서 받은 유저수: \(fetchedData.count)")
-            
+
             if fetchedData.isEmpty {
                 status = .finished
             } else {
@@ -96,30 +136,116 @@ class HomeViewModel: ObservableObject {
             print("데이터 로딩 실패: \(error)")
         }
     }
-    
-    //MARK: - Like 액션
-    func handleLikeAction() async {
-        guard let targetUser = currentUser else { return }
-        
-        print("DEBUG: \(targetUser.name)님")
-        do {
-            // try await networkManager.sendLike(to: targetUser.id)
-            try await Task.sleep(nanoseconds: 500_000_000)
-            
-            presentMatchView() // 성공 시 매칭 화면
 
-        } catch {
-            print("Like 처리 실패: \(error)")
+    func fetchRecommendations(latitude: Double, longitude: Double) async {
+        let interestsRaw = filter.interests?.compactMap { korName in
+            InterestType.allCases.first(where: { $0.displayName == korName })?
+                .rawValue
+        }
+
+        let personalityRaw: [String] = filter.combinedPersonalities ?? []
+
+        let hometownRaw = NationalityType.allCases.first(where: {
+            $0.displayName == filter.hometown
+        })?.rawValue
+        let nativeLangRaw = LanguageType.allCases.first(where: {
+            $0.displayName == filter.nativeLanguage
+        })?.rawValue
+        let targetLangRaw = LanguageType.allCases.first(where: {
+            $0.displayName == filter.targetLanguage
+        })?.rawValue
+        let targetLangLevelRaw = LanguageLevelType.allCases.first(where: {
+            $0.displayName == filter.targetLanguageLevel
+        })?.rawValue
+
+        let request = RecommendationRequest(
+            maxDistance: filter.maxDistance,
+            minAge: filter.minAge,
+            maxAge: filter.maxAge,
+            interests: interestsRaw,
+            hometown: hometownRaw,
+            nativeLanguage: nativeLangRaw,
+            targetLanguage: targetLangRaw,
+            targetLanguageLevel: targetLangLevelRaw,
+            personality: personalityRaw,
+            latitude: latitude,
+            longitude: longitude
+        )
+
+        currentFilter = request
+        Task {
+            await fetchUserAsync()
+        }
+
+        print("📮 서버로 날아가는 진짜 데이터: \(request.toDictionary())")
+    }
+
+    //MARK: - Filter Actions
+
+    func applyFilter(_ newFilter: FilterModel) {
+        filter = newFilter
+
+        if let location = LocationManager.shared.currentLocation {
+            Task {
+                await fetchRecommendations(
+                    latitude: location.coordinate.latitude,
+                    longitude: location.coordinate.longitude
+                )
+            }
+        } else {
+            print("⚠️ 위치 정보 없음")
         }
     }
-    
-    //MARK: - Skip/Next 액션
+
+    var groupedInterests: [InterestGroup] {
+        let all = InterestType.allCases
+        return [
+            InterestGroup(category: "일상 · 라이프스타일", items: Array(all[0...9])),
+            InterestGroup(category: "문화 · 콘텐츠", items: Array(all[10...20])),
+            InterestGroup(category: "지식 · 시사", items: Array(all[21...31])),
+        ]
+    }
+
+    //MARK: - User Actions
+
+    func handleLikeAction() {
+        guard let targetUser = currentUser else { return }
+
+        Task {
+            do {
+                try await RecommendationService.shared.sendUserAction(
+                    targetId: targetUser.id,
+                    action: .like
+                )
+            } catch {
+                print("Like API Error: \(error)")
+            }
+        }
+        presentMatchView()
+    }
+
     func handleSkipAction() {
+        guard let targetUser = currentUser else { return }
+
+        Task {
+            do {
+                try await RecommendationService.shared.sendUserAction(
+                    targetId: targetUser.id,
+                    action: .skip
+                )
+            } catch {
+                print("Skip API Error: \(error)")
+            }
+        }
+        moveToNextUser()
+    }
+
+    private func moveToNextUser() {
         if currentIndex < allUsers.count - 1 {
             currentIndex += 1
             currentUser = allUsers[currentIndex]
         } else {
-            self.status = .finished
+            status = .finished
         }
     }
 
@@ -129,7 +255,17 @@ class HomeViewModel: ObservableObject {
         status = allUsers.isEmpty ? .finished : .idle
     }
 
-    //MARK: - 1
+    //MARK: - Report & Block
+
+    func finalizeReportProcess() {
+        withAnimation(.easeInOut) {
+            reportVM.closeReportMenu()
+            self.handleSkipAction()
+            self.dismissMatchView()
+        }
+    }
+
+    //MARK: - View Presentation
 
     func presentDetailView() {
         isDetailViewPresented = true
@@ -143,12 +279,27 @@ class HomeViewModel: ObservableObject {
         isMatchViewPresented = true
     }
 
+    func dismissMatchView() {
+        isMatchViewPresented = false
+        reportVM.closeReportMenu()
+    }
+
     func dismissFilterView() {
         isFilterViewPresented = false
     }
 
     func presentFilterView() {
         isFilterViewPresented = true
+    }
+}
+
+//MARK: - Helper Struct
+
+extension HomeViewModel {
+    struct InterestGroup: Identifiable {
+        let id = UUID()
+        let category: String
+        let items: [InterestType]
     }
 }
 

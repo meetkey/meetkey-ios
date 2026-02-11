@@ -27,8 +27,35 @@ class RecommendationService {
                 }
             }
         }
-        return response.data.recommendations.map { User(from: $0) }
+        let users =  response.data.recommendations.map { User(from: $0) }
+        print("Users: \(users)")
+        return users
     }
+    
+    func sendUserAction(targetId: Int, action: ActionType) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            networkProvider.requestRecommendation(
+                .sendAction(targetId: targetId, action: action),
+                type: ActionResponse.self // code랑 message만 있는 공통 모델 사용
+            ) { result in
+                switch result {
+                case .success(_):
+                    continuation.resume()
+
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+}
+
+
+//MARK: - 액션 응답에 대한 에러 방지용
+struct ActionResponse: Codable {
+    let code : String
+    let message: String
+
 }
 
 

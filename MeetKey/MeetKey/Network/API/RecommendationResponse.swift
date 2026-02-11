@@ -42,7 +42,7 @@ struct RecommendationDTO: Codable {
 
 struct LanguageDTO: Codable {
     let language: String
-    let level: String
+    let level: String?
 }
 
 struct PersonalityDTO: Codable {
