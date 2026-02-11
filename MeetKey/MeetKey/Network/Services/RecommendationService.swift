@@ -39,7 +39,7 @@ class RecommendationService {
                 type: ActionResponse.self // code랑 message만 있는 공통 모델 사용
             ) { result in
                 switch result {
-                case .success(let response):
+                case .success(_):
                     continuation.resume()
 
                 case .failure(let error):
