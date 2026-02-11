@@ -4,7 +4,7 @@ struct HometownSelectionView: View {
     @ObservedObject var viewModel: OnboardingViewModel
     @Environment(\.dismiss) var dismiss
     
-    // 2열 그리드 설정
+    // Grid 2열 설정
     let columns = [
         GridItem(.flexible(), spacing: 10),
         GridItem(.flexible(), spacing: 10)
@@ -17,14 +17,14 @@ struct HometownSelectionView: View {
             VStack(spacing: 0) {
                 HStack { Spacer() }.frame(height: 44)
                 
-                // 공통 컴포넌트
+                // Common 컴포넌트
                 OnboardingPagination(currentStep: 1)
                 OnboardingTitleView(
                     title: "출신 국가를 알려주세요.",
                     subTitle: "지역은 나중에 변경할 수 없으니,\n꼼꼼하게 확인해 주세요."
                 )
                 
-                // 국가 그리드 (2열)
+                // Country 그리드 2열
                 LazyVGrid(columns: columns, spacing: 12) {
                     ForEach(viewModel.countries, id: \.self) { country in
                         LanguageButton(
@@ -46,7 +46,7 @@ struct HometownSelectionView: View {
                 
                 Spacer()
                 
-                // 공통 하단 버튼
+                // Common 하단 버튼
                 BottomActionButton(
                     title: "다음",
                     isEnabled: viewModel.data.hometown != nil

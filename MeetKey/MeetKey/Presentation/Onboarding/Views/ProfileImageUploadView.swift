@@ -11,18 +11,18 @@ struct ProfileImageUploadView: View {
             VStack(spacing: 0) {
                 HStack { Spacer() }.frame(height: 44)
                 
-                // 1. 페이지네이션 (3단계)
+                // Step 1 페이지네이션 3단계
                 OnboardingPagination(currentStep: 3)
                 
-                // 2. 타이틀
+                // Step 2 타이틀
                 OnboardingTitleView(
                     title: "프로필을 등록해주세요.",
                     subTitle: "실제 사진은 안전한 커뮤니티 조성에 도움이 됩니다.\n본인을 잘 나타내는 사진 3장을 등록해 주세요."
                 )
                 
-                // 3. 사진 등록 그리드 (HStack + VStack)
+                // Step 3 사진 등록 그리드 HStack VStack
                 HStack(alignment: .top, spacing: 10) {
-                    // [왼쪽 열] 작은 사진 1, 2
+                    // Left 열 작은 사진 1 2
                     VStack(spacing: 10) {
                         ProfileImageSlot(
                             title: "대표사진 1",
@@ -42,7 +42,7 @@ struct ProfileImageUploadView: View {
                     }
                     .frame(width: 172)
                     
-                    // [오른쪽 열] 긴 사진 3
+                    // Right 열 긴 사진 3
                     ProfileImageSlot(
                         title: "대표사진 3",
                         image: viewModel.profileImages[2],
@@ -56,22 +56,22 @@ struct ProfileImageUploadView: View {
                 
                 Spacer()
                 
-                // 4. 다음 버튼 NavigationLink 연결
+                // Step 4 다음 버튼 NavigationLink 연결
                 NavigationLink(destination: InterestSelectionView(viewModel: viewModel)) {
                     Text("다음")
                         .font(.custom("Pretendard-SemiBold", size: 16))
-                        .foregroundColor(.meetKeyWhite01)
+                        .foregroundColor(Color.meetKey.white01)
                         .frame(maxWidth: .infinity)
                         .frame(height: 54)
-                        .background(viewModel.isProfileImagesCompleted ? Color.meetKeyOrange04 : Color.meetKeyBlack04)
+                        .background(viewModel.isProfileImagesCompleted ? Color.meetKey.main : Color.meetKey.black04)
                         .cornerRadius(15)
                 }
-                .disabled(!viewModel.isProfileImagesCompleted) // 3장 다 안 채우면 비활성화
+                .disabled(!viewModel.isProfileImagesCompleted) // Min 3장 필요
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
             }
             
-            // [커스텀 바텀 시트]
+            // Custom 바텀 시트
             if viewModel.showImageActionSheet {
                 Color.black.opacity(0.4)
                     .ignoresSafeArea()
@@ -88,7 +88,7 @@ struct ProfileImageUploadView: View {
         }
         .navigationBarBackButtonHidden(false)
         .navigationTitle("")
-        // 시스템 이미지 피커
+        // System 이미지 피커
         .sheet(isPresented: $viewModel.showImagePicker) {
             ImagePicker(
                 image: Binding(
@@ -112,7 +112,7 @@ struct ProfileImageUploadView: View {
     }
 }
 
-// [컴포넌트] 사진 등록 박스 (Slot)
+// Component 사진 등록 박스 Slot
 struct ProfileImageSlot: View {
     let title: String
     let image: UIImage?
@@ -123,7 +123,7 @@ struct ProfileImageSlot: View {
         Button(action: action) {
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.meetKeyBlack07)
+                    .fill(Color.meetKey.black07)
                 
                 if let uImage = image {
                     Image(uiImage: uImage)
@@ -133,7 +133,7 @@ struct ProfileImageSlot: View {
                         .clipped()
                         .cornerRadius(12)
                 } else {
-                    // 이미지가 없을 때
+                    // Empty 이미지 없음
                     VStack(spacing: 8) {
                         Image("icon_plus")
                             .resizable()
@@ -141,7 +141,7 @@ struct ProfileImageSlot: View {
                         
                         Text(title)
                             .font(.custom("Pretendard-Regular", size: 16))
-                            .foregroundColor(.meetKeyBlack03)
+                            .foregroundColor(Color.meetKey.text2)
                     }
                 }
             }
@@ -150,28 +150,28 @@ struct ProfileImageSlot: View {
     }
 }
 
-// [컴포넌트] 커스텀 액션 시트
+// Component 커스텀 액션 시트
 struct CustomImageActionSheet: View {
     @ObservedObject var viewModel: OnboardingViewModel
     
     var body: some View {
         VStack(spacing: 0) {
-            // 핸들 바
+            // Handle 바
             Capsule()
-                .fill(Color.meetKeyBlack02)
+                .fill(Color.meetKey.black02)
                 .frame(width: 36, height: 5)
                 .padding(.top, 10)
                 .padding(.bottom, 20)
             
-            // 타이틀
+            // Title 타이틀
             Text("사진 올리기")
                 .font(.custom("Pretendard-Bold", size: 18))
-                .foregroundColor(.meetKeyBlack01)
+                .foregroundColor(Color.meetKey.text1)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 24)
                 .padding(.bottom, 20)
             
-            // 메뉴 1: 사진첩
+            // Menu 1 사진첩
             Button(action: {
                 viewModel.imagePickerSource = .photoLibrary
                 viewModel.showImageActionSheet = false
@@ -184,17 +184,17 @@ struct CustomImageActionSheet: View {
                     
                     Text("내 사진첩에서 고르기")
                         .font(.custom("Pretendard-Medium", size: 16))
-                        .foregroundColor(.meetKeyBlack03)
+                        .foregroundColor(Color.meetKey.text2)
                     
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .foregroundColor(.meetKeyBlack03)
+                        .foregroundColor(Color.meetKey.text2)
                 }
                 .padding(.horizontal, 24)
                 .frame(height: 56)
             }
             
-            // 메뉴 2: 카메라
+            // Menu 2 카메라
             Button(action: {
                 viewModel.imagePickerSource = .camera
                 viewModel.showImageActionSheet = false
@@ -207,17 +207,17 @@ struct CustomImageActionSheet: View {
                     
                     Text("카메라로 등록하기")
                         .font(.custom("Pretendard-Medium", size: 16))
-                        .foregroundColor(.meetKeyBlack03)
+                        .foregroundColor(Color.meetKey.text2)
                     
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .foregroundColor(.meetKeyBlack03)
+                        .foregroundColor(Color.meetKey.text2)
                 }
                 .padding(.horizontal, 24)
                 .frame(height: 56)
             }
             
-            // 닫기 버튼
+            // Close 닫기 버튼
             Button(action: {
                 withAnimation {
                     viewModel.showImageActionSheet = false
@@ -225,10 +225,10 @@ struct CustomImageActionSheet: View {
             }) {
                 Text("닫기")
                     .font(.custom("Pretendard-SemiBold", size: 16))
-                    .foregroundColor(.meetKeyWhite01)
+                    .foregroundColor(Color.meetKey.white01)
                     .frame(maxWidth: .infinity)
                     .frame(height: 54)
-                    .background(Color.meetKeyOrange04)
+                    .background(Color.meetKey.main)
                     .cornerRadius(15)
             }
             .padding(24)

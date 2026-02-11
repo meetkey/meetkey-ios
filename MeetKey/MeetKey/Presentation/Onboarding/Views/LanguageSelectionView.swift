@@ -11,10 +11,10 @@ struct LanguageSelectionView: View {
             VStack(spacing: 0) {
                 HStack { Spacer() }.frame(height: 44)
                 
-                // 공통 컴포넌트 (페이지 1)
+                // Common 컴포넌트 페이지 1
                 OnboardingPagination(currentStep: 1)
                 
-                // 공통 컴포넌트 (타이틀)
+                // Common 컴포넌트 타이틀
                 OnboardingTitleView(
                     title: "사용 언어를 알려주세요.",
                     subTitle: "사용 언어는 나중에 변경할 수 없으니,\n꼼꼼하게 확인해 주세요."
@@ -43,7 +43,7 @@ struct LanguageSelectionView: View {
                 
                 Spacer()
                 
-                // 공통 컴포넌트 (하단 버튼)
+                // Common 컴포넌트 하단 버튼
                 BottomActionButton(
                     title: "다음",
                     isEnabled: viewModel.data.nativeLanguage != nil

@@ -8,12 +8,12 @@ struct OnboardingTitleView: View {
         VStack(spacing: 0) {
             Text(title)
                 .font(.meetKey(.title2))
-                .foregroundColor(.meetKeyBlack01)
+                .foregroundColor(Color.meetKey.text1)
                 .padding(.bottom, 10)
             
             Text(subTitle)
                 .font(.meetKey(.body5))
-                .foregroundColor(.meetKeyBlack03)
+                .foregroundColor(Color.meetKey.text2)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
                 .padding(.bottom, 40)
