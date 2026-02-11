@@ -8,7 +8,7 @@
 import Combine
 import Foundation
 import SwiftUI
-
+import CoreLocation
 //MARK: - 비동기 작업을 위한 Enum
 enum HomeStatus {
     case loading  // 기본
@@ -30,6 +30,7 @@ class HomeViewModel: ObservableObject {
     @Published var allUsers: [User] = []  // 기존 users
     @Published var currentUser: User?  // 기존 selectedUser
     @Published private(set) var currentIndex: Int = 0
+    private let locationManager = LocationManager.shared
 
     //MARK: - [화면 제어]
     @Published var isDetailViewPresented: Bool = false
@@ -59,6 +60,21 @@ class HomeViewModel: ObservableObject {
         reportVM.onFinalize = { [weak self] in
             self?.finalizeReportProcess()
         }
+        
+        locationManager.$currentLocation
+                    .compactMap { $0 }
+                    .first() // 첫 번째만 받고 구독 해제
+                    .sink { [weak self] location in
+                        print("📍 HomeViewModel이 위치 받음")
+                        self?.fetchRecommendations(
+                            latitude: location.coordinate.latitude,
+                            longitude: location.coordinate.longitude
+                        )
+                    }
+                    .store(in: &cancellables)
+                
+                print("📍 위치 요청 시작")
+                locationManager.requestLocation()
     }
 
     //MARK: -3
@@ -121,12 +137,12 @@ class HomeViewModel: ObservableObject {
             maxDistance: filter.maxDistance,
             minAge: filter.minAge,
             maxAge: filter.maxAge,
-            interests: interestsRaw, // 번역된 영어 배열
+            interests: interestsRaw,
             hometown: hometownRaw,
             nativeLanguage: nativeLangRaw,
             targetLanguage: targetLangRaw,
-            targetLanguageLevel: filter.targetLanguageLevel, // Level은 이미 모델에서 rawValue를 쓰게 해뒀으니 그대로!
-            personality: personalityRaw, // 번역된 영어 배열
+            targetLanguageLevel: targetLangLevelRaw,
+            personality: personalityRaw,
             latitude: latitude,
             longitude: longitude
         )
@@ -136,22 +152,21 @@ class HomeViewModel: ObservableObject {
             await fetchUserAsync()
         }
         
-        // 로그 찍어서 확인해보기 (이제 영어로 잘 나올 거예요!)
         print("📮 서버로 날아가는 진짜 데이터: \(request.toDictionary())")
     }
     func applyFilter(_ newFilter: FilterModel) {
         filter = newFilter
-        fetchRecommendations(latitude: 37.5665, longitude: 126.9780)
+//        fetchRecommendations(latitude: 37.5665, longitude: 126.9780)
         
         // 현재 위치로 API 요청
-//        if let location = LocationManager.shared.currentLocation {
-//            fetchRecommendations(
-//                latitude: location.coordinate.latitude,
-//                longitude: location.coordinate.longitude
-//            )
-//        } else {
-//            print("⚠️ 위치 정보 없음")
-//        }
+        if let location = LocationManager.shared.currentLocation {
+            fetchRecommendations(
+                latitude: location.coordinate.latitude,
+                longitude: location.coordinate.longitude
+            )
+        } else {
+            print("⚠️ 위치 정보 없음")
+        }
     }
 
     struct InterestGroup: Identifiable {
