@@ -85,15 +85,18 @@ struct BlockConfirmView: View {
             }
             .buttonStyle(PlainButtonStyle())  // 버튼 클릭 시 글자색 변함 방지
             .padding(.top, 43)
-//            .padding(.horizontal, 24)
-            
+            //            .padding(.horizontal, 24)
+
             HStack(spacing: 6) {
                 BlockBtn(title: "취소") {
                     reportVM.closeReportMenu()
                 }
                 .frame(width: 106)
                 BlockApplyBtn(title: "차단하기") {
-                    reportVM.confirmBlock(userName: targetUser.name)
+                    reportVM.confirmBlock(
+                        targetId: targetUser.id,
+                        userName: targetUser.name
+                    )
                 }
             }
             .padding(.top, 10)

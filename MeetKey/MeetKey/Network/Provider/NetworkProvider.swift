@@ -185,13 +185,11 @@ class NetworkProvider {
                         let decoder = JSONDecoder()
                         decoder.dateDecodingStrategy = .iso8601
 
-                        // Bool 타입 처리
                         if type is Bool.Type {
                             completion(.success(true as! T))
                             return
                         }
 
-                        // APIResponse로 감싸져 있는지 확인
                         if let apiResponse = try? decoder.decode(
                             APIResponse<T>.self,
                             from: response.data
@@ -202,14 +200,12 @@ class NetworkProvider {
                             return
                         }
 
-                        // 직접 데이터
                         let data = try decoder.decode(
                             T.self,
                             from: response.data
                         )
                         completion(.success(data))
                     } else {
-                        // 에러 처리
                         let decoder = JSONDecoder()
                         if let errorResponse = try? decoder.decode(
                             ErrorResponse.self,
@@ -241,6 +237,52 @@ class NetworkProvider {
 
             case .failure(let error):
                 print("📍 네트워크 에러: \(error.localizedDescription)")
+                completion(.failure(NetworkError.networkError(error)))
+            }
+        }
+    }
+    
+    //MARK: - Block Provider
+    private let blockProvider = MoyaProvider<BlockAPI>(
+        plugins: [
+            NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))
+        ]
+    )
+
+    func requestBlock<T: Codable>(
+        _ target: BlockAPI,
+        type: T.Type,
+        completion: @escaping (Result<T, Error>) -> Void
+    ) {
+        print("📍 [Block] 서버로 요청")
+
+        blockProvider.request(target) { result in
+            print("📍 [Block] 서버 대답 도착")
+
+            switch result {
+            case .success(let response):
+                print("✅ 성공 (상태코드: \(response.statusCode))")
+                do {
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .iso8601
+
+                    if (200...299).contains(response.statusCode) {
+                        let decodedData = try decoder.decode(T.self, from: response.data)
+                        completion(.success(decodedData))
+                    } else {
+                        if let errorBody = try? decoder.decode(ErrorResponse.self, from: response.data) {
+                            completion(.failure(NetworkError.serverError(code: errorBody.code, message: errorBody.message)))
+                        } else {
+                            completion(.failure(NetworkError.serverError(code: "\(response.statusCode)", message: "Unknown Error")))
+                        }
+                    }
+                } catch {
+                    print("❌ 디코딩 실패: \(error)")
+                    completion(.failure(NetworkError.decodingError(error)))
+                }
+
+            case .failure(let error):
+                print("❌ 네트워크 에러: \(error.localizedDescription)")
                 completion(.failure(NetworkError.networkError(error)))
             }
         }

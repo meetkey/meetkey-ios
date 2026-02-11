@@ -15,7 +15,6 @@ class ReportViewModel: ObservableObject {
     @Published var isReportMenuPresented: Bool = false
     @Published var currentReportStep: ReportStep = .none
     
-    // 작업 완료 후 부모(Home)에게 알려줄 신호 (클로저)
     var onFinalize: (() -> Void)?
 
 
@@ -45,9 +44,23 @@ class ReportViewModel: ObservableObject {
     }
     
     // MARK: API 연결될 비즈니스 로직들
-    func confirmBlock(userName: String) {
-        print("\(userName) 차단 완료")
-        withAnimation { self.currentReportStep = .blockComplete }
+    func confirmBlock(targetId: Int, userName: String) {
+        print("📍 \(userName) 차단 시도 중 (ID: \(targetId))")
+        
+        Task {
+            do {
+                try await BlockService.shared.blockUser(targetId: targetId)
+                
+                await MainActor.run {
+                    withAnimation {
+                        self.currentReportStep = .blockComplete
+                    }
+                    print("✅ \(userName) 차단 성공")
+                }
+            } catch {
+                print("❌ \(userName) 차단 실패: \(error.localizedDescription)")
+            }
+        }
     }
     
     func confirmReport(userName: String) {
@@ -55,8 +68,7 @@ class ReportViewModel: ObservableObject {
         withAnimation { self.currentReportStep = .reportComplete }
     }
 
-    // 최종 종료
     func finalizeReportProcess() {
-        onFinalize?() // 홈뷰한테 끝났다고 말해주기
+        onFinalize?() 
     }
 }
