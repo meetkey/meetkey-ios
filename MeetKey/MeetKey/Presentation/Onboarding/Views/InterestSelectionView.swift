@@ -11,54 +11,54 @@ struct InterestSelectionView: View {
             VStack(spacing: 0) {
                 HStack { Spacer() }.frame(height: 44)
                 
-                // 1. 페이지네이션 (4단계)
+                // Step 1 페이지네이션 4단계
                 OnboardingPagination(currentStep: 4)
                 
-                // 2. 타이틀
+                // Step 2 타이틀
                 OnboardingTitleView(
                     title: "관심사를 입력해주세요.",
-                    subTitle: "각 카테고리 별로\n최소 3개 이상 선택해주세요."
+            subTitle: "전체 키워드에서\n최소 3개 이상 선택해주세요."
                 )
                 
-                // 3. 관심사 목록 (스크롤 가능)
+                // Step 3 관심사 목록 스크롤
                 ScrollView {
                     VStack(alignment: .leading, spacing: 32) {
-                        ForEach(viewModel.orderedInterests, id: \.category) { group in
+                        ForEach(viewModel.interestGroups, id: \.category) { group in
                             VStack(alignment: .leading, spacing: 12) {
-                                // 카테고리 제목
+                                // Category 제목
                                 Text(group.category)
                                     .font(.custom("Pretendard-Medium", size: 14))
-                                    .foregroundColor(.meetKeyBlack03) // #6B7280
+                                    .foregroundColor(Color.meetKey.text2)
                                 
-                                // 태그 구름 (FlowLayout)
+                                // Tag 구름 FlowLayout
                                 FlowLayout(items: group.items) { item in
                                     InterestTagButton(
-                                        text: item,
-                                        isSelected: viewModel.data.interests.contains(item)
+                                        text: item.name,
+                                        isSelected: viewModel.data.interests.contains(item.code)
                                     ) {
-                                        viewModel.toggleInterest(item)
+                                        viewModel.toggleInterest(item.code)
                                     }
                                 }
                             }
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 40) // 하단 여백
+                    .padding(.bottom, 40) // Bottom 여백
                 }
                 
                 Spacer()
                 
-                // 4. 다음 버튼
+                // Step 4 다음 버튼
                 NavigationLink(destination: PersonalitySelectionView(viewModel: viewModel)) {
                     Text("다음")
                         .font(.custom("Pretendard-SemiBold", size: 16))
-                        .foregroundColor(.meetKeyWhite01)
+                        .foregroundColor(Color.meetKey.white01)
                         .frame(maxWidth: .infinity)
                         .frame(height: 54)
-                        .background(viewModel.isInterestSelectionCompleted ? Color.meetKeyOrange04 : Color.meetKeyBlack04)
+                        .background(viewModel.isInterestSelectionCompleted ? Color.meetKey.main : Color.meetKey.black04)
                         .cornerRadius(15)
                 }
-                .disabled(!viewModel.isInterestSelectionCompleted) // 3개 이상 선택 안 하면 클릭 불가
+                .disabled(!viewModel.isInterestSelectionCompleted) // Min 3개 선택
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
             }
@@ -68,7 +68,7 @@ struct InterestSelectionView: View {
     }
 }
 
-// [컴포넌트] 관심사 태그 버튼
+// Component 관심사 태그 버튼
 struct InterestTagButton: View {
     let text: String
     let isSelected: Bool
@@ -77,26 +77,26 @@ struct InterestTagButton: View {
     var body: some View {
         Button(action: action) {
             Text(text)
-                .font(.meetKey(.body2))
-                .foregroundColor(isSelected ? .main : .text4)
+                .font(.custom(isSelected ? "Pretendard-SemiBold" : "Pretendard-Medium", size: 16))
+                .foregroundColor(isSelected ? Color.meetKey.main : Color.meetKey.text4)
                 .padding(.horizontal, 14)
                 .frame(height: 38)
                 .background(
                     Capsule()
-                        .fill(isSelected ? Color.sub1 : Color.background4)
+                        .fill(isSelected ? Color.meetKey.sub1 : Color.meetKey.black07)
                 )
                 .overlay(
                     Capsule()
-                        .strokeBorder(isSelected ? Color.main : Color.clear, lineWidth: isSelected ? 2 : 0)
+                        .strokeBorder(isSelected ? Color.meetKey.main : Color.clear, lineWidth: isSelected ? 2 : 0)
                 )
         }
     }
 }
 
-// [레이아웃] FlowLayout
+// Layout FlowLayout
 struct FlowLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
     let items: Data
-    let spacing: CGFloat = 6
+    let spacing: CGFloat = 8 // Tag 간격 가로
     let content: (Data.Element) -> Content
     
     @State private var totalHeight: CGFloat = .zero
@@ -115,7 +115,7 @@ struct FlowLayout<Data: RandomAccessCollection, Content: View>: View where Data.
         return ZStack(alignment: .topLeading) {
             ForEach(items, id: \.self) { item in
                 self.content(item)
-                    .padding([.horizontal, .vertical], 5) // 태그 사이 간격 (세로 + 보정)
+                    .padding([.horizontal, .vertical], 5) // Tag 간격 세로 보정
                     .alignmentGuide(.leading, computeValue: { d in
                         if (abs(width - d.width) > g.size.width) {
                             width = 0

@@ -11,10 +11,10 @@ struct TargetLanguageSelectionView: View {
             VStack(spacing: 0) {
                 HStack { Spacer() }.frame(height: 44)
                 
-                // 공통 컴포넌트 (페이지네이션)
+                // Common 컴포넌트 페이지네이션
                 OnboardingPagination(currentStep: 1)
                 
-                // 공통 컴포넌트 (타이틀)
+                // Common 컴포넌트 타이틀
                 OnboardingTitleView(
                     title: "어떤 언어를 배우고 싶나요?",
                     subTitle: "현재 가장 관심있는\n언어 하나를 선택해주세요."
@@ -23,7 +23,7 @@ struct TargetLanguageSelectionView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 12) {
                         
-                        // [A] 선택된 언어 (맨 위)
+                        // A 선택된 언어 맨 위
                         if let selected = viewModel.data.targetLanguage {
                             VStack(spacing: 0) {
                                 LanguageButton(
@@ -46,7 +46,7 @@ struct TargetLanguageSelectionView: View {
                             .transition(.move(edge: .top).combined(with: .opacity))
                         }
                         
-                        // [B] 나머지 언어들
+                        // B 나머지 언어들
                         ForEach(viewModel.languages.filter { $0 != viewModel.data.targetLanguage }, id: \.self) { language in
                             LanguageButton(
                                 title: language,
@@ -66,7 +66,7 @@ struct TargetLanguageSelectionView: View {
                 
                 Spacer()
                 
-                // 공통 컴포넌트 (하단 버튼)
+                // Common 컴포넌트 하단 버튼
                 BottomActionButton(
                     title: "다음",
                     isEnabled: viewModel.data.targetLanguage != nil

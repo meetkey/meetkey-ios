@@ -7,7 +7,7 @@ class NetworkProvider {
     private let provider: MoyaProvider<AuthAPI>
 
     private init() {
-        // 로깅 플러그인 추가 (디버그 모드에서만)
+        // Debug 로깅 플러그인 추가
         #if DEBUG
             let plugins: [PluginType] = [
                 NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))
@@ -30,37 +30,30 @@ class NetworkProvider {
             switch result {
             case .success(let response):
                 do {
-                    // 200-299 범위의 성공 응답 처리
+                    // Success 200-299 범위 응답 처리
                     if (200...299).contains(response.statusCode) {
                         let decoder = JSONDecoder()
                         decoder.dateDecodingStrategy = .iso8601
-
-                        // Bool 타입인 경우 특별 처리 (sendSMS, verifySMS)
+                        
+                        // Bool 타입 special 처리 sendSMS verifySMS
                         if type is Bool.Type {
-                            // Bool 응답은 true로 간주
+                            // Bool 응답은 true 처리
                             completion(.success(true as! T))
                             return
                         }
-
-                        // 응답이 APIResponse로 감싸져 있는지 확인
-                        if let apiResponse = try? decoder.decode(
-                            APIResponse<T>.self,
-                            from: response.data
-                        ),
-                            let data = apiResponse.data
-                        {
+                        
+                        // APIResponse 래핑 여부 확인
+                        if let apiResponse = try? decoder.decode(APIResponse<T>.self, from: response.data),
+                           let data = apiResponse.data {
                             completion(.success(data))
                             return
                         }
-
-                        // 직접 데이터인 경우
-                        let data = try decoder.decode(
-                            T.self,
-                            from: response.data
-                        )
+                        
+                        // Direct 데이터인 경우
+                        let data = try decoder.decode(T.self, from: response.data)
                         completion(.success(data))
                     } else {
-                        // 에러 응답 처리 (400, 401, 500 등)
+                        // Error 응답 처리 400 401 500
                         let decoder = JSONDecoder()
                         if let errorResponse = try? decoder.decode(
                             ErrorResponse.self,
@@ -68,21 +61,10 @@ class NetworkProvider {
                         ) {
                             let errorMessage = errorResponse.message
                             let errorCode = errorResponse.code
-                            completion(
-                                .failure(
-                                    NetworkError.serverError(
-                                        code: errorCode,
-                                        message: errorMessage
-                                    )
-                                )
-                            )
-                        } else if let apiResponse = try? decoder.decode(
-                            APIResponse<Bool>.self,
-                            from: response.data
-                        ) {
-                            // APIResponse로 감싸진 에러 응답
-                            let errorMessage =
-                                apiResponse.message ?? "Unknown error"
+                            completion(.failure(NetworkError.serverError(code: errorCode, message: errorMessage)))
+                        } else if let apiResponse = try? decoder.decode(APIResponse<Bool>.self, from: response.data) {
+                            // APIResponse 래핑된 에러 응답
+                            let errorMessage = apiResponse.message ?? "Unknown error"
                             let errorCode = apiResponse.code ?? "UNKNOWN"
                             completion(
                                 .failure(
