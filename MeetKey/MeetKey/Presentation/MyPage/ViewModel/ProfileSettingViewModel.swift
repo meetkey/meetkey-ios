@@ -25,7 +25,7 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
         }
     }
     @Published var selectedImage: UIImage?
-
+    
     @Published var currentLatitude: Double = 0
     @Published var currentLongitude: Double = 0
     
@@ -175,7 +175,7 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
             completion(.success(()))
             return
         }
-    
+        
         let fileName = UUID().uuidString + ".jpg"
         
         let requestDTO = [
@@ -191,6 +191,8 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
             switch result {
                 
             case .success(let response):
+                print("📦 presigned raw response:",
+                      String(data: response.data, encoding: .utf8) ?? "nil")
                 do {
                     let decoded = try JSONDecoder()
                         .decode(ImageUploadResponseDTO.self, from: response.data)
@@ -199,6 +201,8 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
                         completion(.failure(NSError()))
                         return
                     }
+                    print("✅ 발급받은 key:", uploadInfo.key)
+                    
                     self?.registerImageKey(
                         keys: [uploadInfo.key],
                         completion: completion
@@ -221,16 +225,22 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
         provider.request(.registerProfileImages(keys: keys)) { result in
             
             switch result {
-            case .success:
+            case .success(let response):
+                print("📦 register status:", response.statusCode)
+                print("📦 register body:",
+                      String(data: response.data, encoding: .utf8) ?? "nil")
+                print("🔥 이미지 key 저장 완료")
                 completion(.success(()))
             case .failure(let error):
+                print("❌ register 실패:", error)
                 completion(.failure(error))
             }
         }
     }
-
+    
     
     func saveProfile(completion: @escaping (Result<User, Error>) -> Void) {
+        print("🔥 saveProfile 진입")
         // 이미지가 선택된 경우
         if selectedImage != nil {
             uploadProfileImage { [weak self] result in
