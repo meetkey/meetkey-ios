@@ -35,7 +35,7 @@ extension MyAPI: TargetType {
         var headers: [String: String] = [
             "Content-Type": "application/json"
         ]
-
+        
         let token = TokenStorage.accessToken
         if !token.isEmpty {
             headers["Authorization"] = "Bearer \(token)"
@@ -79,13 +79,13 @@ extension MyAPI: TargetType {
     }
     
     var task: Task {
-    switch self {
-    case .myInfo, .getInterest, .getPersonality, .getMyProfileForEdit, .getMyProfileImages:
-        return .requestPlain
-    case .updateInterest(let dto):
-        return .requestJSONEncodable(dto)
-    case .updatePersonality(dto: let dto):
-        return .requestJSONEncodable(dto)
-    }
+        switch self {
+        case .myInfo, .getInterest, .getPersonality, .getMyProfileForEdit, .getMyProfileImages:
+            return .requestPlain
+        case .updateInterest(let dto):
+            return .requestJSONEncodable(dto)
+        case .updatePersonality(dto: let dto):
+            return .requestJSONEncodable(dto)
+        }
     }
 }
