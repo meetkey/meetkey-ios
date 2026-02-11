@@ -27,6 +27,7 @@ enum MyAPI {
     case getPersonality
     case updatePersonality(dto: MyPersonalityEditRequestDTO)
     case getMyProfileForEdit
+    case updateMyProfileSettings(dto: MyProfileSettingsRequestDTO)
     case getMyProfileImages
 }
 
@@ -64,6 +65,8 @@ extension MyAPI: TargetType {
             return "/me/personality"
         case .getMyProfileForEdit:
             return "/me/profile"
+        case .updateMyProfileSettings:
+            return "/me/profile"
         case .getMyProfileImages:
             return "/photos"
         }
@@ -75,9 +78,10 @@ extension MyAPI: TargetType {
             return .get
         case .updateInterest, .updatePersonality:
             return .put
+        case .updateMyProfileSettings:
+            return .patch
         }
     }
-    
     var task: Task {
         switch self {
         case .myInfo, .getInterest, .getPersonality, .getMyProfileForEdit, .getMyProfileImages:
@@ -85,6 +89,8 @@ extension MyAPI: TargetType {
         case .updateInterest(let dto):
             return .requestJSONEncodable(dto)
         case .updatePersonality(dto: let dto):
+            return .requestJSONEncodable(dto)
+        case .updateMyProfileSettings(let dto):
             return .requestJSONEncodable(dto)
         }
     }

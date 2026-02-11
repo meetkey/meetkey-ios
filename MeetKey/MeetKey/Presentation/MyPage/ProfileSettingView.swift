@@ -41,9 +41,15 @@ struct ProfileSettingView: View {
                     .foregroundStyle(.main)
                     .frame(height: 22)
                     .onTapGesture {
-                        viewModel.applyChanges()
-                        onSave(viewModel.user)
-                        dismiss()
+                        viewModel.updateProfile { result in
+                            switch result {
+                            case .success(let updatedUser):
+                                onSave(updatedUser)
+                                dismiss()
+                            case .failure(let error):
+                                print("프로필 업데이트 실패:", error)
+                            }
+                        }
                     }
             }
             .padding(.top, 18)
@@ -93,9 +99,9 @@ struct ProfileSettingView: View {
                     .frame(width: 100, height: 100)
                     .padding(.top, 40)
                     ProfileInfo(title: "이름",
-                        context: viewModel.user.name,
-                        contextInfo: "이름은 변경할 수 없습니다.")
-                        .padding(.top, 20)
+                                context: viewModel.user.name,
+                                contextInfo: "이름은 변경할 수 없습니다.")
+                    .padding(.top, 20)
                     ProfileInfo(
                         title: "생년월일",
                         context: birthInfo(from: viewModel.user.birthDate),
@@ -134,7 +140,7 @@ struct ProfileSettingView: View {
                                 .stroke(.disabled, lineWidth: 1)
                         ).frame(height: 56)
                             .frame(maxWidth: .infinity)
-                        .padding(.bottom, 2)
+                            .padding(.bottom, 2)
                         Text("내 위치 기반으로 등록됩니다.")
                             .font(.meetKey(.caption3))
                             .foregroundStyle(.text04)
@@ -190,13 +196,11 @@ struct ProfileSettingView: View {
         }
         .padding(.horizontal, 20)
         .navigationBarBackButtonHidden(true)
-        .onChange(of: viewModel.selectedItem) { newItem in
-                    viewModel.loadSelectedImage(from: newItem)
-                }
+//        .onChange(of: viewModel.selectedItem) { newItem in
+//            viewModel.loadSelectedImage(from: newItem)
+//        }
     }
 }
-
-
 
 extension ProfileSettingView {
     func birthInfo(from birthDate: Date?) -> String {
@@ -215,10 +219,10 @@ extension ProfileSettingView {
         let url = FileManager.default
             .urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent(filename)
-
+        
         let data = image.jpegData(compressionQuality: 0.8)
         try? data?.write(to: url)
-
+        
         return url
     }
 }
