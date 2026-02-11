@@ -27,7 +27,9 @@ class RecommendationService {
                 }
             }
         }
-        return response.data.recommendations.map { User(from: $0) }
+        let users =  response.data.recommendations.map { User(from: $0) }
+        print("Users: \(users)")
+        return users
     }
 }
 

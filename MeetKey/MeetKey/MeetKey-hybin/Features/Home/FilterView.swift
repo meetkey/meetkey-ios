@@ -225,7 +225,7 @@ struct FilterView: View {
 
     private var applyButton: some View {
         Button {
-            homeVM.filter = tempFilter // 변경사항 반영
+            homeVM.applyFilter(tempFilter) // ✅ 한 줄로 끝
             dismiss()
         } label: {
             Text("필터 적용하기")

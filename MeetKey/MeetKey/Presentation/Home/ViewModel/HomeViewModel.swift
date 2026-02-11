@@ -102,21 +102,56 @@ class HomeViewModel: ObservableObject {
 
     //MARK: - 필터
     func fetchRecommendations(latitude: Double, longitude: Double) {
+        // 1. 관심사 한글 배열 -> 서버용 영어 rawValue 배열로 변환
+        let interestsRaw = filter.interests?.compactMap { korName in
+            InterestType.allCases.first(where: { $0.displayName == korName })?.rawValue
+        }
+        
+        // 2. 성향(Personality) 한글 배열 -> 서버용 영어 rawValue 배열로 변환
+        let personalityRaw: [String] = filter.combinedPersonalities ?? []
+        
+        // 3. 국적, 언어 등 단일 선택 항목 변환
+        let hometownRaw = NationalityType.allCases.first(where: { $0.displayName == filter.hometown })?.rawValue
+        let nativeLangRaw = LanguageType.allCases.first(where: { $0.displayName == filter.nativeLanguage })?.rawValue
+        let targetLangRaw = LanguageType.allCases.first(where: { $0.displayName == filter.targetLanguage })?.rawValue
+        let targetLangLevelRaw = LanguageLevelType.allCases.first(where: { $0.displayName == filter.targetLanguageLevel})?.rawValue
+        
+        // 4. 변환된 'Raw' 데이터들로 요청서 작성
         let request = RecommendationRequest(
             maxDistance: filter.maxDistance,
             minAge: filter.minAge,
             maxAge: filter.maxAge,
-            interests: filter.interests,
-            hometown: filter.hometown,
-            nativeLanguage: filter.nativeLanguage,
-            targetLanguage: filter.targetLanguage,
-            targetLanguageLevel: filter.targetLanguageLevel,
+            interests: interestsRaw, // 번역된 영어 배열
+            hometown: hometownRaw,
+            nativeLanguage: nativeLangRaw,
+            targetLanguage: targetLangRaw,
+            targetLanguageLevel: filter.targetLanguageLevel, // Level은 이미 모델에서 rawValue를 쓰게 해뒀으니 그대로!
+            personality: personalityRaw, // 번역된 영어 배열
             latitude: latitude,
             longitude: longitude
         )
 
-        _ = request.toDictionary()
-        // API.request(parameters) ...
+        currentFilter = request
+        Task {
+            await fetchUserAsync()
+        }
+        
+        // 로그 찍어서 확인해보기 (이제 영어로 잘 나올 거예요!)
+        print("📮 서버로 날아가는 진짜 데이터: \(request.toDictionary())")
+    }
+    func applyFilter(_ newFilter: FilterModel) {
+        filter = newFilter
+        fetchRecommendations(latitude: 37.5665, longitude: 126.9780)
+        
+        // 현재 위치로 API 요청
+//        if let location = LocationManager.shared.currentLocation {
+//            fetchRecommendations(
+//                latitude: location.coordinate.latitude,
+//                longitude: location.coordinate.longitude
+//            )
+//        } else {
+//            print("⚠️ 위치 정보 없음")
+//        }
     }
 
     struct InterestGroup: Identifiable {
