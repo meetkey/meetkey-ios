@@ -176,7 +176,7 @@ extension User {
         self.gender = dto.gender
         self.first = dto.nativeLanguage.language
         self.target = dto.targetLanguage.language
-        self.level = dto.targetLanguage.level
+        self.level = dto.targetLanguage.level ?? "초보"
         self.interests = dto.interests
         if let p = dto.personality {
             self.personalities = Personalities(
