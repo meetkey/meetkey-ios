@@ -21,12 +21,12 @@ struct MatchingView: View {
             ZStack(alignment: .top) {
 
                 backgroundSection(size: screenSize)
-                
+
                 if homeVM.reportVM.isReportMenuPresented {
                     closeOverlay
                 }
-                
-                VStack{
+
+                VStack {
                     Spacer()
                     ChatInputSection(messageText: $messageText)
                         .padding(.bottom, safeArea.bottom)
@@ -34,11 +34,11 @@ struct MatchingView: View {
 
                 HeaderOverlay(
                     state: .chat,
-                    safeArea: safeArea,
                     user: homeVM.currentUser ?? homeVM.me,
-                    homeVM: homeVM,
-                    onBackAction: homeVM.dismissMatchView,
-                    onFilterAction: homeVM.reportVM.handleReportMenuTap
+                    reportVM: homeVM.reportVM,
+                    onLeftAction: homeVM.dismissMatchView,
+                    onRightAction: homeVM.reportVM.handleReportMenuTap,
+                    onDetailAction: homeVM.presentDetailView
                 ).zIndex(1)
 
             }
@@ -56,7 +56,7 @@ struct MatchingView: View {
                     reportVM: homeVM.reportVM,
                     targetUser: homeVM.currentUser ?? User.mockData[0]
                 )
-                .presentationDetents([.medium])  
+                .presentationDetents([.medium])
             }
         }
 
