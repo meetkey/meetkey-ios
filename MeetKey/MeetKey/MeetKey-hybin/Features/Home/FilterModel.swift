@@ -10,9 +10,9 @@ import SwiftUI
 
 struct FilterModel:Equatable {
     
-    var social : socialType?
-    var meeting : meetingType?
-    var chat : chatType?
+    var social : SocialType?
+    var meeting : MeetingType?
+    var chat : ChatType?
     var friend : FriendType?
     var relation : RelationType?
     
@@ -41,7 +41,7 @@ struct FilterModel:Equatable {
 }
 
 
-enum socialType: String, CaseIterable, Identifiable {
+enum SocialType: String, CaseIterable, Identifiable {
     case extrovert = "EXTROVERT"
     case introvert = "INTROVERT"
     case occasional = "OCCASIONAL"
@@ -57,7 +57,7 @@ enum socialType: String, CaseIterable, Identifiable {
     }
 }
 
-enum meetingType: String, CaseIterable, Identifiable {
+enum MeetingType: String, CaseIterable, Identifiable {
     case group = "GROUP"
     case one = "ONE"
     case any = "ANY"
@@ -73,7 +73,7 @@ enum meetingType: String, CaseIterable, Identifiable {
     }
 }
 
-enum chatType: String, CaseIterable, Identifiable {
+enum ChatType: String, CaseIterable, Identifiable {
     case initiator = "INITIATOR"
     case responder = "RESPONDER"
     case balanced = "BALANCED"
