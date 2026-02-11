@@ -75,7 +75,6 @@ class NetworkProvider {
             }
         }
     }
-    // 1. 프로바이더를 함수 밖(클래스 속성)으로 빼야 메모리에서 안 사라집니다!
     private let recommendationProvider = MoyaProvider<RecommendationAPI>(
         plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]
     )
