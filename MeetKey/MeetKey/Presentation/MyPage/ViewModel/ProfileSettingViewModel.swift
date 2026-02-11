@@ -17,8 +17,17 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
     @Published var oneLinerText: String
     @Published var locationString: String = ""
     
-    @Published var selectedItem: PhotosPickerItem?
+    @Published var selectedItem: PhotosPickerItem? {
+        didSet {
+            if let item = selectedItem {
+                loadSelectedImage(from: item)
+            }
+        }
+    }
     @Published var selectedImage: UIImage?
+
+    @Published var currentLatitude: Double = 0
+    @Published var currentLongitude: Double = 0
     
     private let locationManager = CLLocationManager()
     private let geocoder = CLGeocoder()
@@ -31,6 +40,22 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
+    }
+    
+    private func loadSelectedImage(from item: PhotosPickerItem) {
+        item.loadTransferable(type: Data.self) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let data):
+                    if let data,
+                       let uiImage = UIImage(data: data) {
+                        self?.selectedImage = uiImage
+                    }
+                case .failure(let error):
+                    print("이미지 로드 실패:", error)
+                }
+            }
+        }
     }
     
     func requestCurrentLocation() {
@@ -113,8 +138,8 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
         
         let dto = MyProfileSettingsRequestDTO(
             location: user.location,
-            latitude: 0,  // 여기 실제 Double 값 필요
-            longitude: 0, // 실제 Double 값 필요
+            latitude: currentLatitude,  // 여기 실제 Double 값 필요
+            longitude: currentLongitude, // 실제 Double 값 필요
             bio: user.bio ?? "",
             first: user.first,
             target: user.target,
@@ -144,44 +169,89 @@ final class ProfileSettingViewModel: NSObject, ObservableObject {
         
     }
     
-    //    func loadSelectedImage(from item: PhotosPickerItem?) {
-    //        guard let item else { return }
-    //
-    //        Task {
-    //            if let data = try? await item.loadTransferable(type: Data.self),
-    //               let uiImage = UIImage(data: data) {
-    //                await MainActor.run {
-    //                    self.selectedImage = uiImage
-    //                }
-    //            }
-    //        }
-    //    }
-    //
+    func uploadProfileImage(completion: @escaping (Result<Void, Error>) -> Void) {
+        
+        guard selectedImage != nil else {
+            completion(.success(()))
+            return
+        }
     
+        let fileName = UUID().uuidString + ".jpg"
+        
+        let requestDTO = [
+            ImageUploadRequestDTO(
+                fileName: fileName,
+                contentType: "image/jpeg"
+            )
+        ]
+        
+        // presigned 요청
+        provider.request(.getURLForImageUpload(dto: requestDTO)) { [weak self] result in
+            
+            switch result {
+                
+            case .success(let response):
+                do {
+                    let decoded = try JSONDecoder()
+                        .decode(ImageUploadResponseDTO.self, from: response.data)
+                    
+                    guard let uploadInfo = decoded.data.first else {
+                        completion(.failure(NSError()))
+                        return
+                    }
+                    self?.registerImageKey(
+                        keys: [uploadInfo.key],
+                        completion: completion
+                    )
+                    
+                } catch {
+                    completion(.failure(error))
+                }
+                
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    func registerImageKey(
+        keys: [String],
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
+        provider.request(.registerProfileImages(keys: keys)) { result in
+            
+            switch result {
+            case .success:
+                completion(.success(()))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    
+    func saveProfile(completion: @escaping (Result<User, Error>) -> Void) {
+        // 이미지가 선택된 경우
+        if selectedImage != nil {
+            uploadProfileImage { [weak self] result in
+                switch result {
+                case .success:
+                    self?.updateProfile(completion: completion)
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        } else {
+            // 이미지 변경 없으면 바로 프로필 업데이트
+            updateProfile(completion: completion)
+        }
+    }
     
     func applyChanges() {
         user.bio = oneLinerText
-        
-        if let selectedImage {
-            let url = saveImageToDocuments(selectedImage)
-            user.profileImage = url.lastPathComponent
-        }
     }
-    
-    private func saveImageToDocuments(_ image: UIImage) -> URL {
-        let filename = UUID().uuidString + ".jpg"
-        let url = FileManager.default
-            .urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent(filename)
-        
-        if let data = image.jpegData(compressionQuality: 0.8) {
-            try? data.write(to: url)
-        }
-        
-        return url
-    }
-    
 }
+
 
 extension ProfileSettingViewModel: CLLocationManagerDelegate {
     
@@ -192,6 +262,9 @@ extension ProfileSettingViewModel: CLLocationManagerDelegate {
         
         let latitude = location.coordinate.latitude
         let longitude = location.coordinate.longitude
+        
+        self.currentLatitude = latitude
+        self.currentLongitude = longitude
         
         print("📍 현재 좌표:", latitude, longitude)
         

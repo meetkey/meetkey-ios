@@ -30,6 +30,9 @@ enum MyAPI {
     case updateMyProfileSettings(dto: MyProfileSettingsRequestDTO)
     case updateMyLocation(dto: MyLocationRequestDTO)
     case getMyProfileImages
+    case getURLForImageUpload(dto: [ImageUploadRequestDTO])
+    case registerProfileImages(keys: [String])
+    
 }
 
 extension MyAPI: TargetType {
@@ -70,8 +73,12 @@ extension MyAPI: TargetType {
             return "/me/profile"
         case .updateMyLocation:
             return "/me/location"
+        case .getURLForImageUpload:
+            return "/photos"
         case .getMyProfileImages:
             return "/photos"
+        case .registerProfileImages:
+            return "/photos/register"
         }
     }
     
@@ -83,6 +90,8 @@ extension MyAPI: TargetType {
             return .put
         case .updateMyProfileSettings, .updateMyLocation:
             return .patch
+        case .getURLForImageUpload, .registerProfileImages:
+            return .post
         }
     }
     var task: Task {
@@ -97,6 +106,10 @@ extension MyAPI: TargetType {
             return .requestJSONEncodable(dto)
         case .updateMyLocation(dto: let dto):
             return .requestJSONEncodable(dto)
+        case .getURLForImageUpload(dto: let dto):
+            return .requestJSONEncodable(dto)
+        case .registerProfileImages(let keys):
+            return .requestJSONEncodable(keys)
         }
     }
 }

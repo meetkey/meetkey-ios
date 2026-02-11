@@ -41,7 +41,7 @@ struct ProfileSettingView: View {
                     .foregroundStyle(.main)
                     .frame(height: 22)
                     .onTapGesture {
-                        viewModel.updateProfile { result in
+                        viewModel.saveProfile { result in
                             switch result {
                             case .success(let updatedUser):
                                 onSave(updatedUser)
@@ -131,7 +131,6 @@ struct ProfileSettingView: View {
                                 .frame(width: 24, height: 24)
                                 .onTapGesture {
                                     viewModel.requestCurrentLocation()
-//                                    viewModel.user.location = "현재 위치"
                                 }
                         }
                         .frame(height: 56)
@@ -198,9 +197,6 @@ struct ProfileSettingView: View {
         }
         .padding(.horizontal, 20)
         .navigationBarBackButtonHidden(true)
-//        .onChange(of: viewModel.selectedItem) { newItem in
-//            viewModel.loadSelectedImage(from: newItem)
-//        }
     }
 }
 
