@@ -59,9 +59,9 @@ struct MyProfile: View {
     
     private func profileContent(user: User) -> some View {
         ScrollView {
-//            ProfileHeader(user: user){
-//                isEditProfilePresented = true
-//            }
+            //            ProfileHeader(user: user){
+            //                isEditProfilePresented = true
+            //            }
             ProfileHeader(
                 user: user,
                 onTapSetting: {
@@ -112,21 +112,13 @@ struct MyProfile: View {
         }
         .background(.background1)
         .ignoresSafeArea()
-        .sheet(isPresented: $isEditProfilePresented, onDismiss: {
-            if let editedUser = viewModel.user {
-                self.user = editedUser
-            }
-        }) {
-            if viewModel.user != nil {
-                ProfileSettingView(
-                    user: Binding(
-                        get: { viewModel.user! },
-                        set: { viewModel.user = $0 }
-                    )
-                )
+        .sheet(isPresented: $isEditProfilePresented) {
+            if let user = viewModel.user {
+                ProfileSettingView(user: user) { editedUser in
+                    self.user = editedUser
+                }
             }
         }
-
     }
     
     private func push(_ route: MyProfileRoute) {

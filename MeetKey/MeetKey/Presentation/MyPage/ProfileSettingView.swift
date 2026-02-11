@@ -11,11 +11,14 @@ import PhotosUI
 struct ProfileSettingView: View {
     
     @Environment(\.dismiss) private var dismiss
-    @Binding var user: User
+    @StateObject private var viewModel: ProfileSettingViewModel
     
-    @State private var oneLinerText: String = ""
-    @State private var selectedItem: PhotosPickerItem?
-    @State private var selectedImage: UIImage?
+    let onSave: (User) -> Void
+    
+    init(user: User, onSave: @escaping (User) -> Void) {
+        _viewModel = StateObject( wrappedValue: ProfileSettingViewModel(user: user))
+        self.onSave = onSave
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -38,11 +41,8 @@ struct ProfileSettingView: View {
                     .foregroundStyle(.main)
                     .frame(height: 22)
                     .onTapGesture {
-                        if let selectedImage {
-                            let url = saveImageToDocuments(selectedImage)
-                            user.profileImage = url.lastPathComponent
-                        }
-                        user.bio = oneLinerText
+                        viewModel.applyChanges()
+                        onSave(viewModel.user)
                         dismiss()
                     }
             }
@@ -52,12 +52,20 @@ struct ProfileSettingView: View {
                 VStack(spacing: 20) {
                     ZStack {
                         Group {
-                            if let selectedImage {
-                                Image(uiImage: selectedImage)
+                            if let image = viewModel.selectedImage {
+                                Image(uiImage: image)
                                     .resizable()
+                            } else if let url = URL(string: viewModel.user.profileImage) {
+                                AsyncImage(url: url) { phase in
+                                    switch phase {
+                                    case .empty: ProgressView()
+                                    case .success(let img): img.resizable()
+                                    case .failure: Image("defaultProfile").resizable()
+                                    @unknown default: Image("defaultProfile").resizable()
+                                    }
+                                }
                             } else {
-                                Image(user.profileImage)
-                                    .resizable()
+                                Image("defaultProfile").resizable()
                             }
                         }
                         .scaledToFill()
@@ -74,7 +82,7 @@ struct ProfileSettingView: View {
                             )
                         )
                         PhotosPicker(
-                            selection: $selectedItem,
+                            selection: $viewModel.selectedItem,
                             matching: .images
                         ) {
                             Image(.cameraEdit)
@@ -84,11 +92,13 @@ struct ProfileSettingView: View {
                     }
                     .frame(width: 100, height: 100)
                     .padding(.top, 40)
-                    ProfileInfo(title: "이름", context: user.name, contextInfo: "이름은 변경할 수 없습니다.")
+                    ProfileInfo(title: "이름",
+                        context: viewModel.user.name,
+                        contextInfo: "이름은 변경할 수 없습니다.")
                         .padding(.top, 20)
                     ProfileInfo(
                         title: "생년월일",
-                        context: birthInfo(from: user.birthDate),
+                        context: birthInfo(from: viewModel.user.birthDate),
                         contextInfo: "생년월일은 변경할 수 없습니다."
                     )
                     
@@ -106,7 +116,7 @@ struct ProfileSettingView: View {
                         }
                         .padding(.bottom, 12)
                         HStack(spacing: 0) {
-                            Text(user.location)
+                            Text(viewModel.user.location)
                                 .font(.meetKey(.body3))
                                 .foregroundStyle(.text2)
                                 .frame(height: 22)
@@ -114,7 +124,7 @@ struct ProfileSettingView: View {
                             Image(.location1)
                                 .frame(width: 24, height: 24)
                                 .onTapGesture {
-                                    user.location = "현재 위치"
+                                    viewModel.user.location = "현재 위치"
                                 }
                         }
                         .frame(height: 56)
@@ -146,7 +156,10 @@ struct ProfileSettingView: View {
                             Spacer()
                         }
                         .padding(.bottom, 12)
-                        Language(usingLanguage: $user.first, interestingLanguage: $user.target)
+                        Language(
+                            usingLanguage: $viewModel.user.first,
+                            interestingLanguage: $viewModel.user.target
+                        )
                         .padding(.bottom, 2)
                     }
                     .frame(height: 149)
@@ -165,7 +178,9 @@ struct ProfileSettingView: View {
                             Spacer()
                         }
                         .padding(.bottom, 12)
-                        OneLinerSetting(introduceText: $oneLinerText)
+                        OneLinerSetting(
+                            introduceText: $viewModel.oneLinerText
+                        )
                         .padding(.bottom, 2)
                     }
                     .frame(height: 109)
@@ -175,16 +190,9 @@ struct ProfileSettingView: View {
         }
         .padding(.horizontal, 20)
         .navigationBarBackButtonHidden(true)
-        .onChange(of: selectedItem) { newItem in
-            guard let newItem else { return }
-
-            Task {
-                if let data = try? await newItem.loadTransferable(type: Data.self),
-                   let uiImage = UIImage(data: data) {
-                    selectedImage = uiImage
+        .onChange(of: viewModel.selectedItem) { newItem in
+                    viewModel.loadSelectedImage(from: newItem)
                 }
-            }
-        }
     }
 }
 
