@@ -21,7 +21,6 @@ final class MyProfileViewModel: ObservableObject {
                 
                 if let body = String(data: response.data, encoding: .utf8),
                    !body.isEmpty {
-                    //                    print("📦 response body:", body)
                 } else {
                     print("📦 response body: (empty)")
                 }
@@ -80,7 +79,10 @@ final class MyProfileViewModel: ObservableObject {
                 
                 do {
                     let decoded = try JSONDecoder().decode(EditProfileResponseDTO.self, from: response.data)
+                    let user = User(dto: decoded.data)
+                    
                     DispatchQueue.main.async {
+                        self.user = user
                         completion()
                     }
                 } catch {

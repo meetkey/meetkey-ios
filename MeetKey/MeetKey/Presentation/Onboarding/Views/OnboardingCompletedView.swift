@@ -62,6 +62,9 @@ struct OnboardingCompletedView: View {
                     
                     // [C] 시작하기 버튼
                     Button(action: {
+                        // birthDate를 UserDefaults에 저장
+                        User.saveBirthDate(viewModel.data.birthDateString)
+                        
                         print("온보딩 종료! 메인 화면으로 이동")
                         // 메인 화면 진입 로직
                     }) {

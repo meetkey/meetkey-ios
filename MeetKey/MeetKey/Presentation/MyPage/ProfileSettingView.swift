@@ -164,7 +164,8 @@ struct ProfileSettingView: View {
                         .padding(.bottom, 12)
                         Language(
                             usingLanguage: $viewModel.user.first,
-                            interestingLanguage: $viewModel.user.target
+                            interestingLanguage: $viewModel.user.target,
+                            level: viewModel.user.level
                         )
                         .padding(.bottom, 2)
                     }

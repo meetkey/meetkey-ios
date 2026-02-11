@@ -147,6 +147,7 @@ extension User {
 }
 
 extension User {
+    // MyInfo API 응답용 init
     init(dto: MyInfoDTO) {
         self.id = dto.memberId
         self.name = dto.name
@@ -160,7 +161,56 @@ extension User {
         self.personalities = dto.personalities
         self.bio = dto.bio
         self.age = dto.age
-        self.location = "KOREA_DEFAULT"
+        
+        // MyInfo API에서는 location과 level을 주지 않으므로 기본값 사용
+        self.location = "현재 위치"
         self.level = "BEGINNER"
+        
+        // UserDefaults에서 birthDate 불러오기
+        if let birthDateString = UserDefaults.standard.string(forKey: "userBirthDate") {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyyMMdd"
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            self.birthDate = formatter.date(from: birthDateString)
+        } else {
+            self.birthDate = nil
+        }
+    }
+    
+    // EditProfile API 응답용 init
+    init(dto: EditProfileDTO) {
+        self.id = dto.memberId
+        self.name = dto.name
+        self.profileImage = ""
+        self.first = dto.first
+        self.target = dto.target
+        self.bio = dto.bio
+        self.age = dto.age
+        self.location = dto.location
+        self.level = dto.level
+        
+        // 기본값 설정
+        self.recommendCount = 0
+        self.notRecommendCount = 0
+        self.badge = nil
+        self.interests = nil
+        self.personalities = nil
+        
+        // UserDefaults에서 birthDate 불러오기
+        if let birthDateString = UserDefaults.standard.string(forKey: "userBirthDate") {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyyMMdd"
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            self.birthDate = formatter.date(from: birthDateString)
+        } else {
+            self.birthDate = nil
+        }
+    }
+    
+    // birthDate를 UserDefaults에 저장하는 헬퍼 메서드
+    static func saveBirthDate(_ birthDateString: String) {
+        UserDefaults.standard.set(birthDateString, forKey: "userBirthDate")
     }
 }

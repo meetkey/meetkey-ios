@@ -20,8 +20,8 @@ struct MyInfoDTO: Decodable {
     let profileImage: String
     let recommendCount: Int
     let notRecommendCount: Int
-    let badge: BadgeInfo
-    let interests: [String]
+    let badge: BadgeInfo?
+    let interests: [String]?
     let personalities: Personalities?
     let bio: String?
 }
