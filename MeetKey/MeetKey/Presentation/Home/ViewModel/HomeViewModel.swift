@@ -171,24 +171,44 @@ class HomeViewModel: ObservableObject {
     
     //MARK: - User Actions
     
-    func handleLikeAction() async {
+    func handleLikeAction() {
+        guard let targetUser = currentUser else { return }
+    
+        Task {
+            do {
+                try await RecommendationService.shared.sendUserAction(
+                    targetId: targetUser.id,
+                    action: .like
+                )
+            } catch {
+                print("Like API Error: \(error)")
+            }
+        }
+        presentMatchView()
+    }
+
+    func handleSkipAction() {
         guard let targetUser = currentUser else { return }
 
-        print("DEBUG: \(targetUser.name)님")
-        do {
-            try await Task.sleep(nanoseconds: 500_000_000)
-            presentMatchView()
-        } catch {
-            print("Like 처리 실패: \(error)")
+        Task {
+            do {
+                try await RecommendationService.shared.sendUserAction(
+                    targetId: targetUser.id,
+                    action: .skip
+                )
+            } catch {
+                print("Skip API Error: \(error)")
+            }
         }
+        moveToNextUser()
     }
-    
-    func handleSkipAction() {
+
+    private func moveToNextUser() {
         if currentIndex < allUsers.count - 1 {
             currentIndex += 1
             currentUser = allUsers[currentIndex]
         } else {
-            self.status = .finished
+            status = .finished
         }
     }
     
