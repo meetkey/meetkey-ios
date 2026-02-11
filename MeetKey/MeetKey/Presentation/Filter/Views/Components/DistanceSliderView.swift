@@ -5,7 +5,8 @@ import SwiftUI
 // MARK: - Distance Filter Section View
 struct DistanceFilterSection: View {
     @Binding var maxDistance: Double?
-    @State private var isIgnored: Bool = false
+//    @State private var isIgnored: Bool = false
+    
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -14,13 +15,8 @@ struct DistanceFilterSection: View {
                 .foregroundColor(.text3)
             
             DistanceFilterButtons(
-                maxDistance: $maxDistance,
-                isIgnored: $isIgnored
+                maxDistance: $maxDistance
             )
-        }
-        .onAppear {
-            // 초기값이 nil이면 "상관없음" 체크 상태로 시작
-            isIgnored = (maxDistance == nil)
         }
     }
 }
@@ -28,7 +24,9 @@ struct DistanceFilterSection: View {
 // MARK: - Distance Filter Buttons Component
 struct DistanceFilterButtons: View {
     @Binding var maxDistance: Double?
-    @Binding var isIgnored: Bool
+    private var isIgnored: Bool {
+        maxDistance == nil
+    }
     
     // 스텝 정의
     private let steps: [Double] = [5, 10, 20, 30, 50]
@@ -49,27 +47,24 @@ struct DistanceFilterButtons: View {
             // 상관없음 체크박스
             HStack {
                 Button(action: {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        isIgnored.toggle()
-                        if isIgnored {
-                            // 체크 시: 현재 값 저장 후 nil로 설정
-                            if let current = maxDistance {
-                                tempValue = current
-                            }
-                            maxDistance = nil
-                        } else {
-                            // 체크 해제 시: 이전 값 복원
-                            maxDistance = tempValue
-                        }
-                    }
-                }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: isIgnored ? "checkmark.square.fill" : "square")
-                            .foregroundColor(isIgnored ? .blue : .gray)
-                        Text("상관없음")
-                            .foregroundColor(.primary)
-                    }
-                }
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        if maxDistance == nil {
+                                            // nil → 값 설정
+                                            maxDistance = tempValue
+                                        } else {
+                                            // 값 있음 → nil로
+                                            tempValue = maxDistance!
+                                            maxDistance = nil
+                                        }
+                                    }
+                                }) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: isIgnored ? "checkmark.square.fill" : "square")
+                                            .foregroundColor(isIgnored ? .blue : .gray)
+                                        Text("상관없음")
+                                            .foregroundColor(.primary)
+                                    }
+                                }
                 
                 Spacer()
                 
