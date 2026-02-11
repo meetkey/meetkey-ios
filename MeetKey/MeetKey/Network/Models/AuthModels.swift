@@ -1,15 +1,10 @@
 import Foundation
 
-// MARK: - Login Request
-struct LoginRequest: Codable {
-    let idToken: String
-}
-
 // MARK: - Login Response
 struct LoginResponse: Codable {
-    let accessToken: String
-    let refreshToken: String
-    let memberId: Int64
+    let accessToken: String?
+    let refreshToken: String?
+    let memberId: Int64?
     let isNewMember: Bool
 }
 

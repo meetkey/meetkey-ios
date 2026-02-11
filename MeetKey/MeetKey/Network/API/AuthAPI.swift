@@ -105,39 +105,3 @@ extension AuthAPI: TargetType {
         return .successCodes
     }
 }
-
-// MARK: - Signup Request Model
-struct SignupRequest: Codable {
-    let idToken: String
-    let name: String
-    let birthday: String // ISO8601 format: "2026-02-08"
-    let gender: Gender
-    let homeTown: String
-    let firstLanguage: AppLanguage
-    let targetLanguage: AppLanguage
-    let targetLanguageLevel: LanguageLevel
-    let phoneNumber: String // International format: "+821012345678"
-}
-
-enum Gender: String, Codable {
-    case male = "MALE"
-    case female = "FEMALE"
-}
-
-enum AppLanguage: String, Codable {
-    case english = "ENGLISH"
-    case korean = "KOREAN"
-    case japanese = "JAPANESE"
-    case chinese = "CHINESE"
-    case spanish = "SPANISH"
-    case french = "FRENCH"
-}
-
-enum LanguageLevel: String, Codable {
-    case novice = "NOVICE"
-    case beginner = "BEGINNER"
-    case intermediate = "INTERMEDIATE"
-    case advanced = "ADVANCED"
-    case fluent = "FLUENT"
-}
-
