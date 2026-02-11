@@ -28,6 +28,7 @@ enum MyAPI {
     case updatePersonality(dto: MyPersonalityEditRequestDTO)
     case getMyProfileForEdit
     case updateMyProfileSettings(dto: MyProfileSettingsRequestDTO)
+    case updateMyLocation(dto: MyLocationRequestDTO)
     case getMyProfileImages
 }
 
@@ -67,6 +68,8 @@ extension MyAPI: TargetType {
             return "/me/profile"
         case .updateMyProfileSettings:
             return "/me/profile"
+        case .updateMyLocation:
+            return "/me/location"
         case .getMyProfileImages:
             return "/photos"
         }
@@ -78,7 +81,7 @@ extension MyAPI: TargetType {
             return .get
         case .updateInterest, .updatePersonality:
             return .put
-        case .updateMyProfileSettings:
+        case .updateMyProfileSettings, .updateMyLocation:
             return .patch
         }
     }
@@ -91,6 +94,8 @@ extension MyAPI: TargetType {
         case .updatePersonality(dto: let dto):
             return .requestJSONEncodable(dto)
         case .updateMyProfileSettings(let dto):
+            return .requestJSONEncodable(dto)
+        case .updateMyLocation(dto: let dto):
             return .requestJSONEncodable(dto)
         }
     }

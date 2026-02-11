@@ -130,7 +130,8 @@ struct ProfileSettingView: View {
                             Image(.location1)
                                 .frame(width: 24, height: 24)
                                 .onTapGesture {
-                                    viewModel.user.location = "현재 위치"
+                                    viewModel.requestCurrentLocation()
+//                                    viewModel.user.location = "현재 위치"
                                 }
                         }
                         .frame(height: 56)
