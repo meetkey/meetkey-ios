@@ -12,7 +12,7 @@ struct ReportReasonView: View {
     @ObservedObject var reportVM: ReportViewModel
     let targetUser: User
     
-    @State private var reportText: String = ""
+//    @State private var reportText: String = ""
     @State private var selectedItems: [PhotosPickerItem] = []
     @State private var selectedImages: [UIImage] = []
     
@@ -33,12 +33,12 @@ struct ReportReasonView: View {
             
             // 3. 텍스트 입력 영역
             ZStack(alignment: .topLeading) {
-                TextEditor(text: $reportText)
+                TextEditor(text: $reportVM.reportReason)
                     .frame(height: 150)
                     .padding(12)
                     .background(RoundedRectangle(cornerRadius: 12).stroke(Color.gray.opacity(0.3)))
                 
-                if reportText.isEmpty {
+                if reportVM.reportReason.isEmpty {
                     Text("상대방의 발언 및 행동이 커뮤니티 가이드라인에\n부합하지 않는다고 판단되어 신고를 접수합니다.")
                         .font(.system(size: 15))
                         .foregroundColor(.gray)
@@ -94,6 +94,7 @@ struct ReportReasonView: View {
                 
                 Button("신고하기") {
                     reportVM.changeReportStep(to: .reportComplete) // 완료 단계로 이동
+                    reportVM.confirmReport(targetId: targetUser.id, userName: targetUser.name)
                 }
                 .frame(maxWidth: .infinity).frame(height: 56)
                 .background(Color.orange).cornerRadius(16)

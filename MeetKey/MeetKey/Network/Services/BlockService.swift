@@ -5,6 +5,8 @@
 //  Created by 전효빈 on 2/12/26.
 //
 
+import Foundation
+
 class BlockService {
     static let shared = BlockService()
     private let networkProvider = NetworkProvider.shared
@@ -14,11 +16,11 @@ class BlockService {
         try await withCheckedThrowingContinuation {
             (continuation: CheckedContinuation<Void, Error>) in
             networkProvider.requestBlock(
-                .blockUser(memberId: targetId),
+                .blockUser(targetId: targetId),
                 type: BlockResponse.self
             ) { result in
                 switch result {
-                case .success(let response):
+                case .success( _):
                     print("✅ 유저 차단 성공: \(targetId)")
                     continuation.resume()
 

@@ -24,7 +24,12 @@ extension BlockAPI: TargetType {
     var method: Moya.Method { .post }
     var task: Task { .requestPlain }
     var headers: [String: String]? {
-        // 토큰 처리를 위한 헤더 설정
-        return ["Content-Type": "application/json"]
+        let testToken:String = " "
+        let headers: [String: String] = [
+            "Content-Type": "application/json",
+//                                        "Authorization" : "Bearer \(testToken)"
+
+        ]
+        return headers
     }
 }

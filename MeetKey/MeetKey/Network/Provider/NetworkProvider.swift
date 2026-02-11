@@ -287,6 +287,44 @@ class NetworkProvider {
             }
         }
     }
+    
+    private let reportProvider = MoyaProvider<ReportAPI>(
+        plugins: [
+            NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))
+        ]
+    )
+
+    func requestReport<T: Codable>(
+        _ target: ReportAPI,
+        type: T.Type,
+        completion: @escaping (Result<T, Error>) -> Void
+    ) {
+        print("📍 [Report] 서버로 신고 요청")
+
+        reportProvider.request(target) { result in
+            switch result {
+            case .success(let response):
+                print("✅ 성공 (상태코드: \(response.statusCode))")
+                do {
+                    let decoder = JSONDecoder()
+                    if (200...299).contains(response.statusCode) {
+                        let decodedData = try decoder.decode(T.self, from: response.data)
+                        completion(.success(decodedData))
+                    } else {
+                        if let errorBody = try? decoder.decode(ErrorResponse.self, from: response.data) {
+                            completion(.failure(NetworkError.serverError(code: errorBody.code, message: errorBody.message)))
+                        } else {
+                            completion(.failure(NetworkError.serverError(code: "\(response.statusCode)", message: "Unknown Error")))
+                        }
+                    }
+                } catch {
+                    completion(.failure(NetworkError.decodingError(error)))
+                }
+            case .failure(let error):
+                completion(.failure(NetworkError.networkError(error)))
+            }
+        }
+    }
 
 }
 
