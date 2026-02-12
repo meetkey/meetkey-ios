@@ -61,6 +61,7 @@ struct MatchingView: View {
                     homeVM.reportVM.currentReportStep == .reportCase ? .height(500) :
                         homeVM.reportVM.currentReportStep == .reportReason ? .height(500) : .medium
                 ])
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: homeVM.reportVM.currentReportStep)
             }
         }
     }
@@ -91,7 +92,6 @@ struct MatchingView: View {
         .frame(width: size.width, height: size.height)
     }
 
-    //클릭 시 오버레이를 닫게 하기 위한 레이어
     private var closeOverlay: some View {
         Color.black.opacity(0.001)
             .ignoresSafeArea()

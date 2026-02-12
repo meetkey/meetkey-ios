@@ -4,6 +4,7 @@ struct HomeProfileDetailView: View {
     @ObservedObject var homeVM: HomeViewModel
     let size: CGSize
     let safeArea: EdgeInsets
+    var animation: Namespace.ID
 
     var body: some View {
         if let user = homeVM.currentUser {
@@ -69,6 +70,7 @@ extension HomeProfileDetailView {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                        .matchedGeometryEffect(id: "profile_card", in: animation)
                 } else {
                     Color.gray.opacity(0.1)
                 }

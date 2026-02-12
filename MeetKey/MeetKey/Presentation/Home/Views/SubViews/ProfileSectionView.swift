@@ -10,6 +10,7 @@ import SwiftUI
 struct ProfileSectionView: View {
     let size: CGSize
     let user: User
+    var animation: Namespace.ID
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
@@ -60,6 +61,7 @@ extension ProfileSectionView {
                     EmptyView()
                 }
             }
+            .matchedGeometryEffect(id: "profile_card", in: animation)
             .frame(width: size.width, height: size.height)
             .clipped()
 

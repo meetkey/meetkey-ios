@@ -269,8 +269,16 @@ class HomeViewModel: ObservableObject {
     }
 
     // MARK: - View Presentation
-    func presentDetailView() { isDetailViewPresented = true }
-    func dismissDetailView() { isDetailViewPresented = false }
+    func presentDetailView() {
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            isDetailViewPresented = true
+        }
+    }
+    func dismissDetailView() {
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            isDetailViewPresented = false
+        }
+    }
     func presentMatchView() { isMatchViewPresented = true }
     func dismissMatchView() {
         isMatchViewPresented = false

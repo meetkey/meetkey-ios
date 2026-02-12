@@ -10,12 +10,10 @@ import SwiftUI
 struct ChatInputSection: View {
     @Binding var messageText: String
 
-//    var onSend: () -> Void //전송 액션
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
 
-            // 대화 주제 추천 버튼
             Button(action: { /* 주제 추천 로직 */  }) {
                 HStack(spacing: 6) {
                     Image(systemName: "bubble.left.and.bubble.right.fill")
@@ -32,7 +30,6 @@ struct ChatInputSection: View {
             }
             .padding(.leading, 20)
 
-            // 입력 필드와 전송 버튼
             HStack(spacing: 12) {
                 Button(action: {}) {
                     Image(systemName: "plus")
