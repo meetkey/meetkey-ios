@@ -135,7 +135,7 @@ extension User {
 
     var tags: [String] {
         var result: [String] = []
-        if age > 0 {
+        if let age = age, age > 0 {
             result.append("\(age)살")
         }
 
@@ -224,6 +224,8 @@ extension User {
         // MyInfo API에서는 location과 level을 주지 않으므로 기본값 사용
         self.location = "현재 위치"
         self.level = "BEGINNER"
+        self.gender = nil
+        self.homeTown = nil
         
         // UserDefaults에서 birthDate 불러오기
         if let birthDateString = UserDefaults.standard.string(forKey: "userBirthDate") {
@@ -255,6 +257,8 @@ extension User {
         self.badge = nil
         self.interests = nil
         self.personalities = nil
+        self.gender = nil
+        self.homeTown = nil
         
         // UserDefaults에서 birthDate 불러오기
         if let birthDateString = UserDefaults.standard.string(forKey: "userBirthDate") {
