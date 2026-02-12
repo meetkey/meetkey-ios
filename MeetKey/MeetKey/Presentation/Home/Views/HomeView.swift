@@ -98,6 +98,7 @@ extension HomeView {
             state: homeVM.isDetailViewPresented ? .homeDetail : .home,
             user: homeVM.me,
             reportVM: homeVM.reportVM,
+            homeStatus: homeVM.status,
             onLeftAction: { homeVM.dismissDetailView() },
             onRightAction: { homeVM.presentFilterView() },
             onDetailAction: {}

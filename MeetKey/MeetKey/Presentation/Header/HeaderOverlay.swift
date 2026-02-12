@@ -13,6 +13,7 @@ struct HeaderOverlay: View {
     let state: HeaderType
     let user: User
     @ObservedObject var reportVM: ReportViewModel
+    var homeStatus: HomeStatus = .idle
     
     var onLeftAction: () -> Void = {}
     var onRightAction: () -> Void = {}
@@ -163,9 +164,16 @@ extension HeaderOverlay {
             Text(user.name + "님,")
                 .font(.meetKey(.body5))
                 .foregroundStyle(Color.text5)
-            Text("이런 친구는 어때요?")
-                .font(.meetKey(.body1))
-                .foregroundStyle(Color.text3)
+                
+            if homeStatus == .finished {
+                Text("매칭 친구 모두 확인했어요!")
+                    .font(.meetKey(.body1))
+                    .foregroundStyle(Color.text3)
+            } else {
+                Text("이런 친구는 어때요?")
+                    .font(.meetKey(.body1))
+                    .foregroundStyle(Color.text3)
+            }
         }
     }
 
