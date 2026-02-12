@@ -94,6 +94,13 @@ class NetworkProvider {
             }
         }
     }
+    
+    // Chat 전용 Provider 추가
+    private let chatProvider = MoyaProvider<ChatAPI>(
+        plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]
+    )
+
+    // Step 1 프로바이더를 클래스 속성으로 유지해야 메모리에서 안 사라짐
 
     // MARK: - 추천 전용 API 요청 함수
     private let recommendationProvider = MoyaProvider<RecommendationAPI>(
@@ -101,6 +108,64 @@ class NetworkProvider {
             NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))
         ]
     )
+    
+    // 채팅 전용 API 요청 함수
+    func requestChat<T: Codable>(
+        _ target: ChatAPI,
+        type: T.Type,
+        completion: @escaping (Result<T, Error>) -> Void
+    ) {
+        chatProvider.request(target) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .iso8601
+
+                    if (200...299).contains(response.statusCode) {
+
+                        // 1) APIResponse<T> 형태면 data만 꺼내서 반환 (Auth랑 동일한 방식)
+                        if let apiResponse = try? decoder.decode(APIResponse<T>.self, from: response.data) {
+
+                            // data가 있는 경우
+                            if let data = apiResponse.data {
+                                completion(.success(data))
+                                return
+                            }
+
+                            // data가 없는 경우 (ex: read 처리)
+                            if T.self == EmptyDTO.self {
+                                completion(.success(EmptyDTO() as! T))
+                                return
+                            }
+                        }
+
+                        // 2) 혹시 서버가 래핑 없이 T를 직접 내려주면 그대로 디코딩
+                        let decoded = try decoder.decode(T.self, from: response.data)
+                        completion(.success(decoded))
+
+                    } else {
+                        // 에러 응답 처리
+                        if let errorBody = try? decoder.decode(ErrorResponse.self, from: response.data) {
+                            completion(.failure(NetworkError.serverError(code: errorBody.code, message: errorBody.message)))
+                        } else if let apiResponse = try? decoder.decode(APIResponse<Bool>.self, from: response.data) {
+                            completion(.failure(NetworkError.serverError(code: apiResponse.code ?? "UNKNOWN",
+                                                                        message: apiResponse.message ?? "Unknown error")))
+                        } else {
+                            completion(.failure(NetworkError.serverError(code: "\(response.statusCode)", message: "Server error")))
+                        }
+                    }
+
+                } catch {
+                    completion(.failure(NetworkError.decodingError(error)))
+                }
+
+            case .failure(let error):
+                completion(.failure(NetworkError.networkError(error)))
+            }
+        }
+    }
+
 
     func requestRecommendation<T: Codable>(
         _ target: RecommendationAPI,
