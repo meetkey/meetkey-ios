@@ -33,6 +33,11 @@ class OnboardingViewModel: ObservableObject {
     @Published var isOnboardingCompleted: Bool = false
 
     private let userService = UserService.shared
+    private let authService = AuthService.shared
+    private let isNewMemberKey = "isNewMember"
+    private let authProviderKey = "authProvider"
+    private let lastIdTokenKey = "lastIdToken"
+    private let phoneNumberKey = "phoneNumber"
 
     init() {
         fetchOptions()
@@ -215,6 +220,17 @@ class OnboardingViewModel: ObservableObject {
 
         Task { @MainActor in
             do {
+                if isNewMemberFlow() {
+                    let signupRequest = try buildSignupRequest()
+                    let provider = try loadAuthProvider()
+                    let signupResponse = try await authService.signup(provider: provider, request: signupRequest)
+                    if let accessToken = signupResponse.accessToken,
+                       let refreshToken = signupResponse.refreshToken {
+                        try KeychainManager.save(value: accessToken, account: "accessToken")
+                        try KeychainManager.save(value: refreshToken, account: "refreshToken")
+                    }
+                }
+
                 if !profileImages.isEmpty {
                     let uploadItems = buildPhotoUploadItems()
                     let presigned = try await userService.requestPhotoUpload(uploadItems)
@@ -235,6 +251,93 @@ class OnboardingViewModel: ObservableObject {
                 print("⚠️ [온보딩] 저장 실패: \(error)")
             }
             self.isLoading = false
+        }
+    }
+
+    private func isNewMemberFlow() -> Bool {
+        if let value = UserDefaults.standard.object(forKey: isNewMemberKey) as? Bool {
+            return value
+        }
+        return false
+    }
+
+    private func loadAuthProvider() throws -> SocialProvider {
+        guard let raw = UserDefaults.standard.string(forKey: authProviderKey),
+              let provider = SocialProvider(rawValue: raw) else {
+            throw OnboardingError.missingLoginContext
+        }
+        return provider
+    }
+
+    private func buildSignupRequest() throws -> SignupRequest {
+        guard let idToken = UserDefaults.standard.string(forKey: lastIdTokenKey) else {
+            throw OnboardingError.missingLoginContext
+        }
+
+        let birthday = formatBirthday()
+        let gender = mapGender(data.gender)
+        let homeTown = data.hometown ?? ""
+        let firstLanguage = mapLanguage(data.nativeLanguage)
+        let targetLanguage = mapLanguage(data.targetLanguage)
+        let targetLevel = mapLanguageLevel()
+        let phoneNumber = "010-0000-0000"
+
+        return SignupRequest(
+            idToken: idToken,
+            name: data.name,
+            birthday: birthday,
+            gender: gender,
+            homeTown: homeTown,
+            firstLanguage: firstLanguage,
+            targetLanguage: targetLanguage,
+            targetLanguageLevel: targetLevel,
+            phoneNumber: phoneNumber
+        )
+    }
+
+    private func formatBirthday() -> String {
+        if let birthday = birthday {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            return formatter.string(from: birthday)
+        }
+        if data.birthDateString.count == 8 {
+            let year = data.birthDateString.prefix(4)
+            let month = data.birthDateString.dropFirst(4).prefix(2)
+            let day = data.birthDateString.suffix(2)
+            return "\(year)-\(month)-\(day)"
+        }
+        return data.birthDateString
+    }
+
+    private func mapGender(_ value: String?) -> Gender {
+        switch value {
+        case "남자", "MALE":
+            return .male
+        case "여자", "FEMALE":
+            return .female
+        default:
+            return .male
+        }
+    }
+
+    private func mapLanguage(_ value: String?) -> AppLanguage {
+        guard let value else { return .english }
+        if value.contains("한국") { return .korean }
+        if value.contains("일본") { return .japanese }
+        if value.contains("중국") { return .chinese }
+        if value.contains("스페인") { return .spanish }
+        if value.contains("프랑스") { return .french }
+        return .english
+    }
+
+    private func mapLanguageLevel() -> LanguageLevel {
+        switch targetLanguageLevel {
+        case 1.0: return .novice
+        case 2.0: return .beginner
+        case 3.0: return .intermediate
+        case 4.0: return .advanced
+        default: return .fluent
         }
     }
 
@@ -374,6 +477,7 @@ enum PersonalityField {
 
 enum OnboardingError: Error {
     case invalidPersonalitySelection
+    case missingLoginContext
 }
 
 private extension Array {

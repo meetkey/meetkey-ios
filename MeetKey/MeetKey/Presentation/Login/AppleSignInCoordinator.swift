@@ -2,10 +2,18 @@ import AuthenticationServices
 import UIKit
 import Combine
 
+// Apple 로그인 Token
+struct AppleSignInTokens {
+    let identityToken: String
+    let authorizationCode: String
+}
+
 final class AppleSignInCoordinator: NSObject, ObservableObject {
+    // UI 에러 매핑
     enum SignInError: LocalizedError {
         case bundleIdMismatch(expected: String, actual: String?)
         case missingIdentityToken
+        case missingAuthorizationCode
 
         var errorDescription: String? {
             switch self {
@@ -13,13 +21,16 @@ final class AppleSignInCoordinator: NSObject, ObservableObject {
                 return "Bundle ID mismatch. expected=\(expected), actual=\(actual ?? "nil")"
             case .missingIdentityToken:
                 return "Apple identity token is missing."
+            case .missingAuthorizationCode:
+                return "Apple authorization code is missing."
             }
         }
     }
 
-    private var completion: ((Result<String, Error>) -> Void)?
+    private var completion: ((Result<AppleSignInTokens, Error>) -> Void)?
 
-    func startSignIn(completion: @escaping (Result<String, Error>) -> Void) {
+    // Apple 로그인 flow 시작
+    func startSignIn(completion: @escaping (Result<AppleSignInTokens, Error>) -> Void) {
         guard Bundle.main.bundleIdentifier == AppleAuthConfig.bundleId else {
             completion(.failure(SignInError.bundleIdMismatch(
                 expected: AppleAuthConfig.bundleId,
@@ -50,8 +61,16 @@ extension AppleSignInCoordinator: ASAuthorizationControllerDelegate {
             return
         }
 
+        guard let codeData = credential.authorizationCode,
+              let code = String(data: codeData, encoding: .utf8) else {
+            DispatchQueue.main.async {
+                self.completion?(.failure(SignInError.missingAuthorizationCode))
+            }
+            return
+        }
+
         DispatchQueue.main.async {
-            self.completion?(.success(token))
+            self.completion?(.success(AppleSignInTokens(identityToken: token, authorizationCode: code)))
         }
     }
 
@@ -64,11 +83,11 @@ extension AppleSignInCoordinator: ASAuthorizationControllerDelegate {
 
 extension AppleSignInCoordinator: ASAuthorizationControllerPresentationContextProviding {
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = scene.windows.first {
+        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first!
+        if let window = scene.windows.first {
             return window
         }
-        return UIWindow()
+        return UIWindow(windowScene: scene)
     }
 }
 
