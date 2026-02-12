@@ -63,6 +63,9 @@ struct OnboardingCompletedView: View {
                     
                     // C 시작하기 버튼
                     Button(action: {
+                        // birthDate를 UserDefaults에 저장
+                        User.saveBirthDate(viewModel.data.birthDateString)
+                        
                         if viewModel.isOnboardingCompleted {
                             navigateToHome = true
                         } else {

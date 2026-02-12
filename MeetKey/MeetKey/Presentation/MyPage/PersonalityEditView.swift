@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct PersonalityEditView: View {
-    @ObservedObject var viewModel: PersonalityEditViewModel
-    let onSave: (Personalities) -> Void
+    
+    @StateObject var viewModel: PersonalityEditViewModel
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
@@ -42,11 +42,9 @@ struct PersonalityEditView: View {
             
             ScrollView {
                 VStack(alignment: .leading, spacing: 32) {
-                    ForEach(viewModel.personalityQuestions, id: \.question) { item in
+                    ForEach(viewModel.personalityOptions, id: \.title) { category in
                         PersonalityEditSection(
-                            keyPath: item.keyPath,
-                            question: item.question,
-                            options: item.options,
+                            category: category,
                             viewModel: viewModel
                         )
                     }
@@ -57,9 +55,13 @@ struct PersonalityEditView: View {
             
             Button {
                 guard viewModel.canSave else { return }
-                let result = viewModel.toPersonalities()
-                onSave(result)
-                dismiss()
+                viewModel.savePersonalities { success in
+                    if success {
+                        dismiss()
+                    } else {
+                        print("⚠️ 성향 저장 실패")
+                    }
+                }
             } label: {
                 Text("저장")
                     .font(.meetKey(.title5))
@@ -68,27 +70,22 @@ struct PersonalityEditView: View {
                     .frame(height: 54)
                     .background(viewModel.canSave ? Color.main : Color.disabled)
                     .cornerRadius(15)
-                    .onTapGesture {
-                        dismiss()
-                    }
             }
-            .disabled(!viewModel.canSave)
             .padding(.bottom, 20)
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 20)
         .navigationBarBackButtonHidden()
+        .onAppear {
+            viewModel.getPersonalities()
+        }
     }
     
     
 }
 
 struct PersonalityEditSection: View {
-    
-    let keyPath: WritableKeyPath<Personalities, String>
-    let question: String
-    let options: [String]
-    
+    let category: PersonalitiesDTO
     @ObservedObject var viewModel: PersonalityEditViewModel
     
     let columns = [
@@ -99,19 +96,19 @@ struct PersonalityEditSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(question)
+            Text(category.title)
                 .font(.meetKey(.body4))
                 .foregroundColor(.text3)
-            
-            
             LazyVGrid(columns: columns, spacing: 12) {
-                ForEach(options, id: \.self) {
-                    option in PersonalityOptionButton(
-                        text: option,
-                        isSelected: viewModel.selectedOptions[keyPath] == option
+                ForEach(category.options, id: \.self) {option in
+                    let key = PersonalityKeyMapper.key(for: category.title) ?? ""
+                    let isSelected = viewModel.selectedOptions[key] == option
+                    PersonalityOptionButton(
+                        text: PersonalityOptionMapper.label(for: key, option: option),
+                        isSelected: isSelected
                     ) {
                         viewModel.selectOption(
-                            keyPath: keyPath,
+                            title: category.title,
                             option: option
                         )
                     }
@@ -119,14 +116,4 @@ struct PersonalityEditSection: View {
             }
         }
     }
-}
-
-
-#Preview {
-    PersonalityEditView(
-        viewModel: PersonalityEditViewModel(),
-        onSave: { result in
-            print(result)
-        }
-    )
 }

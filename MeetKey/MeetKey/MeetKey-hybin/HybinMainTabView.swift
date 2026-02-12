@@ -26,7 +26,8 @@ struct HybinMainTabView: View {
     @State private var currentTab: HybinTab = .home
     @StateObject private var homeVM = HomeViewModel()
 
-    @State private var user: User = .me
+//    @State private var user: User?
+    @State private var user = User.me
     @State private var profilePath = NavigationPath()
     @State private var isTabBarHidden = false
     

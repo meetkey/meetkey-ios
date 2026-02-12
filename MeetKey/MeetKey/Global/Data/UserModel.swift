@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum SafeBadge: String, CaseIterable {
     case none = "none"
@@ -37,8 +38,8 @@ struct User: Identifiable, Codable, Equatable {
     var bio: String?  // bio == oneLiner 통합
 
     // 3. 언어 및 활동 데이터
-    var first: String  // 모국어 (usingLanguage)
-    var target: String  // 목표 언어 (interestingLanguage)
+    var first: String
+    var target: String
     var level: String
     var recommendCount: Int = 0
     var notRecommendCount: Int = 0
@@ -105,7 +106,6 @@ enum BadgeType1: String, CaseIterable, Codable {
     }
 }
 
-// 기존의 'Badge'와 겹치지 않게 'Info'를 붙였습니다.
 struct BadgeInfo: Codable, Equatable {
     let badgeName: String
     var totalScore: Int
@@ -135,9 +135,7 @@ extension User {
 
     var tags: [String] {
         var result: [String] = []
-
-        let age = ageInt
-        if age > 0 {
+        if let age = age, age > 0 {
             result.append("\(age)살")
         }
 
@@ -204,5 +202,78 @@ extension User {
         } else { self.badge = nil }
         
         self.birthDate = nil
+    }
+}
+
+extension User {
+    // MyInfo API 응답용 init
+    init(dto: MyInfoDTO) {
+        self.id = dto.memberId
+        self.name = dto.name
+        self.profileImage = dto.profileImage
+        self.first = dto.first
+        self.target = dto.target
+        self.recommendCount = dto.recommendCount
+        self.notRecommendCount = dto.notRecommendCount
+        self.badge = dto.badge
+        self.interests = dto.interests
+        self.personalities = dto.personalities
+        self.bio = dto.bio
+        self.age = dto.age
+        
+        // MyInfo API에서는 location과 level을 주지 않으므로 기본값 사용
+        self.location = "현재 위치"
+        self.level = "BEGINNER"
+        self.gender = nil
+        self.homeTown = nil
+        
+        // UserDefaults에서 birthDate 불러오기
+        if let birthDateString = UserDefaults.standard.string(forKey: "userBirthDate") {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyyMMdd"
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            self.birthDate = formatter.date(from: birthDateString)
+        } else {
+            self.birthDate = nil
+        }
+    }
+    
+    // EditProfile API 응답용 init
+    init(dto: EditProfileDTO) {
+        self.id = dto.memberId
+        self.name = dto.name
+        self.profileImage = ""
+        self.first = dto.first
+        self.target = dto.target
+        self.bio = dto.bio
+        self.age = dto.age
+        self.location = dto.location
+        self.level = dto.level
+        
+        // 기본값 설정
+        self.recommendCount = 0
+        self.notRecommendCount = 0
+        self.badge = nil
+        self.interests = nil
+        self.personalities = nil
+        self.gender = nil
+        self.homeTown = nil
+        
+        // UserDefaults에서 birthDate 불러오기
+        if let birthDateString = UserDefaults.standard.string(forKey: "userBirthDate") {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyyMMdd"
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            self.birthDate = formatter.date(from: birthDateString)
+        } else {
+            self.birthDate = nil
+        }
+    }
+    
+    // birthDate를 UserDefaults에 저장하는 헬퍼 메서드
+    static func saveBirthDate(_ birthDateString: String) {
+        UserDefaults.standard.set(birthDateString, forKey: "userBirthDate")
     }
 }

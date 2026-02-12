@@ -92,7 +92,7 @@ extension HomeProfileDetailView {
                 Text("\(user.name)")
                     .font(.meetKey(.title2))
                     .foregroundStyle(Color.white01)
-                Text("\(user.ageInt)")
+                Text("\(user.age)")
                     .font(.meetKey(.title6))
                     .foregroundStyle(Color.white01)
                 Spacer()

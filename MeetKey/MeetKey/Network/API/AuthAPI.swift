@@ -90,7 +90,6 @@ extension AuthAPI: TargetType {
         var headers: [String: String] = [
             "Content-Type": "application/json"
         ]
-        
         switch self {
         case .reissue(let refreshToken):
             headers["refresh"] = refreshToken

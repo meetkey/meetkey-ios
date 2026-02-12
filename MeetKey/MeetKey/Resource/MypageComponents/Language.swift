@@ -10,6 +10,7 @@ import SwiftUI
 struct Language: View {
     @Binding var usingLanguage: String
     @Binding var interestingLanguage: String
+    var level: String = "BEGINNER"
     @State private var isSetting: Bool = false
     
     var body: some View {
@@ -17,7 +18,7 @@ struct Language: View {
             VStack(alignment: .leading, spacing: 0) {
                 header(title: "사용 언어")
                 
-                languageContent(text: $usingLanguage)
+                languageContent(text: $usingLanguage, showLevel: false)
             }
             .padding(.leading, 20)
             
@@ -28,7 +29,7 @@ struct Language: View {
             VStack(alignment: .leading, spacing: 0) {
                 header(title: "관심 언어", showEdit: true)
                 
-                languageContent(text: $interestingLanguage)
+                languageContent(text: $interestingLanguage, showLevel: true)
             }
             .padding(.leading, 20)
             Spacer()
@@ -74,35 +75,61 @@ private extension Language {
 
 private extension Language {
     func languageContent(
-        text: Binding<String>
+        text: Binding<String>,
+        showLevel: Bool
     ) -> some View {
         
         let nation = Nation.from(serverValue: text.wrappedValue)
         
-        return HStack {
-            if isSetting {
-                TextField("언어 입력", text: text)
-                    .font(.meetKey(.title5))
-                    .foregroundStyle(.text1)
-                    .textFieldStyle(.plain)
-                    .onChange(of: text.wrappedValue) { newValue in
-                        let completed = Nation.autoComplete(from: newValue)
-                        if text.wrappedValue != completed {
-                            text.wrappedValue = completed
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                if isSetting {
+                    TextField("언어 입력", text: text)
+                        .font(.meetKey(.title5))
+                        .foregroundStyle(.text1)
+                        .textFieldStyle(.plain)
+                        .onChange(of: text.wrappedValue) { newValue in
+                            let completed = Nation.autoComplete(from: newValue)
+                            if text.wrappedValue != completed {
+                                text.wrappedValue = completed
+                            }
                         }
-                    }
-                
-            } else {
-                Text(text.wrappedValue)
-                    .font(.meetKey(.title5))
-                    .foregroundStyle(.text1)
+                    
+                } else {
+                    Text(text.wrappedValue)
+                        .font(.meetKey(.title5))
+                        .foregroundStyle(.text1)
+                }
+                if let nation {
+                    nation.image
+                        .padding(.top, 8)
+                        .padding(.trailing, 12)
+                }
             }
-            if let nation {
-                nation.image
-                    .padding(.top, 8)
-                    .padding(.trailing, 12)
+            .padding(.top, 12)
+            
+            if showLevel && !isSetting {
+                Text(formatLevel(level))
+                    .font(.meetKey(.body4))
+                    .foregroundStyle(.main)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(.sub1)
+                    )
             }
         }
-        .padding(.top, 12)
+    }
+    
+    func formatLevel(_ level: String) -> String {
+        switch level.uppercased() {
+        case "NOVICE": return "Novice"
+        case "BEGINNER": return "Beginner"
+        case "INTERMEDIATE": return "Intermediate"
+        case "ADVANCED": return "Advanced"
+        case "FLUENT": return "Fluent"
+        default: return level.capitalized
+        }
     }
 }

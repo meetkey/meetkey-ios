@@ -25,7 +25,6 @@ struct InterestEditView: View {
                     Text("관심사를 입력해주세요.")
                         .font(.meetKey(.title2))
                         .frame(height: 36)
-                        .padding(.leading, )
                     Spacer()
                     Image(.arrowLeft2)
                         .frame(width: 24, height: 24)
@@ -41,7 +40,7 @@ struct InterestEditView: View {
                     .lineSpacing(4)
                     .padding(.bottom, 37)
                     .padding(.top, 13)
-                
+
                 ScrollView {
                     VStack(alignment: .leading, spacing: 32) {
                         ForEach(viewModel.orderedInterests, id: \.category) { group in
@@ -49,13 +48,12 @@ struct InterestEditView: View {
                                 Text(group.category)
                                     .font(.meetKey(.body4))
                                     .foregroundColor(.text3)
-                                
                                 FlowLayout(items: group.items) { item in
                                     InterestTagButton(
-                                        text: item,
-                                        isSelected: viewModel.selectedInterests.contains(item)
+                                        text: item.name,
+                                        isSelected: viewModel.selectedInterests.contains(item.code)
                                     ) {
-                                        viewModel.toggleInterest(item)
+                                        viewModel.toggleInterest(code: item.code)
                                     }
                                 }
                             }
@@ -64,10 +62,14 @@ struct InterestEditView: View {
                     .padding(.bottom, 39)
                 }
                 Button {
-                    // viewModel.result 저장 / 서버 호출 예정
                     guard viewModel.canSave else { return }
-                    onSave(viewModel.result)
-                    dismiss()
+                    viewModel.saveInterests { success in
+                        if success {
+                            dismiss()
+                        }else {
+                            print("⚠️ 관심사 저장 실패")
+                        }
+                    }
                 } label: {
                     Text("저장")
                         .font(.meetKey(.title5))
@@ -84,5 +86,8 @@ struct InterestEditView: View {
         .padding(.horizontal, 20)
         .padding(.bottom, 20)
         .navigationBarBackButtonHidden()
+        .onAppear {
+            viewModel.fetchMyInterests()
+        }
     }
 }
