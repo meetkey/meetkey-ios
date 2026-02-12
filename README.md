@@ -1,6 +1,6 @@
 # 🚀 MEETKEY
 
-<img src="[https://github.com/user-attachments/assets/511ecc.png" width="200" alt="MEETKEY Logo](https://www.notion.so/image/attachment%3A2b3dae98-7467-4988-a895-7c0fec79c6ff%3A%EC%9E%90%EC%82%B0_12x.png?id=2dcfaae9-c0df-804a-ab39-c38333c4aae8&table=block&spaceId=a1ffaae9-c0df-81df-94e5-00036459457e&width=250&userId=19cd872b-594c-817e-b206-000246d2043f&cache=v2)">
+<img src="https://github.com/user-attachments/assets/1cd070ae-47b3-4f13-be57-8822bbb35b5e" width="180" alt="MEETKEY Logo">
 
 > **"언어는 배우고 싶은데, 어색한 시작이 싫을 때! 문화도 나누고 싶고, 진짜 친구를 원할 때!"**<br>
 > 밋키(MEETKEY)는 한국인과 외국인이 서로 친구가 되고, 언어와 문화를 자연스럽게 배우는 글로벌 커넥션 플랫폼입니다.
@@ -17,7 +17,7 @@
 | **주디** | **하이빈** | **블루** | **제로** |
 |:---:|:---:|:---:|:---:|
 | <img src="https://github.com/kangjooy0ung.png" width="100"> | <img src="https://github.com/oevinqu.png" width="100"> | <img src="https://github.com/bluesummerskin.png" width="100"> | <img src="https://github.com/sum130.png" width="100"> |
-| **iOS Lead** <br> Login / Onboarding | **iOS** <br> Home / Matching | **iOS** <br> Chat / Network | **iOS** <br> MyPage / UI |
+| **iOS** | **iOS** | **iOS** <br> | **iOS** <br> |
 | [GitHub](https://github.com/kangjooy0ung) | [GitHub](https://github.com/oevinqu) | [GitHub](https://github.com/bluesummerskin) | [GitHub](https://github.com/sum130) |
 
 <br>
@@ -44,8 +44,8 @@
 <br>
 
 ## 📆 프로젝트 기간
-- **전체 기간:** `2026.12.26 - 2026.02.19`
-- **개발 기간:** `2026.01.10 - 2026.02.19`
+- **전체 기간:** `2026.01.01 - 2026.02.13`
+- **개발 기간:** `2026.01.20 - 2026.02.13`
 
 <br>
 
@@ -70,7 +70,6 @@ For building and running the application you need:
 <div align="left">
 <img src="https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white" />
 <img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white" />
-<img src="https://img.shields.io/badge/SPM-FA7343?style=for-the-badge&logo=swift&logoColor=white" />
 </div>
 
 ### Development
@@ -102,71 +101,31 @@ For building and running the application you need:
 
 ## 🗂️ 폴더 컨벤션
 
-MeetKey ├── App │ ├── MeetKeyApp.swift │ └── Info.plist ├── Global │ ├── Data (공통 모델) │ ├── Resources (Assets, Colors, Fonts) │ └── Utils (Extensions, Modifiers) ├── Network │ ├── API (Moya Target) │ ├── Config (BaseURL, Headers) │ ├── DTO (Request/Response) │ ├── Provider (Network Provider) │ └── Services (Business Logic) ├── Presentation │ ├── Login │ ├── Onboarding │ ├── Home │ ├── Chat │ ├── MyPage │ └── Common (Shared Views) └── Resources └── Assets.xcassets
-
-
-<br>
-
-## 🔖 브랜치 컨벤션
-
-### 1. 브랜치 전략
-모든 개발은 `dev` 브랜치를 기준으로 진행합니다.
-- **main**: 배포 가능한 상태의 최종 코드만 관리합니다.
-- **dev**: 개발 중인 코드가 모이는 곳입니다. (Default Branch)
-- **feat**: 새로운 기능 개발 브랜치입니다.
-- **fix**: 버그 수정 브랜치입니다.
-
-### 2. 브랜치 명명 규칙
-> `타입/#이슈번호-설명`
-
-이슈 번호를 포함하여 어떤 작업인지 명확히 식별합니다.
-- `feat/#1-login-view`
-- `fix/#3-crash-error`
-- `design/#5-home-layout`
-
-<br>
-
-## 🌀 코딩 컨벤션
-
-### 1. Naming Rules
-- **Class, Struct, Enum**: `UpperCamelCase` (대문자 시작)
-- **Variable, Function**: `lowerCamelCase` (소문자 시작)
-- **Action Function**: 동작이 명확한 동사로 시작 (`didTap...`, `fetch...`)
-
-### 2. Architecture (MVVM)
-- **View**: UI 구성과 사용자 입력만 담당
-- **ViewModel**: 비즈니스 로직 담당 (`import UIKit` 지양)
-- **Service**: 네트워크 통신 및 데이터 처리 담당
-
-### 3. Code Style
-- **Safe Unwrapping**: `guard let` 또는 `if let` 사용 (`!` 지양)
-- **Function**: 단일 책임 원칙 준수 (작게 분리)
-- **Comment**: 복잡한 로직 및 공유 필요한 부분 주석 작성
-
-<br>
-
-## 📁 PR 컨벤션
-
-PR 작성 시 아래 템플릿을 준수합니다.
-
-1. **PR 유형**: 변경 사항의 종류 체크 (`[x]`)
-2. **작업 내용**: 구체적인 구현 내용 및 로직 설명
-3. **추후 진행할 작업**: 다음 단계 계획
-4. **리뷰 포인트**: 중점적으로 확인받고 싶은 부분
-5. **PR 태그**: 제목에 태그 명시 (예: `✨ [Feat] ...`)
-
-<br>
-
-## 📑 커밋 컨벤션
-
-| 아이콘 | 코드 | 설명 |
-| :---: | :---: | :--- |
-| ✨ | Feat | 새로운 기능 추가 |
-| 🐛 | Fix | 버그 수정 |
-| 💄 | Design | UI/스타일 수정 |
-| ♻️ | Refactor | 코드 리팩토링 |
-| 📝 | Docs | 문서 수정 |
-| 🎉 | Chore | 빌드 업무 수정, 패키지 매니저 수정 |
-| 🚀 | Deploy | 배포 관련 |
-
-> **예시**: `✨ [Feat] 홈 화면 카드 스와이프 기능 구현`
+```text
+MeetKey
+├── App
+│   ├── MeetKeyApp.swift
+│   └── Info.plist
+├── Global
+│   ├── Data (공통 모델)
+│   ├── Resources (Assets, Colors, Fonts)
+│   └── Utils (Extensions, Modifiers)
+├── Network
+│   ├── API (Moya Target)
+│   ├── Config (BaseURL, Headers)
+│   ├── DTO (Request/Response)
+│   ├── Provider (Network Provider)
+│   └── Services (Business Logic)
+├── Presentation
+│   ├── Block
+│   ├── Filter
+│   ├── Header
+│   ├── Home
+│   ├── Login
+│   ├── MyPage
+│   ├── Onboarding
+│   ├── Report
+│   ├── Report+Block
+│   └── VoiceCall
+└── Resource
+    └── Assets.xcassets
