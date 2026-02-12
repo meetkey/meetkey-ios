@@ -48,11 +48,20 @@ extension ProfileSectionView {
 
     private var backgroundLayer: some View {
         ZStack {
-            Image(user.profileImage)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: size.width, height: size.height)
-                .clipped()
+            AsyncImage(url: URL(string: user.profileImage)) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                case .failure(_), .empty:
+                    Color.black.opacity(0.1)
+                @unknown default:
+                    EmptyView()
+                }
+            }
+            .frame(width: size.width, height: size.height)
+            .clipped()
 
             LinearGradient(
                 colors: [.black.opacity(0.9), .clear],
@@ -65,8 +74,10 @@ extension ProfileSectionView {
 
     private func interestTagStack(interests: [String]?) -> some View {
         HStack(spacing: 6) {
-            if let interests = interests {
-                ForEach(interests.prefix(3), id: \.self) { interest in
+            let displayInterests = user.interestsDisplayNames
+
+            if !displayInterests.isEmpty {
+                ForEach(displayInterests.prefix(3), id: \.self) { interest in
                     Text(interest)
                         .font(.meetKey(.body4))
                         .padding(.horizontal, 8)
@@ -129,22 +140,25 @@ extension ProfileSectionView {
     private func locationStack(location: String?, distance: String?)
         -> some View
     {
-        VStack(alignment: .leading, spacing: 8) {
-            Label(
-                "\(location ?? "서울"), \(distance ?? "??") 근처",
-                systemImage: "location.fill"
-            )
-            .font(.meetKey(.body5))
+        HStack(alignment: .top, spacing: 6) {
+            Image("location_home")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 14, height: 14)
+            Text("\(location ?? "서울"), \(distance ?? "??") 근처")
+                .font(.meetKey(.body5))
         }
         .foregroundStyle(Color.white01.opacity(0.8))
     }
 
     private func bioStack(bio: String?) -> some View {
         HStack(alignment: .top, spacing: 6) {
-            Image(systemName: "ellipsis.bubble.fill")
-                .font(.meetKey(.body5))
-                .padding(.top, 2)
-            Text(bio ?? "")
+            Image("circle_home")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 14, height: 14)
+
+            Text(bio ?? "등록된 한 줄 소개가 없습니다.")
                 .font(.meetKey(.body5))
                 .lineLimit(1)
         }

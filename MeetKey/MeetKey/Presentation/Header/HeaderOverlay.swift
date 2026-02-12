@@ -86,10 +86,54 @@ extension HeaderOverlay {
 
     @ViewBuilder
     private var centerArea: some View {
-        if state != .home && state != .homeDetail {
+        switch state {
+        case .home, .homeDetail:
+            EmptyView()
+            
+        case .matchingSuccess, .chat:
+            VStack(spacing: 4) {
+                AsyncImage(url: URL(string: user.profileImage)) { phase in
+                    if let image = phase.image {
+                        image.resizable()
+                            .scaledToFill()
+                    } else {
+                        ZStack {
+                            Circle().fill(Color.gray.opacity(0.3))
+                            Text(String(user.name.prefix(1)))
+                                .foregroundColor(.white)
+                                .font(.meetKey(.body1))
+                        }
+                    }
+                }
+                .frame(width: 44, height: 44)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                
+                HStack(spacing: 4) {
+                    Text(user.name)
+                        .font(.meetKey(.title5))
+                        .foregroundStyle(Color.text1)
+                    
+                    if let badgeData = user.badge {
+                        let type = BadgeType1.from(score: badgeData.totalScore)
+                        let circleBadgeName = type.assetName.replacingOccurrences(
+                            of: "Badge",
+                            with: ""
+                        )
+
+                        Image(circleBadgeName)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 24, height: 24)
+                    }
+                }
+            }
+            .padding(.top, 8)
+
+        default:
             Text(user.name)
-                .font(.system(size: 16, weight: .bold))
-                .foregroundColor(.black)
+                .font(.meetKey(.title5))
+                .foregroundStyle(Color.text1)
         }
     }
 
