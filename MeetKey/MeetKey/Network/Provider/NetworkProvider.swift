@@ -108,6 +108,7 @@ class NetworkProvider {
         completion: @escaping (Result<T, Error>) -> Void
     ) {
         print("서버로 요청")
+        let accessToken = KeychainManager.load(account: "accessToken") ?? ""
 
         recommendationProvider.request(target) { result in
             print("서버 대답 도착")
@@ -174,6 +175,7 @@ class NetworkProvider {
         completion: @escaping (Result<T, Error>) -> Void
     ) {
         print("📍 위치 API 요청 시작")
+        let accessToken = KeychainManager.load(account: "accessToken") ?? ""
 
         locationProvider.request(target) { result in
             switch result {
@@ -255,6 +257,7 @@ class NetworkProvider {
         completion: @escaping (Result<T, Error>) -> Void
     ) {
         print("📍 [Block] 서버로 요청")
+        let accessToken = KeychainManager.load(account: "accessToken") ?? ""
 
         blockProvider.request(target) { result in
             print("📍 [Block] 서버 대답 도착")
@@ -300,6 +303,7 @@ class NetworkProvider {
         completion: @escaping (Result<T, Error>) -> Void
     ) {
         print("📍 [Report] 서버로 신고 요청")
+        let accessToken = KeychainManager.load(account: "accessToken") ?? ""
 
         reportProvider.request(target) { result in
             switch result {

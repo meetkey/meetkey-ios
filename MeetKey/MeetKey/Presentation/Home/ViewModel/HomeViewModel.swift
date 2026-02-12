@@ -1,16 +1,8 @@
-//
-//  HomeViewModel.swift
-//  MeetKey
-//
-//  Created by 전효빈 on 1/22/26.
-//
-
 import Combine
 import CoreLocation
 import Foundation
 import SwiftUI
 
-//MARK: - HomeStatus Enum
 enum HomeStatus {
     case loading
     case idle
@@ -18,29 +10,25 @@ enum HomeStatus {
     case finished
 }
 
-//MARK: - HomeViewModel
 @MainActor
 class HomeViewModel: ObservableObject {
 
-    //MARK: - Properties
-
-    // State
     @Published var status: HomeStatus = .loading
     @Published var filter = FilterModel()
 
-    // Data
     @Published var me = User.me
     @Published var allUsers: [User] = []
     @Published var currentUser: User?
     @Published private(set) var currentIndex: Int = 0
 
-    // View Control
     @Published var isDetailViewPresented: Bool = false
     @Published var isFilterViewPresented: Bool = false
     @Published var isMatchViewPresented: Bool = false
     @Published var hasReachedLimit: Bool = false
 
-    // Services
+    @Published var remainingCount: Int = 0
+    @Published var totalCount: Int = 0
+
     @Published var currentFilter = RecommendationRequest()
     @Published var reportVM = ReportViewModel()
 
@@ -51,13 +39,13 @@ class HomeViewModel: ObservableObject {
 
     let users: [User] = User.mockData
 
-    //MARK: - Initialization
-
+    // MARK: - Initialization
     init() {
         setupReportViewModel()
         setupLocationManager()
     }
 
+    // MARK: - Setup Methods
     private func setupReportViewModel() {
         reportVM.objectWillChange
             .sink { [weak self] _ in
@@ -66,6 +54,7 @@ class HomeViewModel: ObservableObject {
             .store(in: &cancellables)
 
         reportVM.onFinalize = { [weak self] in
+            print("📍 [HomeVM] Report/Block Finalize Signal Received")
             self?.finalizeReportProcess()
         }
     }
@@ -75,16 +64,14 @@ class HomeViewModel: ObservableObject {
             .compactMap { $0 }
             .first()
             .sink { [weak self] location in
-                print("📍 HomeViewModel이 위치 받음")
+                print("📍 [HomeVM] Initial Location Received")
 
                 Task {
-                    // 1. 서버에 위치 저장 (PATCH /me/location)
                     await self?.sendLocationToServer(
                         latitude: location.coordinate.latitude,
                         longitude: location.coordinate.longitude
                     )
 
-                    // 2. 추천 요청 (좌표 포함해서)
                     await self?.fetchRecommendations(
                         latitude: location.coordinate.latitude,
                         longitude: location.coordinate.longitude
@@ -93,47 +80,61 @@ class HomeViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        print("📍 위치 요청 시작")
+        print("📍 [HomeVM] Requesting Location...")
         locationManager.requestLocation()
     }
 
-    // 위치 저장
+    // MARK: - API Requests
     private func sendLocationToServer(latitude: Double, longitude: Double) async
     {
-        print("📍 서버로 위치 전송 중...")
+        print("📍 [HomeVM] Sending Location to Server...")
         do {
             try await locationService.updateMyLocation(
                 latitude: latitude,
                 longitude: longitude
             )
-            print("✅ 위치 전송 완료")
+            print("✅ [HomeVM] Location Update Success")
         } catch {
-            print("❌ 위치 전송 실패: \(error)")
+            print("❌ [HomeVM] Location Update Failed: \(error)")
         }
     }
 
-    //MARK: - API Requests
-
     func fetchUserAsync() async {
-        print("패치유저")
+        print("📍 [HomeVM] Fetching Users...")
         status = .loading
 
         do {
-            let fetchedData = try await recommendationService.getRecommendation(
+            // 1. Service에서 봉투(Response)를 통째로 받음
+            let response = try await recommendationService.getRecommendation(
                 filter: currentFilter
             )
-            print("서버에서 받은 유저수: \(fetchedData.count)")
+            
+            // 2. 스와이프 정보 업데이트
+            let swipeInfo = response.data.swipeInfo
+            self.remainingCount = swipeInfo.remainingCount
+            self.totalCount = swipeInfo.totalCount
+            self.hasReachedLimit = (self.remainingCount == 0)
+            
+            print("📊 [Swipe] \(remainingCount)/\(totalCount)")
 
-            if fetchedData.isEmpty {
+            // 3. 유저 리스트 변환 및 저장
+            let recommendations = response.data.recommendations
+            print("✅ [HomeVM] Fetched User Count: \(recommendations.count)")
+
+            if recommendations.isEmpty {
+                self.allUsers = []
+                self.currentUser = nil
                 status = .finished
             } else {
-                self.allUsers = fetchedData
+                // Service가 하던 map 작업을 여기서 해줍니다.
+                self.allUsers = recommendations.map { User(from: $0) }
                 self.currentIndex = 0
-                self.currentUser = fetchedData.first
+                self.currentUser = self.allUsers.first
                 status = .idle
             }
         } catch {
-            print("데이터 로딩 실패: \(error)")
+            print("❌ [HomeVM] Data Fetch Failed: \(error)")
+            status = .finished
         }
     }
 
@@ -144,7 +145,6 @@ class HomeViewModel: ObservableObject {
         }
 
         let personalityRaw: [String] = filter.combinedPersonalities ?? []
-
         let hometownRaw = NationalityType.allCases.first(where: {
             $0.displayName == filter.hometown
         })?.rawValue
@@ -173,16 +173,14 @@ class HomeViewModel: ObservableObject {
         )
 
         currentFilter = request
-        Task {
-            await fetchUserAsync()
-        }
+        print("📮 [HomeVM] Filter Applied: \(request.toDictionary())")
 
-        print("📮 서버로 날아가는 진짜 데이터: \(request.toDictionary())")
+        await fetchUserAsync()
     }
 
-    //MARK: - Filter Actions
-
+    // MARK: - Filter Actions
     func applyFilter(_ newFilter: FilterModel) {
+        print("📍 [HomeVM] Apply New Filter")
         filter = newFilter
 
         if let location = LocationManager.shared.currentLocation {
@@ -193,7 +191,7 @@ class HomeViewModel: ObservableObject {
                 )
             }
         } else {
-            print("⚠️ 위치 정보 없음")
+            print("⚠️ [HomeVM] No Current Location Data")
         }
     }
 
@@ -206,10 +204,10 @@ class HomeViewModel: ObservableObject {
         ]
     }
 
-    //MARK: - User Actions
-
+    // MARK: - User Actions
     func handleLikeAction() {
         guard let targetUser = currentUser else { return }
+        print("📍 [HomeVM] Like Action (Target ID: \(targetUser.id))")
 
         Task {
             do {
@@ -218,7 +216,7 @@ class HomeViewModel: ObservableObject {
                     action: .like
                 )
             } catch {
-                print("Like API Error: \(error)")
+                print("❌ [HomeVM] Like API Error: \(error)")
             }
         }
         presentMatchView()
@@ -226,6 +224,7 @@ class HomeViewModel: ObservableObject {
 
     func handleSkipAction() {
         guard let targetUser = currentUser else { return }
+        print("📍 [HomeVM] Skip Action (Target ID: \(targetUser.id))")
 
         Task {
             do {
@@ -234,67 +233,54 @@ class HomeViewModel: ObservableObject {
                     action: .skip
                 )
             } catch {
-                print("Skip API Error: \(error)")
+                print("❌ [HomeVM] Skip API Error: \(error)")
             }
         }
         moveToNextUser()
     }
 
     private func moveToNextUser() {
-        if currentIndex < allUsers.count - 1 {
-            currentIndex += 1
-            currentUser = allUsers[currentIndex]
-        } else {
-            status = .finished
+        withAnimation {
+            if currentIndex < allUsers.count - 1 {
+                currentIndex += 1
+                currentUser = allUsers[currentIndex]
+                print("📍 [HomeVM] Move to Next User: \(currentIndex)")
+            } else {
+                status = .finished
+                print("📍 [HomeVM] Reached Final User")
+            }
         }
     }
 
     func resetDiscovery() {
+        print("📍 [HomeVM] Reset Discovery")
         currentIndex = 0
         currentUser = allUsers.first
         status = allUsers.isEmpty ? .finished : .idle
     }
 
-    //MARK: - Report & Block
-
+    // MARK: - Report & Block Process
     func finalizeReportProcess() {
         withAnimation(.easeInOut) {
             reportVM.closeReportMenu()
-            self.handleSkipAction()
+            self.moveToNextUser()
             self.dismissMatchView()
         }
     }
 
-    //MARK: - View Presentation
-
-    func presentDetailView() {
-        isDetailViewPresented = true
-    }
-
-    func dismissDetailView() {
-        isDetailViewPresented = false
-    }
-
-    func presentMatchView() {
-        isMatchViewPresented = true
-    }
-
+    // MARK: - View Presentation
+    func presentDetailView() { isDetailViewPresented = true }
+    func dismissDetailView() { isDetailViewPresented = false }
+    func presentMatchView() { isMatchViewPresented = true }
     func dismissMatchView() {
         isMatchViewPresented = false
         reportVM.closeReportMenu()
     }
-
-    func dismissFilterView() {
-        isFilterViewPresented = false
-    }
-
-    func presentFilterView() {
-        isFilterViewPresented = true
-    }
+    func presentFilterView() { isFilterViewPresented = true }
+    func dismissFilterView() { isFilterViewPresented = false }
 }
 
-//MARK: - Helper Struct
-
+// MARK: - Helper Struct
 extension HomeViewModel {
     struct InterestGroup: Identifiable {
         let id = UUID()
@@ -302,7 +288,6 @@ extension HomeViewModel {
         let items: [InterestType]
     }
 }
-
 extension User {
     static let mockData: [User] = [
         User(

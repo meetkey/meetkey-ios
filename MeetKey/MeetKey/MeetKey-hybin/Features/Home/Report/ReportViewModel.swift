@@ -1,18 +1,13 @@
-//
-//  ReportViewModel.swift
-//  MeetKey
-//
-//  Created by 전효빈 on 2/2/26.
-//
-
 import Combine
 import Foundation
 import SwiftUI
 
 class ReportViewModel: ObservableObject {
-
     @Published var isReportMenuPresented: Bool = false
     @Published var currentReportStep: ReportStep = .none
+    
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
     
     @Published var selectedType: ReportType = .other
     @Published var reportReason: String = ""
@@ -20,11 +15,14 @@ class ReportViewModel: ObservableObject {
 
     var onFinalize: (() -> Void)?
 
+    // MARK: - Menu Actions
     func handleReportMenuTap() {
         withAnimation(.spring()) {
             if isReportMenuPresented {
+                print("📍 [ReportVM] 메뉴 닫기")
                 closeReportMenu()
             } else {
+                print("📍 [ReportVM] 메뉴 열기 (Step: .main)")
                 isReportMenuPresented = true
                 currentReportStep = .main
             }
@@ -33,6 +31,7 @@ class ReportViewModel: ObservableObject {
 
     func changeReportStep(to step: ReportStep) {
         withAnimation(.easeInOut) {
+            print("📍 [ReportVM] 단계 변경: \(currentReportStep) -> \(step)")
             isReportMenuPresented = false
             currentReportStep = step
         }
@@ -45,10 +44,11 @@ class ReportViewModel: ObservableObject {
         }
     }
 
-    // MARK: API 연결될 비즈니스 로직들
+    // MARK: - API Business Logic
     func confirmBlock(targetId: Int, userName: String) {
-        print("📍 \(userName) 차단 시도 중 (ID: \(targetId))")
-
+        print("📍 [Block] \(userName) 차단 시도 중 (ID: \(targetId))")
+        isLoading = true
+        
         Task {
             do {
                 try await BlockService.shared.blockUser(targetId: targetId)
@@ -57,36 +57,48 @@ class ReportViewModel: ObservableObject {
                     withAnimation {
                         self.currentReportStep = .blockComplete
                     }
-                    print("✅ \(userName) 차단 성공")
+                    self.isLoading = false
+                    print("✅ [Block] \(userName) 차단 성공!")
                 }
             } catch {
-                print("❌ \(userName) 차단 실패: \(error.localizedDescription)")
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                    self.isLoading = false
+                    print("❌ [Block] 차단 실패: \(error.localizedDescription)")
+                }
             }
         }
     }
 
     func confirmReport(targetId: Int, userName: String) {
-            print("📍 \(userName) 신고 시도 중")
-            
-            Task {
-                do {
-                    try await ReportService.shared.submitReport(
-                        targetId: targetId,
-                        type: self.selectedType,
-                        reason: self.reportReason,
-                        images: self.selectedImageUrls
-                    )
-                    
-                    await MainActor.run {
-                        withAnimation(.spring()) {
-                            self.currentReportStep = .reportComplete
-                        }
+        print("📍 [Report] \(userName) 신고 시도 중 (사유: \(selectedType.rawValue))")
+        isLoading = true
+        
+        Task {
+            do {
+                try await ReportService.shared.submitReport(
+                    targetId: targetId,
+                    type: self.selectedType,
+                    reason: self.reportReason,
+                    images: self.selectedImageUrls
+                )
+                
+                await MainActor.run {
+                    withAnimation(.spring()) {
+                        self.currentReportStep = .reportComplete
                     }
-                } catch {
-                    print("❌ 신고 실패: \(error)")
+                    self.isLoading = false
+                    print("✅ [Report] 신고 제출 성공!")
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                    self.isLoading = false
+                    print("❌ [Report] 신고 실패: \(error.localizedDescription)")
                 }
             }
         }
+    }
 
     func finalizeReportProcess() {
         onFinalize?()

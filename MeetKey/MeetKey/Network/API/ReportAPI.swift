@@ -1,3 +1,4 @@
+import Alamofire
 //
 //  ReportAPI.swift
 //  MeetKey
@@ -6,10 +7,14 @@
 //
 import Foundation
 import Moya
-import Alamofire
 
 enum ReportAPI {
-    case sendReport(targetId: Int, type: ReportType, reason: String, images: [String])
+    case sendReport(
+        targetId: Int,
+        type: ReportType,
+        reason: String,
+        images: [String]
+    )
 }
 
 extension ReportAPI: TargetType {
@@ -17,7 +22,7 @@ extension ReportAPI: TargetType {
     var path: String {
         switch self {
         case .sendReport(let targetId, _, _, _):
-            return "/report/\(targetId)" // 명세서 경로 확인!
+            return "/report/\(targetId)"  // 명세서 경로 확인!
         }
     }
     var method: Moya.Method { .post }
@@ -27,19 +32,22 @@ extension ReportAPI: TargetType {
             let params: [String: Any] = [
                 "reportType": type.rawValue,
                 "body": reason,
-                "imageUrls": images
+                "imageUrls": images,
             ]
-            return .requestParameters(parameters: params, encoding: JSONEncoding.default)
+            return .requestParameters(
+                parameters: params,
+                encoding: JSONEncoding.default
+            )
         }
     }
-    
-    var headers: [String: String]? {
-        let testToken:String
-        let headers: [String: String] = [
-            "Content-Type": "application/json",
-//                                        "Authorization" : "Bearer \(testToken)"
 
-        ]
+    var headers: [String: String]? {
+        var headers = ["Content-Type": "application/json"]
+
+        let accessToken = APIConfig.testToken
+            
+        headers["Authorization"] = "Bearer \(accessToken)"
+        
         return headers
     }
 }

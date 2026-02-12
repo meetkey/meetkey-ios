@@ -5,9 +5,9 @@
 //  Created by 전효빈 on 2/11/26.
 //
 
+import Alamofire
 import Foundation
 import Moya
-import Alamofire
 
 enum LocationAPI {
     case updateLocation(latitude: Double, longitude: Double)
@@ -20,41 +20,40 @@ extension LocationAPI: TargetType {
         }
         return url
     }
-    
+
     var path: String {
         switch self {
         case .updateLocation:
             return "/me/location"
         }
     }
-    
+
     var method: Moya.Method {
         switch self {
         case .updateLocation:
             return .patch
         }
     }
-    
+
     var task: Task {
         switch self {
         case .updateLocation(let latitude, let longitude):
             return .requestParameters(
                 parameters: [
                     "latitude": latitude,
-                    "longitude": longitude
+                    "longitude": longitude,
                 ],
                 encoding: JSONEncoding.default
             )
         }
     }
-    
-    var headers: [String: String]? {
-        let testToken:String 
-        let headers: [String: String] = [
-            "Content-Type": "application/json",
-//                                        "Authorization" : "Bearer \(testToken)"
 
-        ]
+    var headers: [String: String]? {
+        var headers = ["Content-Type": "application/json"]
+
+        let accessToken = APIConfig.testToken
+            
+        headers["Authorization"] = "Bearer \(accessToken)"
         return headers
     }
 }

@@ -24,12 +24,11 @@ extension BlockAPI: TargetType {
     var method: Moya.Method { .post }
     var task: Task { .requestPlain }
     var headers: [String: String]? {
-        let testToken:String = " "
-        let headers: [String: String] = [
-            "Content-Type": "application/json",
-//                                        "Authorization" : "Bearer \(testToken)"
-
-        ]
+        var headers = ["Content-Type": "application/json"]
+            
+        let accessToken = APIConfig.testToken
+            
+        headers["Authorization"] = "Bearer \(accessToken)"
         return headers
     }
 }
