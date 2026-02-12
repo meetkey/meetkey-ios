@@ -22,6 +22,11 @@ struct MyProfile: View {
     
     @State private var isEditProfilePresented = false
     
+    //타사용자조회용 변수
+    @State private var showOtherProfile = false
+    @State private var selectedMemberId: Int?
+
+    
     var body: some View {
         
         Group {
@@ -65,6 +70,9 @@ struct MyProfile: View {
                     viewModel.getMyProfileForEdit {
                         isEditProfilePresented = true
                     }
+                }, onTapNotification: {
+                    selectedMemberId = 1
+                    showOtherProfile = true
                 }
             )
             HStack(spacing: 0) {
@@ -119,6 +127,11 @@ struct MyProfile: View {
         .onChange(of: isEditProfilePresented) { isPresented in
             if !isPresented {
                 viewModel.fetchMyProfile()
+            }
+        }
+        .navigationDestination(isPresented: $showOtherProfile) {
+            if let id = selectedMemberId {
+                OtherProfile(targetId: id)
             }
         }
     }

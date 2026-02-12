@@ -32,6 +32,7 @@ enum MyAPI {
     case getMyProfileImages
     case getURLForImageUpload(dto: [ImageUploadRequestDTO])
     case registerProfileImages(keys: [String])
+    case getOtherInfo(targetId: Int)
     
 }
 
@@ -79,12 +80,14 @@ extension MyAPI: TargetType {
             return "/photos"
         case .registerProfileImages:
             return "/photos/register"
+        case .getOtherInfo(targetId: let targetId):
+            return "/\(targetId)"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .myInfo, .getInterest, .getPersonality, .getMyProfileForEdit, .getMyProfileImages:
+        case .myInfo, .getInterest, .getPersonality, .getMyProfileForEdit, .getMyProfileImages, .getOtherInfo:
             return .get
         case .updateInterest, .updatePersonality:
             return .put
@@ -94,9 +97,10 @@ extension MyAPI: TargetType {
             return .post
         }
     }
+    
     var task: Task {
         switch self {
-        case .myInfo, .getInterest, .getPersonality, .getMyProfileForEdit, .getMyProfileImages:
+        case .myInfo, .getInterest, .getPersonality, .getMyProfileForEdit, .getMyProfileImages, .getOtherInfo:
             return .requestPlain
         case .updateInterest(let dto):
             return .requestJSONEncodable(dto)

@@ -11,6 +11,7 @@ struct ProfileHeader: View {
     
     let user: User
     let onTapSetting: () -> Void
+    let onTapNotification: () -> Void
     
     private var usingLanguageImage: Image? {
         Nation.from(serverValue: user.first)?.image
@@ -30,6 +31,9 @@ struct ProfileHeader: View {
                 Text("내 프로필")
                 Spacer()
                 Image(.notification)
+                    .onTapGesture {
+                        onTapNotification()
+                    }
             }
             HStack(spacing: 20) {
                 ZStack {
