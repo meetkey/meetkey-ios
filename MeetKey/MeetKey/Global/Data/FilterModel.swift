@@ -30,8 +30,8 @@ struct FilterModel:Equatable {
     
 
     var maxDistance: Double? = nil
-    var minAge : Int? = 18
-    var maxAge : Int? = 50
+    var minAge : Int? = nil
+    var maxAge : Int? = nil
     var interests: [String]?
     var hometown: String?
     var nativeLanguage: String?
@@ -111,7 +111,7 @@ enum RelationType: String, CaseIterable, Identifiable {
     case cultureExchange = "CULTURE_EXCHANGE"
     case offlineMeetUP = "OFFLINE_MEET_UP"
     case friendship = "FRIENDSHIP"
-    case travelGUide = "TRAVEL_GUIDE"
+    case travelGuide = "TRAVEL_GUIDE"
     
     var id: String { self.rawValue }
     
@@ -122,7 +122,7 @@ enum RelationType: String, CaseIterable, Identifiable {
         case .cultureExchange: return "문화 교류"
         case .offlineMeetUP: return "오프라인 교류"
         case .friendship: return "지속적 연락"
-        case .travelGUide: return "여행 가이드"
+        case .travelGuide: return "여행 가이드"
         }
     }
 }

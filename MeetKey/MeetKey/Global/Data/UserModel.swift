@@ -169,10 +169,11 @@ extension User {
         self.name = dto.nickname
         self.age = dto.age
         self.homeTown = dto.hometown
-        self.distance = String(
-            format: "%.1fkm",
-            dto.distance ?? "거리를 확인할 수 없습니다"
-        )
+        if let distanceValue = dto.distance {
+                self.distance = String(format: "%.1fkm", distanceValue)
+            } else {
+                self.distance = "거리를 확인할 수 없습니다"
+            }
         self.gender = dto.gender
         self.first = dto.nativeLanguage.language
         self.target = dto.targetLanguage.language

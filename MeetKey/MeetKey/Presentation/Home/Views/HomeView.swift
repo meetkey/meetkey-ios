@@ -5,12 +5,12 @@
 //  Created by 전효빈 on 1/15/26.
 //
 
-//피그마 홈 뷰 제작
 import SwiftUI
 
 struct HomeView: View {
 
     @ObservedObject var homeVM: HomeViewModel
+    @Namespace private var profileTransition
 
     @State private var offset: CGSize = .zero
 
@@ -21,7 +21,7 @@ struct HomeView: View {
 
             ZStack(alignment: .top) {
 
-                backgroundImageView(size: screenSize)  // 배경 분리
+                backgroundImageView(size: screenSize)
 
                 if homeVM.status == .finished {
                     FinishedMatchView(
@@ -30,19 +30,21 @@ struct HomeView: View {
                         action: homeVM.resetDiscovery
                     )
                 } else {
-                    contentStack(size: screenSize, safeArea: safeArea)  // 카드/디테일 분리
+                    contentStack(size: screenSize, safeArea: safeArea)
                 }
 
                 headerView
             }
+            .animation(
+                .spring(response: 0.5, dampingFraction: 0.8),
+                value: homeVM.status
+            )
         }
         .ignoresSafeArea(.all, edges: .bottom)
         .task { await homeVM.fetchUserAsync() }
-        //매칭뷰 호출
         .fullScreenCover(isPresented: $homeVM.isMatchViewPresented) {
             MatchingView(homeVM: homeVM)
         }
-        // 필터뷰 호출
         .fullScreenCover(isPresented: $homeVM.isFilterViewPresented) {
             FilterView(homeVM: homeVM)
         }
@@ -52,7 +54,6 @@ struct HomeView: View {
 //MARK: - Contents
 extension HomeView {
 
-    //-----BackGround
     @ViewBuilder
     private func backgroundImageView(size: CGSize) -> some View {
         if let user = homeVM.currentUser {
@@ -61,7 +62,7 @@ extension HomeView {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
             } placeholder: {
-                Color.black.opacity(0.1)  // 이미지 로딩 전까지 보여줄 색상
+                Color.black.opacity(0.1)
             }
             .frame(width: size.width, height: size.height)
             .clipped()
@@ -69,16 +70,20 @@ extension HomeView {
         }
     }
 
-    //-----Content
     @ViewBuilder
     private func contentStack(size: CGSize, safeArea: EdgeInsets) -> some View {
         if !homeVM.isDetailViewPresented {
             ZStack {
                 if let user = homeVM.currentUser {
-                    ProfileSectionView(size: size, user: user)
-                        .offset(x: offset.width, y: offset.height * 0.1)
-                        .gesture(profileDragGesture)
-                        .onTapGesture { homeVM.presentDetailView() }
+                    ProfileSectionView(
+                        size: size,
+                        user: user,
+                        animation: profileTransition
+                    )
+                    .offset(x: offset.width, y: offset.height * 0.1)
+                    .gesture(profileDragGesture)
+                    .rotationEffect(.degrees(Double(offset.width / 20)))
+                    .onTapGesture { homeVM.presentDetailView() }
                 }
                 likeButtonSection  // 버튼 섹션 분리
                     .padding(.horizontal, 20)
@@ -87,17 +92,18 @@ extension HomeView {
             HomeProfileDetailView(
                 homeVM: homeVM,
                 size: size,
-                safeArea: safeArea
+                safeArea: safeArea,
+                animation: profileTransition
             )
         }
     }
 
-    //------Header
     private var headerView: some View {
         HeaderOverlay(
             state: homeVM.isDetailViewPresented ? .homeDetail : .home,
             user: homeVM.me,
             reportVM: homeVM.reportVM,
+            homeStatus: homeVM.status,
             onLeftAction: { homeVM.dismissDetailView() },
             onRightAction: { homeVM.presentFilterView() },
             onDetailAction: {}
@@ -154,13 +160,15 @@ extension HomeView {
     }
 
     private func triggerAction(isLike: Bool) {
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
         withAnimation(.spring()) {
             offset.width = isLike ? 1000 : -1000
         }
 
         Task {
             if isLike {
-                await homeVM.handleLikeAction()
+                homeVM.handleLikeAction()
             } else {
                 homeVM.handleSkipAction()
             }

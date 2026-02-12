@@ -13,7 +13,7 @@ class RecommendationService {
     private init() {}
     
     
-    func getRecommendation(filter: RecommendationRequest) async throws -> [User] {
+    func getRecommendation(filter: RecommendationRequest) async throws -> RecommendationResponse {
         let response = try await withCheckedThrowingContinuation { continuation in
             networkProvider.requestRecommendation(
                 .getRecommendations(filter: filter),
@@ -27,9 +27,7 @@ class RecommendationService {
                 }
             }
         }
-        let users =  response.data.recommendations.map { User(from: $0) }
-        print("Users: \(users)")
-        return users
+        return response
     }
     
     func sendUserAction(targetId: Int, action: ActionType) async throws {

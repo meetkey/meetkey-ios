@@ -56,11 +56,14 @@ struct MatchingView: View {
                     reportVM: homeVM.reportVM,
                     targetUser: homeVM.currentUser ?? User.mockData[0]
                 )
-                .presentationBackground(Color.white01)
-                .presentationDetents([.medium])
+                .presentationBackground(Color.background1)
+                .presentationDetents([
+                    homeVM.reportVM.currentReportStep == .reportCase ? .height(500) :
+                        homeVM.reportVM.currentReportStep == .reportReason ? .height(500) : .medium
+                ])
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: homeVM.reportVM.currentReportStep)
             }
         }
-
     }
 
     private func backgroundSection(size: CGSize) -> some View {
@@ -89,7 +92,6 @@ struct MatchingView: View {
         .frame(width: size.width, height: size.height)
     }
 
-    //클릭 시 오버레이를 닫게 하기 위한 레이어
     private var closeOverlay: some View {
         Color.black.opacity(0.001)
             .ignoresSafeArea()

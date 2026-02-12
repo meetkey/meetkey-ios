@@ -108,6 +108,7 @@ class NetworkProvider {
         completion: @escaping (Result<T, Error>) -> Void
     ) {
         print("서버로 요청")
+        let accessToken = KeychainManager.load(account: "accessToken") ?? ""
 
         recommendationProvider.request(target) { result in
             print("서버 대답 도착")
@@ -174,6 +175,7 @@ class NetworkProvider {
         completion: @escaping (Result<T, Error>) -> Void
     ) {
         print("📍 위치 API 요청 시작")
+        let accessToken = KeychainManager.load(account: "accessToken") ?? ""
 
         locationProvider.request(target) { result in
             switch result {
@@ -185,13 +187,11 @@ class NetworkProvider {
                         let decoder = JSONDecoder()
                         decoder.dateDecodingStrategy = .iso8601
 
-                        // Bool 타입 처리
                         if type is Bool.Type {
                             completion(.success(true as! T))
                             return
                         }
 
-                        // APIResponse로 감싸져 있는지 확인
                         if let apiResponse = try? decoder.decode(
                             APIResponse<T>.self,
                             from: response.data
@@ -202,14 +202,12 @@ class NetworkProvider {
                             return
                         }
 
-                        // 직접 데이터
                         let data = try decoder.decode(
                             T.self,
                             from: response.data
                         )
                         completion(.success(data))
                     } else {
-                        // 에러 처리
                         let decoder = JSONDecoder()
                         if let errorResponse = try? decoder.decode(
                             ErrorResponse.self,
@@ -241,6 +239,92 @@ class NetworkProvider {
 
             case .failure(let error):
                 print("📍 네트워크 에러: \(error.localizedDescription)")
+                completion(.failure(NetworkError.networkError(error)))
+            }
+        }
+    }
+    
+    //MARK: - Block Provider
+    private let blockProvider = MoyaProvider<BlockAPI>(
+        plugins: [
+            NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))
+        ]
+    )
+
+    func requestBlock<T: Codable>(
+        _ target: BlockAPI,
+        type: T.Type,
+        completion: @escaping (Result<T, Error>) -> Void
+    ) {
+        print("📍 [Block] 서버로 요청")
+        let accessToken = KeychainManager.load(account: "accessToken") ?? ""
+
+        blockProvider.request(target) { result in
+            print("📍 [Block] 서버 대답 도착")
+
+            switch result {
+            case .success(let response):
+                print("✅ 성공 (상태코드: \(response.statusCode))")
+                do {
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .iso8601
+
+                    if (200...299).contains(response.statusCode) {
+                        let decodedData = try decoder.decode(T.self, from: response.data)
+                        completion(.success(decodedData))
+                    } else {
+                        if let errorBody = try? decoder.decode(ErrorResponse.self, from: response.data) {
+                            completion(.failure(NetworkError.serverError(code: errorBody.code, message: errorBody.message)))
+                        } else {
+                            completion(.failure(NetworkError.serverError(code: "\(response.statusCode)", message: "Unknown Error")))
+                        }
+                    }
+                } catch {
+                    print("❌ 디코딩 실패: \(error)")
+                    completion(.failure(NetworkError.decodingError(error)))
+                }
+
+            case .failure(let error):
+                print("❌ 네트워크 에러: \(error.localizedDescription)")
+                completion(.failure(NetworkError.networkError(error)))
+            }
+        }
+    }
+    
+    private let reportProvider = MoyaProvider<ReportAPI>(
+        plugins: [
+            NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))
+        ]
+    )
+
+    func requestReport<T: Codable>(
+        _ target: ReportAPI,
+        type: T.Type,
+        completion: @escaping (Result<T, Error>) -> Void
+    ) {
+        print("📍 [Report] 서버로 신고 요청")
+        let accessToken = KeychainManager.load(account: "accessToken") ?? ""
+
+        reportProvider.request(target) { result in
+            switch result {
+            case .success(let response):
+                print("✅ 성공 (상태코드: \(response.statusCode))")
+                do {
+                    let decoder = JSONDecoder()
+                    if (200...299).contains(response.statusCode) {
+                        let decodedData = try decoder.decode(T.self, from: response.data)
+                        completion(.success(decodedData))
+                    } else {
+                        if let errorBody = try? decoder.decode(ErrorResponse.self, from: response.data) {
+                            completion(.failure(NetworkError.serverError(code: errorBody.code, message: errorBody.message)))
+                        } else {
+                            completion(.failure(NetworkError.serverError(code: "\(response.statusCode)", message: "Unknown Error")))
+                        }
+                    }
+                } catch {
+                    completion(.failure(NetworkError.decodingError(error)))
+                }
+            case .failure(let error):
                 completion(.failure(NetworkError.networkError(error)))
             }
         }

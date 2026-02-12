@@ -67,7 +67,7 @@ extension FinishedMatchView {
     private var descriptionView: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Image(systemName: "sparkles")  // 피그마 아이콘 대용
+                Image(systemName: "sparkles") 
                     .foregroundColor(.orange)
                 Text("친구 추천을 더 받고 싶나요?")
                     .font(.system(size: 16, weight: .bold))

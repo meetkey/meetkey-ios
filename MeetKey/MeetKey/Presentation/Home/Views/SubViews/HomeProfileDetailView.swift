@@ -4,6 +4,7 @@ struct HomeProfileDetailView: View {
     @ObservedObject var homeVM: HomeViewModel
     let size: CGSize
     let safeArea: EdgeInsets
+    var animation: Namespace.ID
 
     var body: some View {
         if let user = homeVM.currentUser {
@@ -25,15 +26,12 @@ struct HomeProfileDetailView: View {
 
                             bioSection(bio: user.bio ?? "소개글이 없습니다.")
                         }
-
                         .padding(.top, 15)
                         .padding(.bottom, 25)
                         .padding(.horizontal, 20)
-
                     }
                 }
                 .background(Color.white01)
-
                 .clipShape(RoundedRectangle(cornerRadius: 30))
                 .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
                 .padding(.horizontal, 20)
@@ -60,23 +58,30 @@ extension HomeProfileDetailView {
         }
         .frame(width: size.width)
         .clipped()
-        .blur(radius: 30)  // 블러 효과 추가
-        .overlay(Color.black.opacity(0.2))  // 배경이 너무 밝으면 텍스트 안 보이니까 살짝 어둡게
+        .blur(radius: 30)
+        .overlay(Color.black.opacity(0.2))
         .opacity(0.6)
     }
 
     private func mainProfileImage(user: User) -> some View {
         ZStack(alignment: .bottom) {
-            Image(user.profileImage)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: size.width - 40, height: 330)
-                .overlay(alignment: .topTrailing) {
-                    // 팀원 뱃지 로직 통합 연동
-                    if let badgeData = user.badge {
-                        homeBadgeView(score: badgeData.totalScore)
-                    }
+            AsyncImage(url: URL(string: user.profileImage)) { phase in
+                if let image = phase.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .matchedGeometryEffect(id: "profile_card", in: animation)
+                } else {
+                    Color.gray.opacity(0.1)
                 }
+            }
+            .frame(width: size.width - 40, height: 330)
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .overlay(alignment: .topTrailing) {
+                if let badgeData = user.badge {
+                    homeBadgeView(score: badgeData.totalScore)
+                }
+            }
             userInfoSection(user: user)
         }
     }
@@ -84,7 +89,6 @@ extension HomeProfileDetailView {
     private func userInfoSection(user: User) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .bottom) {
-                // ageInt 계산 프로퍼티 활용
                 Text("\(user.name)")
                     .font(.meetKey(.title2))
                     .foregroundStyle(Color.white01)
@@ -93,14 +97,28 @@ extension HomeProfileDetailView {
                     .foregroundStyle(Color.white01)
                 Spacer()
             }
-            Label(
-                "\(user.location), \(user.distance ?? "??")근처",
-                systemImage: "location.fill"
-            )
-            .font(.meetKey(.body5))
+            HStack(alignment: .top, spacing: 6) {
+                Image("location_home")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 14, height: 14)
+                Text("\(user.location), \(user.distance ?? "??") 근처")
+                    .font(.meetKey(.body5))
+            }
             .foregroundStyle(Color.white01.opacity(0.8))
-            ///#EEEEEE - Color.gray인데 잘 안보여서,,
-            ///Label 출신국가 넣어야함
+
+            HStack(alignment: .top, spacing: 6) {
+                Image("circle_home")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 14, height: 14)
+                Text(
+                    "출신 국가: \(user.homeTown ?? "정보 없음") / 성별: \(user.genderDisplayName)"
+                )
+                .font(.meetKey(.body5))
+                .lineLimit(1)
+            }
+            .foregroundStyle(Color.white01.opacity(0.8))
         }
         .padding(.horizontal, 20)
         .padding(.top, 25)
@@ -110,7 +128,7 @@ extension HomeProfileDetailView {
         HStack(alignment: .top, spacing: 0) {
             languageCard(
                 title: "사용 언어",
-                language: user.first,
+                language: user.nativeLanguageDisplayName,
                 nation: user.nativeNation,
                 level: nil
             )
@@ -122,9 +140,9 @@ extension HomeProfileDetailView {
 
             languageCard(
                 title: "관심 언어",
-                language: user.target,
+                language: user.targetLanguageDisplayName,
                 nation: user.targetNation,
-                level: user.level
+                level: user.levelDisplayName
             )
         }
         .background(Color.background1)
@@ -137,9 +155,10 @@ extension HomeProfileDetailView {
         VStack(alignment: .leading, spacing: 15) {
             Text("관심사").font(.meetKey(.body2))
 
-            if let interests = user.interests, !interests.isEmpty {
+            let displayInterests = user.interestsDisplayNames
+            if !displayInterests.isEmpty {
                 let rows = generateRows(
-                    interests: interests,
+                    interests: displayInterests,
                     screenWidth: size.width - 40
                 )
 
@@ -162,19 +181,27 @@ extension HomeProfileDetailView {
                 .font(.meetKey(.body1))
                 .foregroundStyle(Color.text1)
 
-            if let p = user.personalities {
+            if user.personalities != nil {
                 VStack(spacing: 0) {
-                    personalityRow(title: "성격", value: p.socialType)
-                    personalityRow(title: "선호 만남", value: p.meetingType)
-                    personalityRow(title: "대화 스타일", value: p.chatType)
-                    personalityRow(title: "친구 유형", value: p.friendType)
-                    personalityRow(title: "선호 관계", value: p.relationType)
+                    personalityRow(title: "성격", value: user.socialDisplayName)
+                    personalityRow(
+                        title: "선호 만남",
+                        value: user.meetingDisplayName
+                    )
+                    personalityRow(title: "대화 스타일", value: user.chatDisplayName)
+                    personalityRow(
+                        title: "친구 유형",
+                        value: user.friendDisplayName
+                    )
+                    personalityRow(
+                        title: "선호 관계",
+                        value: user.relationDisplayName
+                    )
                 }
                 .background(Color.gray.opacity(0.05))
                 .cornerRadius(15)
             }
         }
-
     }
 
     private func bioSection(bio: String) -> some View {
@@ -229,7 +256,7 @@ extension HomeProfileDetailView {
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 16, height: 12)
                     } else {
-                        Text("??")  // 또는 Nation.from 로직에서 걸러지지 못한 기본 문자열 출력
+                        Text("??")
                     }
                 }
 
@@ -265,17 +292,14 @@ extension HomeProfileDetailView {
     }
 }
 
-//MARK: - 홈뷰 전용 뱃지 디자인
 extension HomeProfileDetailView {
     @ViewBuilder
     private func homeBadgeView(score: Int) -> some View {
         let type = BadgeType1.from(score: score)
-
         let tagName = type.assetName.replacingOccurrences(
             of: "Badge",
             with: "Tag"
         )
-
         HStack {
             Image(tagName)
                 .resizable()
@@ -292,18 +316,14 @@ extension HomeProfileDetailView {
     {
         var rows: [[String]] = []
         var currentRow: [String] = []
-
         var totalWidth: CGFloat = 0
-
         for interest in interests {
-
             let font = UIFont(name: "Pretendard-Medium", size: 16)
             let attributes = [NSAttributedString.Key.font: font]
             let size = (interest as NSString).size(
                 withAttributes: attributes as [NSAttributedString.Key: Any]
             )
-            let chipWidth = size.width + 24 + 8  // (글자너비 + 가로패딩 + 칩간격)
-
+            let chipWidth = size.width + 24 + 8
             if totalWidth + chipWidth > screenWidth {
                 rows.append(currentRow)
                 currentRow = [interest]
@@ -313,11 +333,7 @@ extension HomeProfileDetailView {
                 totalWidth += chipWidth
             }
         }
-
-        if !currentRow.isEmpty {
-            rows.append(currentRow)
-        }
-
+        if !currentRow.isEmpty { rows.append(currentRow) }
         return rows
     }
 }
