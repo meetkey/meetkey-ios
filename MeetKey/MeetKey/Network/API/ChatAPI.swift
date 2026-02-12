@@ -25,15 +25,29 @@ enum ChatAPI {
 }
 
 extension ChatAPI: TargetType {
-    
-    var baseURL: URL {
+var baseURL: URL {
         guard let url = URL(string: APIConfig.baseURL) else {
             fatalError("Invalid base URL: \(APIConfig.baseURL)")
         }
         return url
     }
     
-    
+    var headers: [String: String]? {
+        let token = KeychainManager.load(account: "accessToken") ?? ""
+
+        var headers: [String: String] = [
+            "Content-Type": "application/json"
+        ]
+
+        // 토큰 있을 때만 Authorization 붙이기
+        if !token.isEmpty {
+            headers["Authorization"] = "Bearer \(token)"
+        }
+
+        return headers
+    }
+
+
     // URL Path
     var path: String {
         switch self {
@@ -105,15 +119,6 @@ extension ChatAPI: TargetType {
         case .markAsRead:
             return .requestPlain
         }
-    }
-    
-    
-    // Headers
-    var headers: [String : String]? {
-        
-        return [
-            "Content-Type": "application/json"
-        ]
     }
     
     

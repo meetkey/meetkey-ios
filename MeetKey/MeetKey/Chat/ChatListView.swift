@@ -1,262 +1,265 @@
 import SwiftUI
+import Combine
 
-// Main View
+// DTO helpers
+extension ChatRoomSummaryDTO: Identifiable {
+    var id: Int { roomId }
+}
+
+// ViewModel
+@MainActor
+final class ChatListViewModel: ObservableObject {
+
+    @Published var rooms: [ChatRoomSummaryDTO] = []
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String? = nil
+
+    func load() async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            rooms = try await ChatService.shared.fetchChatRooms()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        isLoading = false
+    }
+
+    func refresh() async { await load() }
+}
+
+// MARK: - Main View
 struct ChatListView: View {
 
     private let pageBg = Color(.white)
     private let orange = Color("Orange01")
 
-    @State private var selectedTab: Tab = .chat
-    @State private var chats: [ChatItem] = sampleChats
+    @StateObject private var viewModel = ChatListViewModel()
 
     var body: some View {
         NavigationStack {
             ZStack {
                 pageBg.ignoresSafeArea()
-
-                Group {
-                    switch selectedTab {
-                    case .chat:
-                        chatListBody
-                    case .people:
-                        PlaceholderView(title: "People View")
-                    case .home:
-                        PlaceholderView(title: "Home View")
-                    case .folder:
-                        PlaceholderView(title: "Folder View")
-                    case .profile:
-                        PlaceholderView(title: "Profile View")
-                    }
-                }
-            }
-            .safeAreaInset(edge: .bottom) {
-                BottomNavigationBar(selectedTab: $selectedTab)
+                chatListBody
             }
             .toolbar(.hidden, for: .navigationBar)
+            .task { await viewModel.load() }
         }
     }
 
     private var chatListBody: some View {
         VStack(spacing: 0) {
+
             ChatListHeader()
 
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
-                    ForEach($chats) { $chat in
-                        ChatRow(chat: $chat, orange: orange)
+            if viewModel.isLoading && viewModel.rooms.isEmpty {
+                ProgressView().padding(.top, 24)
+                Spacer()
+            } else if let msg = viewModel.errorMessage, viewModel.rooms.isEmpty {
+                VStack(spacing: 12) {
+                    Text("채팅 목록을 불러오지 못했어요.")
+                        .font(.system(size: 16, weight: .semibold))
 
-                        Divider()
-                            .padding(.leading, 90)
-                            .opacity(0.3)
-                    }
+                    Text(msg)
+                        .font(.system(size: 13))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+
+                    Button("다시 시도") { Task { await viewModel.load() } }
+                        .buttonStyle(.borderedProminent)
                 }
-                .padding(.top, 10)
-                .padding(.horizontal, 20)
-                .frame(maxWidth: .infinity)
+                .padding(.top, 24)
+                Spacer()
+            } else {
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: 0) {
+                        ForEach(viewModel.rooms) { room in
+                            NavigationLink {
+                                ChatRoomScreen(roomId: room.roomId, opponent: room.chatOpponent)
+                            } label: {
+                                ChatRoomRow(room: room, orange: orange)
+                            }
+                            .buttonStyle(.plain)
+
+                            Divider()
+                                .padding(.leading, 90)
+                                .opacity(0.3)
+                        }
+                    }
+                    .padding(.top, 10)
+                    .padding(.horizontal, 20)
+                }
+                .refreshable { await viewModel.refresh() }
             }
         }
     }
 }
 
-// Header
+// MARK: - Header
 struct ChatListHeader: View {
-
     var body: some View {
-        ZStack(alignment: .top) {
-
-            Color(red: 0.93, green: 0.93, blue: 0.93)
-                .opacity(0.9)
-                .clipShape(BottomRoundedShape0(radius: 22))
-                .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 4)
-                .ignoresSafeArea(edges: .top)
-
-            HStack(spacing: 14) {
-
-                Image("CheolSoo")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 65, height: 65)
-                    .clipShape(Circle())
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Good Afternoon!")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(Color(red: 0.12, green: 0.16, blue: 0.22))
-
-                    Text("김밋키")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.black)
-                }
-
+        VStack(spacing: 0) {
+            HStack {
+                Text("Chat")
+                    .font(.system(size: 28, weight: .bold))
                 Spacer()
             }
-            .padding(.horizontal, 25)
-            .padding(.top, 15)
+            .padding(.horizontal, 20)
+            .padding(.top, 14)
+            .padding(.bottom, 12)
+
+            Divider().opacity(0.1)
         }
-        .frame(height: 90)
+        .background(Color.white)
     }
 }
 
-// Chat Row
-struct ChatRow: View {
+// MARK: - Row
+struct ChatRoomRow: View {
 
-    @Binding var chat: ChatItem
+    let room: ChatRoomSummaryDTO
     let orange: Color
 
     var body: some View {
-        NavigationLink {
-            if chat.name == "Jane Smith" {
-                ChatRoomScreen(chat: $chat)
-            } else {
-                ChatDetailView(chat: $chat)
-            }
-        } label: {
-            rowContent
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var rowContent: some View {
         HStack(spacing: 14) {
 
-            Image("Jane")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 72, height: 72)
-                .clipShape(Circle())
+            ProfileCircle(
+                imageURL: room.chatOpponent.profileImageUrl,
+                fallbackText: room.chatOpponent.nickname
+            )
+            .frame(width: 72, height: 72)
 
             VStack(alignment: .leading, spacing: 6) {
 
-                HStack(spacing: 6) {
-                    if let badge = chat.badge {
-                        Image(badge)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 18, height: 18)
-                    }
-
-                    Text(chat.name)
+                HStack(spacing: 8) {
+                    Text(room.chatOpponent.nickname)
                         .font(.system(size: 17, weight: .bold))
-
-                    Text(chat.time)
-                        .font(.system(size: 13))
-                        .foregroundColor(Color(red: 0.42, green: 0.45, blue: 0.5))
+                        .lineLimit(1)
 
                     Spacer()
+
+                    Text(DateFormatters.relativeTime(fromISO: room.updatedAt))
+                        .font(.system(size: 13))
+                        .foregroundColor(.secondary)
                 }
 
-                Text(chat.preview)
-                    .font(.system(size: 15))
-                    .foregroundColor(Color(white: 0.45))
-                    .lineLimit(2)
-            }
+                HStack(alignment: .top, spacing: 10) {
+                    Text((room.lastChatMessages ?? " ").unquoted)
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
 
-            if chat.unread > 0 {
-                Text("\(chat.unread)")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(width: 26, height: 26)
-                    .background(orange)
-                    .clipShape(Circle())
+                    Spacer()
+
+                    if room.unreadCount > 0 {
+                        Text("\(room.unreadCount)")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(orange)
+                            .clipShape(Capsule())
+                    }
+                }
             }
+            .padding(.vertical, 12)
         }
-        .padding(.vertical, 12)
         .contentShape(Rectangle())
     }
 }
 
-// Chat Detail View (임시)
-struct ChatDetailView: View {
-
-    @Binding var chat: ChatItem
+// MARK: - Small UI pieces
+struct ProfileCircle: View {
+    let imageURL: String?
+    let fallbackText: String
 
     var body: some View {
-        VStack(spacing: 12) {
-            Spacer()
+        ZStack {
+            Circle().fill(Color(.systemGray5))
 
-            Text("💬 \(chat.name)와의 대화방(임시)")
-                .font(.system(size: 22, weight: .bold))
-
-            Text("여기는 Jane이 아니라서 임시 화면")
-                .foregroundColor(.gray)
-
-            Spacer()
+            if let urlStr = imageURL, let url = URL(string: urlStr) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty: ProgressView()
+                    case .success(let image): image.resizable().scaledToFill()
+                    case .failure: InitialsView(text: fallbackText)
+                    @unknown default: InitialsView(text: fallbackText)
+                    }
+                }
+                .clipShape(Circle())
+            } else {
+                InitialsView(text: fallbackText)
+            }
         }
-        .navigationTitle(chat.name)
-        .navigationBarTitleDisplayMode(.inline)
-        .onDisappear {
-            // 뒤로 나올 때 읽음 처리
-            if chat.unread > 0 { chat.unread = 0 }
-        }
+        .clipped()
     }
 }
 
-struct PlaceholderView: View {
-    let title: String
+struct InitialsView: View {
+    let text: String
+
+    var initials: String {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return "?" }
+        return String(Array(trimmed).prefix(2))
+    }
+
     var body: some View {
-        VStack {
-            Spacer()
-            Text(title)
-                .font(.system(size: 20, weight: .bold))
-                .foregroundColor(.gray)
-            Spacer()
-        }
+        Text(initials)
+            .font(.system(size: 18, weight: .bold))
+            .foregroundColor(.secondary)
     }
 }
 
-struct ChatItem: Identifiable {
-    let id: UUID
-    let name: String
-    let preview: String
-    let time: String
-    var unread: Int
-    let badge: String?
-}
+// MARK: - Date formatting
+enum DateFormatters {
+    static let iso: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
 
-// Sample Data
-let sampleChats: [ChatItem] = [
-    .init(id: UUID(), name: "Jane Smith", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "gold"),
-    .init(id: UUID(), name: "Richard Thompson", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "silver"),
-    .init(id: UUID(), name: "Sarah Williams", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "bronze"),
-    .init(id: UUID(), name: "Michael Jones", preview: "Ciao! Let me know when you are free...", time: "3h", unread: 0, badge: "gold"),
-    .init(id: UUID(), name: "Natalie Clark", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "silver"),
-    .init(id: UUID(), name: "김유진", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "bronze")
-]
+    static func relativeTime(fromISO isoString: String) -> String {
+        if let date = iso.date(from: isoString) {
+            return relativeTime(from: date)
+        }
+        let f2 = ISO8601DateFormatter()
+        f2.formatOptions = [.withInternetDateTime]
+        if let date = f2.date(from: isoString) {
+            return relativeTime(from: date)
+        }
+        return ""
+    }
 
-struct BottomRoundedShape0: Shape {
+    static func relativeTime(from date: Date) -> String {
+        let diff = Int(Date().timeIntervalSince(date))
+        if diff < 60 { return "방금" }
+        let minutes = diff / 60
+        if minutes < 60 { return "\(minutes)m" }
+        let hours = minutes / 60
+        if hours < 24 { return "\(hours)h" }
+        let days = hours / 24
+        return "\(days)d"
+    }
 
-    var radius: CGFloat
+    static func chatTime(from date: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ko_KR")
+        f.dateFormat = "HH:mm"
+        return f.string(from: date)
+    }
 
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let r = radius
-
-        path.move(to: .zero)
-        path.addLine(to: CGPoint(x: rect.width, y: 0))
-        path.addLine(to: CGPoint(x: rect.width, y: rect.height - r))
-
-        path.addArc(
-            center: CGPoint(x: rect.width - r, y: rect.height - r),
-            radius: r,
-            startAngle: .degrees(0),
-            endAngle: .degrees(90),
-            clockwise: false
-        )
-
-        path.addLine(to: CGPoint(x: r, y: rect.height))
-
-        path.addArc(
-            center: CGPoint(x: r, y: rect.height - r),
-            radius: r,
-            startAngle: .degrees(90),
-            endAngle: .degrees(180),
-            clockwise: false
-        )
-
-        path.closeSubpath()
-        return path
+    static func chatTime(fromISO isoString: String) -> String {
+        if let date = iso.date(from: isoString) {
+            return chatTime(from: date)
+        }
+        let f2 = ISO8601DateFormatter()
+        f2.formatOptions = [.withInternetDateTime]
+        if let date = f2.date(from: isoString) {
+            return chatTime(from: date)
+        }
+        return ""
     }
 }
 
 #Preview { ChatListView() }
-
