@@ -2,6 +2,9 @@ import SwiftUI
 import Combine
 
 class LoginViewModel: ObservableObject {
+    private let isNewMemberKey = "isNewMember"
+    private let authProviderKey = "authProvider"
+    private let lastIdTokenKey = "lastIdToken"
     @Published var phoneNumber: String = ""
     @Published var verifyCode: String = ""
     
@@ -29,6 +32,10 @@ class LoginViewModel: ObservableObject {
                 let response = try await authService.login(provider: provider, idToken: idToken)
                 self.loginResponse = response
                 self.isLoginSuccess = true
+
+                UserDefaults.standard.set(response.isNewMember, forKey: isNewMemberKey)
+                UserDefaults.standard.set(provider.rawValue, forKey: authProviderKey)
+                UserDefaults.standard.set(idToken, forKey: lastIdTokenKey)
 
                 if response.isNewMember {
                     self.shouldNavigateToSignup = true
