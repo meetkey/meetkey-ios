@@ -5,28 +5,26 @@ import AVFoundation
 // MARK: - Main
 struct ChatRoomScreen: View {
 
-    @Binding var chat: ChatItem
+    // ChatRoomScreen(roomId: room.roomId, opponent: room.chatOpponent)
+    let roomId: Int
+    let opponent: ChatOpponentDTO
 
     private let orange = Color("Orange01")
     private let pageBg = Color(white: 0.98)
 
     @Environment(\.dismiss) private var dismiss
 
-    // ✅ 헤더 펼침 상태
+    // 헤더 펼침 상태
     @State private var isSettingExpanded: Bool = false
 
-    // ✅ 대화주제 카드 오픈 상태
+    // 대화주제 카드 오픈 상태
     @State private var isTopicCardOpen: Bool = false
 
     @State private var isMissionExpanded: Bool = true
     @State private var isMissionDone: Bool = false
 
-    @State private var messages: [ChatMessage] = [
-        .init(kind: .text("Hi! Is this your first time using\nthe app?"), isMe: false, time: "10:33"),
-        .init(kind: .text("Hi! Yes, it is. It looks pretty easy\nso far 🙂"), isMe: true, time: "10:33"),
-        .init(kind: .text("Great! Let me know if you\nneed any help."), isMe: false, time: "10:33"),
-        .init(kind: .text("Thanks! I really appreciate it."), isMe: true, time: "10:33")
-    ]
+    // 서버 메시지 + 임시 전송 메시지 모두 담는 최종 배열(기존 UI 그대로 사용)
+    @State private var messages: [ChatMessage] = []
 
     @State private var inputText: String = ""
 
@@ -41,14 +39,20 @@ struct ChatRoomScreen: View {
     @State private var audioPlayer: AVAudioPlayer? = nil
     @State private var playingMessageID: UUID? = nil
 
-    // ✅ 전화 화면 이동
+    // 전화 화면 이동
     @State private var isCallActive: Bool = false
+
+    // API 로딩/페이지네이션
+    @State private var isLoading: Bool = false
+    @State private var loadError: String? = nil
+    @State private var nextCursor: Int? = nil
+    @State private var hasNext: Bool = false
+    @State private var isPaging: Bool = false
 
     var body: some View {
         ZStack(alignment: .top) {
             pageBg.ignoresSafeArea()
 
-            // ✅ "헤더 아래 전체 화면" 영역 (헤더 펼침/주제카드 오픈 시 blur + 터치막기)
             VStack(spacing: 0) {
 
                 // 헤더 자리(항상 120만 차지)
@@ -60,7 +64,7 @@ struct ChatRoomScreen: View {
             }
             .zIndex(1)
 
-            // ✅ 헤더 펼쳤을 때 딤 (헤더 아래 / 콘텐츠 위)
+            // 헤더 펼쳤을 때 딤
             if isSettingExpanded {
                 Color.black.opacity(0.18)
                     .ignoresSafeArea()
@@ -73,16 +77,12 @@ struct ChatRoomScreen: View {
                     }
             }
 
-            // ✅ 헤더는 딤보다 위에
+            // 헤더는 딤보다 위
             headerOverlay
                 .zIndex(30)
 
-            // =========================
-            // ✅ 대화 주제 추천 카드 오버레이
-            // =========================
+            // 대화 주제 추천 카드 오버레이
             if isTopicCardOpen {
-
-                // 뒤 살짝 딤 (회색 배경 X, 그냥 투명 딤)
                 Color.black.opacity(0.18)
                     .ignoresSafeArea()
                     .transition(.opacity)
@@ -93,7 +93,6 @@ struct ChatRoomScreen: View {
                         }
                     }
 
-                // 카드 자체 (하단 근처에 뜨게)
                 VStack {
                     Spacer()
 
@@ -119,16 +118,18 @@ struct ChatRoomScreen: View {
                         }
                     )
                     .padding(.horizontal, 18)
-                    .padding(.bottom, 200) // 푸터 위로 띄우는 느낌
+                    .padding(.bottom, 200)
                 }
                 .transition(.opacity)
                 .zIndex(41)
             }
         }
         .toolbar(.hidden, for: .navigationBar)
+        .task {
+            await openRoom()
+        }
         .onDisappear {
             stopAudio()
-            if chat.unread > 0 { chat.unread = 0 }
         }
         .onChange(of: pickedPhotoItem) { _, newItem in
             guard let newItem else { return }
@@ -152,30 +153,28 @@ struct ChatRoomScreen: View {
             .presentationDetents([.medium])
             .presentationDragIndicator(.hidden)
         }
-        // ✅ 전화 아이콘 탭 → VoiceCallView로 이동
         .navigationDestination(isPresented: $isCallActive) {
             VoiceCallView(
-                userName: chat.name,
+                userName: opponent.nickname,
                 userBadge: .gold
             )
         }
     }
 
-    // MARK: - Header Slot (자리만 120)
+    // MARK: - Header Slot
     private var headerSlot: some View {
         Color.clear
             .frame(height: 120)
     }
 
-    // MARK: - Header Overlay (실제 카드: 늘어나며 덮어씀)
+    // MARK: - Header Overlay
     private var headerOverlay: some View {
         ChatRoomSettingCard(
             profileImageName: "Jane",
             badgeImageName: "gold",
-            title: chat.name,
+            title: opponent.nickname,
             onTapBack: { dismiss() },
             onTapCall: {
-                // 헤더 펼쳐져 있으면 닫고 이동
                 withAnimation(.easeInOut(duration: 0.18)) {
                     isSettingExpanded = false
                 }
@@ -190,11 +189,18 @@ struct ChatRoomScreen: View {
     // MARK: - Content
     private var contentArea: some View {
         VStack(spacing: 0) {
+
+            if let err = loadError {
+                Text(err)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.red.opacity(0.75))
+                    .padding(.top, 6)
+            }
+
             ScrollViewReader { proxy in
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 14) {
 
-                        // ✅ 오늘의 미션 유지
                         if isMissionExpanded {
                             MissionExpandedCard(
                                 orange: orange,
@@ -220,7 +226,18 @@ struct ChatRoomScreen: View {
                             )
                         }
 
-                        // ✅ 메시지들
+                        if hasNext {
+                            Button {
+                                Task { await loadMore() }
+                            } label: {
+                                Text(isPaging ? "불러오는 중..." : "이전 메시지 더 보기")
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundColor(orange)
+                                    .padding(.vertical, 6)
+                            }
+                            .disabled(isPaging)
+                        }
+
                         ForEach(messages) { msg in
                             ChatMessageRow(
                                 message: msg,
@@ -258,14 +275,93 @@ struct ChatRoomScreen: View {
                 }
             )
         }
-        // ✅ 헤더 펼침/주제카드 오픈 시 뒤 화면 흐림 + 터치 막기
         .blur(radius: (isSettingExpanded || isTopicCardOpen) ? 2.0 : 0)
         .allowsHitTesting(!(isSettingExpanded || isTopicCardOpen))
         .animation(.easeInOut(duration: 0.18), value: isSettingExpanded)
         .animation(.easeInOut(duration: 0.18), value: isTopicCardOpen)
     }
 
-    // MARK: - Send
+    // MARK: - Open Room
+    @MainActor
+    private func openRoom() async {
+        let token = KeychainManager.load(account: "accessToken") ?? ""
+
+        // 로그인/토큰 없으면 서버 호출 안 하고 UI 시연용 데이터
+        guard !token.isEmpty else {
+            loadError = nil  // 빨간 에러 숨김
+            messages = [
+                .init(kind: .text("Hi! (mock)"), isMe: false, time: "10:33"),
+                .init(kind: .text("Hello 🙂 (mock)"), isMe: true, time: "10:34"),
+                .init(kind: .text("This is chat UI demo."), isMe: false, time: "10:35")
+            ]
+            hasNext = false
+            return
+        }
+
+        await loadInitial()
+
+        do { try await ChatService.shared.markAsRead(roomId: roomId) } catch { }
+    }
+
+
+    @MainActor
+    private func loadInitial() async {
+        guard !isLoading else { return }
+        isLoading = true
+        loadError = nil
+        defer { isLoading = false }
+
+        do {
+            let dto = try await ChatService.shared.fetchMessages(roomId: roomId, cursorId: nil)
+            apply(dto: dto, isAppendOld: false)
+        } catch {
+            loadError = "메시지 불러오기 실패: \(error.localizedDescription)"
+        }
+    }
+
+    @MainActor
+    private func loadMore() async {
+        guard hasNext, !isPaging else { return }
+        guard let cursor = nextCursor else { return }
+        isPaging = true
+        defer { isPaging = false }
+
+        do {
+            let dto = try await ChatService.shared.fetchMessages(roomId: roomId, cursorId: cursor)
+            apply(dto: dto, isAppendOld: true)
+        } catch {
+            loadError = "추가 로딩 실패: \(error.localizedDescription)"
+        }
+    }
+
+    @MainActor
+    private func apply(dto: ChatRoomMessagesDTO, isAppendOld: Bool) {
+        self.nextCursor = dto.nextCursor
+        self.hasNext = dto.hasNext
+
+        let mapped: [ChatMessage] = dto.chatMessages.map { m in
+            let time = m.createdAt.replacingOccurrences(of: "T", with: " ").prefix(16)
+            let timeStr = String(time)
+
+            switch m.messageType {
+            case .text:
+                return ChatMessage(kind: .text((m.content ?? "").unquoted), isMe: m.mine, time: timeStr)
+            case .image:
+               
+                return ChatMessage(kind: .text("[IMAGE]"), isMe: m.mine, time: timeStr)
+            case .audio:
+                return ChatMessage(kind: .text("[AUDIO]"), isMe: m.mine, time: timeStr)
+            }
+        }
+
+        if isAppendOld {
+            self.messages = mapped + self.messages
+        } else {
+            self.messages = mapped
+        }
+    }
+
+    // MARK: - Send (임시 전송 UI)
     private func sendTextOrImage() {
         let trimmed = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty && pickedImageData == nil { return }
@@ -328,7 +424,7 @@ struct ChatRoomScreen: View {
     }
 }
 
-// MARK: - Topic Suggestion Card (컴포넌트)
+// MARK: - Topic Suggestion Card
 private struct TopicSuggestionCard: View {
 
     let orange: Color
@@ -338,8 +434,6 @@ private struct TopicSuggestionCard: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-
-            // ✅ 카드 자체: 흰색 (바탕 회색 없음)
             VStack(spacing: 14) {
                 Spacer(minLength: 4)
 
@@ -374,7 +468,7 @@ private struct TopicSuggestionCard: View {
                 .padding(.bottom, 18)
             }
             .frame(maxWidth: .infinity)
-            .padding(.top, 34) // 버튼 공간
+            .padding(.top, 34)
             .padding(.horizontal, 14)
             .background(
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
@@ -382,7 +476,6 @@ private struct TopicSuggestionCard: View {
                     .shadow(color: Color.black.opacity(0.10), radius: 16, x: 0, y: 10)
             )
 
-            // ✅ 주황색 버튼 (닫기)
             Button(action: onClose) {
                 Circle()
                     .fill(orange)
@@ -395,12 +488,12 @@ private struct TopicSuggestionCard: View {
                     .shadow(color: Color.black.opacity(0.12), radius: 10, x: 0, y: 8)
             }
             .buttonStyle(.plain)
-            .offset(x: -6, y: -18) // 카드 밖으로 살짝 튀어나오게
+            .offset(x: -6, y: -18)
         }
     }
 }
 
-// MARK: - Model
+// MARK: - Local UI Model
 struct ChatMessage: Identifiable {
     enum Kind {
         case text(String)
@@ -424,7 +517,6 @@ struct MissionExpandedCard: View {
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
-
             VStack(alignment: .leading, spacing: 10) {
 
                 HStack(alignment: .top, spacing: 12) {
@@ -717,8 +809,6 @@ struct ChatFooter: View {
 
     let onSend: () -> Void
     let onTapMic: () -> Void
-
-    // ✅ 주제 카드 열기
     let onTapTopic: () -> Void
 
     var body: some View {
@@ -728,7 +818,6 @@ struct ChatFooter: View {
             VStack(alignment: .leading, spacing: 10) {
 
                 HStack {
-                    // ✅ 여기 아이콘을 버튼으로 (클릭하면 카드 열림)
                     Button(action: onTapTopic) {
                         Circle()
                             .fill(orange)
@@ -838,21 +927,10 @@ struct ChatFooter: View {
 }
 
 #Preview {
-    struct Wrapper: View {
-        @State var sampleChat = ChatItem(
-            id: UUID(),
-            name: "Jane Smith",
-            preview: "Ciao! Let me know when you ar...",
-            time: "3h",
-            unread: 12,
-            badge: "gold"
+    NavigationStack {
+        ChatRoomScreen(
+            roomId: 2,
+            opponent: ChatOpponentDTO(userId: 3, nickname: "dev_test_user", profileImageUrl: nil)
         )
-
-        var body: some View {
-            NavigationStack {
-                ChatRoomScreen(chat: $sampleChat)
-            }
-        }
     }
-    return Wrapper()
 }
