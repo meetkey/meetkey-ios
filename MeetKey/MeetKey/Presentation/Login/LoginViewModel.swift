@@ -2,38 +2,138 @@ import SwiftUI
 import Combine
 
 class LoginViewModel: ObservableObject {
-    // 1. 입력값
     @Published var phoneNumber: String = ""
     @Published var verifyCode: String = ""
     
-    // 2. 화면 상태
-    @Published var isCodeSent: Bool = false   // 인증번호 보냈는지 (입력창 띄우기용)
-    @Published var isVerified: Bool = false   // 인증 성공했는지 (버튼 색깔 바꾸기용)
+    // UI 화면 상태
+    @Published var isCodeSent: Bool = false
+    @Published var isVerified: Bool = false
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
     
-    // 3. 기능들
-    // [단계 1] 인증번호 보내기 버튼 눌렀을 때
-    func sendCode() {
-        print("인증번호 발송!")
-        withAnimation {
-            isCodeSent = true
-        }
-    }
+    // Login 결과
+    @Published var loginResponse: LoginResponse?
+    @Published var isLoginSuccess: Bool = false
+    @Published var shouldNavigateToSignup: Bool = false
+    @Published var shouldNavigateToHome: Bool = false
     
-    // [단계 2] 인증 확인하기 버튼 눌렀을 때
-    func checkCode() {
-        // (임시) 123456 이라고 치면 통과
-        if verifyCode == "123456" {
-            withAnimation {
-                isVerified = true // 성공 -> 버튼 주황색으로 변신
+    private let authService = AuthService.shared
+    
+    // Social 로그인 공통 진입점
+    func login(provider: SocialProvider, idToken: String) {
+        isLoading = true
+        errorMessage = nil
+        
+        Task { @MainActor in
+            do {
+                let response = try await authService.login(provider: provider, idToken: idToken)
+                self.loginResponse = response
+                self.isLoginSuccess = true
+
+                if response.isNewMember {
+                    self.shouldNavigateToSignup = true
+                } else {
+                    guard let accessToken = response.accessToken,
+                          let refreshToken = response.refreshToken else {
+                        self.errorMessage = "로그인 토큰이 없습니다."
+                        self.isLoginSuccess = false
+                        return
+                    }
+
+                    do {
+                        try KeychainManager.save(
+                            value: accessToken,
+                            account: "accessToken"
+                        )
+                        try KeychainManager.save(
+                            value: refreshToken,
+                            account: "refreshToken"
+                        )
+                    } catch {
+                        self.errorMessage = "토큰 저장에 실패했습니다."
+                        self.isLoginSuccess = false
+                        return
+                    }
+
+                    self.shouldNavigateToHome = true
+                }
+            } catch {
+                self.errorMessage = error.localizedDescription
+                self.isLoginSuccess = false
+                print("로그인 실패: \(error.localizedDescription)")
             }
-            print("인증 성공")
-        } else {
-            print("인증 실패: 번호를 확인하세요")
+            
+            self.isLoading = false
         }
     }
     
-    // [단계 3] 로그인 하기 버튼 눌렀을 때
-    func login() {
-        print("로그인 API 호출!")
+    // Kakao 로그인 래퍼
+    func loginWithKakao(idToken: String) {
+        login(provider: .kakao, idToken: idToken)
+    }
+    
+    // Apple 로그인 래퍼
+    func loginWithApple(idToken: String) {
+        login(provider: .apple, idToken: idToken)
+    }
+    
+    // SMS 인증번호 발송 요청
+    func sendCode() {
+        guard !phoneNumber.isEmpty else {
+            errorMessage = "전화번호를 입력해주세요"
+            return
+        }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        Task { @MainActor in
+            do {
+                let cleanPhone = phoneNumber.replacingOccurrences(of: "-", with: "")
+                let success = try await authService.sendSMS(phone: cleanPhone)
+                
+                if success {
+                    withAnimation {
+                        isCodeSent = true
+                    }
+                    print("인증번호 발송 성공!")
+                }
+            } catch {
+                self.errorMessage = error.localizedDescription
+                print("인증번호 발송 실패: \(error.localizedDescription)")
+            }
+            
+            self.isLoading = false
+        }
+    }
+    
+    // SMS 인증번호 검증
+    func checkCode() {
+        guard !phoneNumber.isEmpty, !verifyCode.isEmpty else {
+            errorMessage = "전화번호와 인증번호를 입력해주세요"
+            return
+        }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        Task { @MainActor in
+            do {
+                let cleanPhone = phoneNumber.replacingOccurrences(of: "-", with: "")
+                let success = try await authService.verifySMS(phone: cleanPhone, code: verifyCode)
+                
+                if success {
+                    withAnimation {
+                        isVerified = true
+                    }
+                    print("인증 성공")
+                }
+            } catch {
+                self.errorMessage = error.localizedDescription
+                print("인증 실패: \(error.localizedDescription)")
+            }
+            
+            self.isLoading = false
+        }
     }
 }
