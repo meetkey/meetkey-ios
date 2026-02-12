@@ -20,7 +20,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Network/Models/Response/Untitled.swift,
 			);
 			target = 215F25822F18AF08000BEB64 /* MeetKey */;
 		};
