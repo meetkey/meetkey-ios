@@ -56,11 +56,13 @@ struct MatchingView: View {
                     reportVM: homeVM.reportVM,
                     targetUser: homeVM.currentUser ?? User.mockData[0]
                 )
-                .presentationBackground(Color.white01)
-                .presentationDetents([.medium])
+                .presentationBackground(Color.background1)
+                .presentationDetents([
+                    homeVM.reportVM.currentReportStep == .reportCase ? .height(500) :
+                        homeVM.reportVM.currentReportStep == .reportReason ? .height(500) : .medium
+                ])
             }
         }
-
     }
 
     private func backgroundSection(size: CGSize) -> some View {

@@ -18,7 +18,7 @@ struct BlockConfirmView: View {
             HStack(spacing: 10) {
                 Image(.hide)
                     .frame(width: 24, height: 24)
-                Text("이 설정을 적용하면 서로의 프로필을 확인할 수  없습니다.")
+                Text("이 설정을 적용하면 서로의 프로필을 확인할 수 없습니다.")
                     .font(.meetKey(.body3))
                     .foregroundStyle(.text3)
                     .multilineTextAlignment(.leading)
@@ -37,9 +37,11 @@ struct BlockConfirmView: View {
                     .font(.meetKey(.body3))
                     .foregroundStyle(.text3)
                     .multilineTextAlignment(.leading)
+                    .kerning(-0.1)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.top, 12)
+
             Divider()
                 .background(.disabled)
                 .padding(.top, 8)
@@ -58,8 +60,7 @@ struct BlockConfirmView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .padding(.top, 14)
-                    .padding(.leading, 12)
-                    .padding(.trailing, 12)
+                    .padding(.horizontal, 12)
 
                     HStack(spacing: 4) {
                         Text("신고하러 바로가기")
@@ -83,15 +84,15 @@ struct BlockConfirmView: View {
                         .stroke(.background4, lineWidth: 1)
                 )
             }
-            .buttonStyle(PlainButtonStyle())  // 버튼 클릭 시 글자색 변함 방지
+            .buttonStyle(PlainButtonStyle())
             .padding(.top, 43)
-            //            .padding(.horizontal, 24)
 
             HStack(spacing: 6) {
                 BlockBtn(title: "취소") {
                     reportVM.closeReportMenu()
                 }
                 .frame(width: 106)
+                
                 BlockApplyBtn(title: "차단하기") {
                     reportVM.confirmBlock(
                         targetId: targetUser.id,
@@ -101,9 +102,8 @@ struct BlockConfirmView: View {
             }
             .padding(.top, 10)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.white01)
+        .background(.background1)
     }
-
 }

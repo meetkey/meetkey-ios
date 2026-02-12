@@ -6,24 +6,11 @@ struct ReportConfirmView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Spacer()
-                Capsule()
-                    .fill(.background4)
-                    .frame(width: 40, height: 4)
-                Spacer()
-            }
-            .padding(.vertical, 12)
-            
-            HStack {
-                Text("신고하기")
-                    .font(.meetKey(.title4))
-                    .foregroundStyle(.text1)
-                    .frame(height: 31)
-                Spacer()
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 16)
+            Text("신고하기")
+                .font(.meetKey(.title4))
+                .foregroundStyle(.text1)
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
             
             HStack(alignment: .top, spacing: 10) {
                 Image(.dangerCircle)
@@ -44,7 +31,6 @@ struct ReportConfirmView: View {
             }
             .padding(.horizontal, 24)
             .padding(.top, 34)
-            .padding(.bottom, 33)
             
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 5) {
@@ -67,15 +53,10 @@ struct ReportConfirmView: View {
                 .padding(.bottom, 14)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(.background1)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(.background4, lineWidth: 1)
-            )
+            .background(RoundedRectangle(cornerRadius: 12).fill(.background1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(.background4, lineWidth: 1))
             .padding(.horizontal, 24)
+            .padding(.top, 33)
             
             Spacer()
             
@@ -88,8 +69,9 @@ struct ReportConfirmView: View {
                 BlockApplyBtn(title: "신고하기") {
                     reportVM.changeReportStep(to: .reportCase)
                 }
+                .frame(maxWidth: .infinity)
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, 14)
             .padding(.bottom, 16)
         }
         .background(.background1)
