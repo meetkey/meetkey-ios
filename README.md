@@ -1,8 +1,9 @@
 # 🚀 MEETKEY
 
-![배너 이미지 또는 로고](링크)
+<img src="[https://github.com/user-attachments/assets/511ecc.png" width="200" alt="MEETKEY Logo](https://www.notion.so/image/attachment%3A2b3dae98-7467-4988-a895-7c0fec79c6ff%3A%EC%9E%90%EC%82%B0_12x.png?id=2dcfaae9-c0df-804a-ab39-c38333c4aae8&table=block&spaceId=a1ffaae9-c0df-81df-94e5-00036459457e&width=250&userId=19cd872b-594c-817e-b206-000246d2043f&cache=v2)">
 
-> 간단한 한 줄 소개 – 프로젝트의 핵심 가치 또는 기능
+> **"언어는 배우고 싶은데, 어색한 시작이 싫을 때! 문화도 나누고 싶고, 진짜 친구를 원할 때!"**<br>
+> 밋키(MEETKEY)는 한국인과 외국인이 서로 친구가 되고, 언어와 문화를 자연스럽게 배우는 글로벌 커넥션 플랫폼입니다.
 
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)]()
 [![Xcode](https://img.shields.io/badge/Xcode-16.0-blue.svg)]()
@@ -13,67 +14,78 @@
 <br>
 
 ## 👥 멤버
-| 주디 | 하이빈 | 블루 | 제로 |
+| **주디** | **하이빈** | **블루** | **제로** |
 |:---:|:---:|:---:|:---:|
 | <img src="https://github.com/kangjooy0ung.png" width="100"> | <img src="https://github.com/oevinqu.png" width="100"> | <img src="https://github.com/bluesummerskin.png" width="100"> | <img src="https://github.com/sum130.png" width="100"> |
-| iOS | iOS | iOS | iOS |
+| **iOS Lead** <br> Login / Onboarding | **iOS** <br> Home / Matching | **iOS** <br> Chat / Network | **iOS** <br> MyPage / UI |
 | [GitHub](https://github.com/kangjooy0ung) | [GitHub](https://github.com/oevinqu) | [GitHub](https://github.com/bluesummerskin) | [GitHub](https://github.com/sum130) |
 
 <br>
 
+## 📱 서비스 소개
 
-## 📱 소개
+### 🌏 글로벌 친구를 만나는 가장 안전하고 따뜻한 방법, MEETKEY
 
-> 프로젝트의 주요 목적과 사용자가 얻게 될 경험을 설명해주세요.
+**"영어 회화 잘하고 싶은데... 어디서 외국인 친구를 만나지?"**
+**"한국에 사는 외국인 친구랑 진짜 대화가 통하는 친구가 되고 싶어!"**
+
+밋키는 언어 교환을 넘어, **진짜 친구가 되는 만남**을 만들어주는 플랫폼입니다.
+단순히 언어만 배우는 것이 아니라, 서로의 관심사로 자연스럽게 연결되고 문화와 일상을 나누며 성장할 수 있도록 돕습니다.
+
+### 💡 Why MEETKEY?
+* **📈 폭발적인 니즈:** 한국인의 73.8%가 영어 회화 학습을 원하고, 한국 거주 외국인은 265만 명을 돌파했습니다. 하지만 서로를 만날 안전한 창구는 부족합니다.
+* **🤝 자연스러운 매칭:** 어색한 대화 시작은 그만! 관심사 기반 매칭과 대화 유도 질문 카드로 물 흐르듯 자연스러운 소통을 지원합니다.
+* **🛡️ 안전한 커뮤니티:** 신뢰할 수 있는 프로필 인증과 신고/차단 시스템으로 심리적 장벽을 낮추고 안전한 교류 환경을 제공합니다.
+* **🎨 따뜻한 감성:** 딱딱한 학습 앱이 아닌, 귀여운 캐릭터와 따뜻한 오렌지/옐로우 톤의 디자인으로 편안하고 즐거운 경험을 선사합니다.
+
+> **SERVICE GOAL** <br>
+> 한국에 거주하며 외국어를 배우고 싶은 한국인들과, 한국 문화를 사랑하는 외국인들이 심리적 장벽 없이 깊이 있는 교류를 경험하도록 돕는 안전하고 편안한 플랫폼
 
 <br>
 
 ## 📆 프로젝트 기간
-- 전체 기간: `YYYY.MM.DD - YYYY.MM.DD`
-- 개발 기간: `YYYY.MM.DD - YYYY.MM.DD`
+- **전체 기간:** `2026.12.26 - 2026.02.19`
+- **개발 기간:** `2026.01.10 - 2026.02.19`
 
 <br>
 
 ## 🤔 요구사항
 For building and running the application you need:
-
-iOS 26.0 <br>
-Xcode 26 <br>
-Swift 6.2
+* iOS 16.0+
+* Xcode 15.0+
+* Swift 5.9+
 
 <br>
 
 ## ⚒️ 개발 환경
-* Front : SwiftUI
-* 버전 및 이슈 관리 : Github, Github Issues
-* 협업 툴 : Discord, Notion, GitKraken
+* **Front:** SwiftUI, Combine
+* **Version Control:** Git, GitHub
+* **Collaboration:** Discord, Notion, GitKraken, Figma
 
 <br>
 
 ## 🔎 기술 스택
-### Envrionment
+
+### Environment
 <div align="left">
 <img src="https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white" />
 <img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white" />
 <img src="https://img.shields.io/badge/SPM-FA7343?style=for-the-badge&logo=swift&logoColor=white" />
-<img src="https://img.shields.io/badge/Fastlane-n?style=for-the-badge&logo=fastlane&logoColor=black" />
 </div>
 
 ### Development
 <div align="left">
 <img src="https://img.shields.io/badge/Xcode-007ACC?style=for-the-badge&logo=Xcode&logoColor=white" />
-<img src="https://img.shields.io/badge/Firebase-DD2C00?style=for-the-badge&logo=Firebase&logoColor=white" />
 <img src="https://img.shields.io/badge/SwiftUI-42A5F5?style=for-the-badge&logo=swift&logoColor=white" />
+<img src="https://img.shields.io/badge/Combine-FF2D55?style=for-the-badge&logo=apple&logoColor=white" />
 <img src="https://img.shields.io/badge/Alamofire-FF5722?style=for-the-badge&logo=swift&logoColor=white" />
 <img src="https://img.shields.io/badge/Moya-8A4182?style=for-the-badge&logo=swift&logoColor=white" />
 <img src="https://img.shields.io/badge/Kingfisher-0F92F3?style=for-the-badge&logo=swift&logoColor=white" />
-<img src="https://img.shields.io/badge/Combine-FF2D55?style=for-the-badge&logo=apple&logoColor=white" />
 </div>
 
 ### Communication
 <div align="left">
 <img src="https://img.shields.io/badge/GitKraken-179287?style=for-the-badge&logo=GitKraken&logoColor=white" />
-<img src="https://img.shields.io/badge/Miro-FFFC00.svg?style=for-the-badge&logo=Miro&logoColor=050038" />
 <img src="https://img.shields.io/badge/Notion-white.svg?style=for-the-badge&logo=Notion&logoColor=000000" />
 <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=Discord&logoColor=white" />
 <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white" />
@@ -82,17 +94,18 @@ Swift 6.2
 <br>
 
 ## 📱 화면 구성
-<table>
-  <tr>
-    <td>
-      사진 넣어주세요
-    </td>
-    <td>
-      사진 넣어주세요
-    </td>
-   
-  </tr>
-</table>
+| **로그인 & 온보딩** | **홈 (매칭)** | **채팅** | **마이페이지** |
+|:---:|:---:|:---:|:---:|
+| <img src="" width="200"> | <img src="" width="200"> | <img src="" width="200"> | <img src="" width="200"> |
+
+<br>
+
+## 🗂️ 폴더 컨벤션
+
+MeetKey ├── App │ ├── MeetKeyApp.swift │ └── Info.plist ├── Global │ ├── Data (공통 모델) │ ├── Resources (Assets, Colors, Fonts) │ └── Utils (Extensions, Modifiers) ├── Network │ ├── API (Moya Target) │ ├── Config (BaseURL, Headers) │ ├── DTO (Request/Response) │ ├── Provider (Network Provider) │ └── Services (Business Logic) ├── Presentation │ ├── Login │ ├── Onboarding │ ├── Home │ ├── Chat │ ├── MyPage │ └── Common (Shared Views) └── Resources └── Assets.xcassets
+
+
+<br>
 
 ## 🔖 브랜치 컨벤션
 
@@ -117,98 +130,43 @@ Swift 6.2
 
 ### 1. Naming Rules
 - **Class, Struct, Enum**: `UpperCamelCase` (대문자 시작)
-    - 예: `LoginViewController`, `UserMenu`
 - **Variable, Function**: `lowerCamelCase` (소문자 시작)
-    - 예: `viewDidLoad`, `userName`
-- **Action Function**: 동작이 명확한 동사로 시작합니다.
-    - 예: `didTapLoginButton`, `fetchUserData`
+- **Action Function**: 동작이 명확한 동사로 시작 (`didTap...`, `fetch...`)
 
 ### 2. Architecture (MVVM)
-- **View**: UI 구성과 사용자 입력만 담당합니다.
-- **ViewModel**: 비즈니스 로직을 담당하며, `import UIKit`을 사용하지 않습니다. (순수 로직 유지)
-- **Role**: 뷰컨트롤러가 비대해지지 않도록 로직 분리에 집중합니다.
+- **View**: UI 구성과 사용자 입력만 담당
+- **ViewModel**: 비즈니스 로직 담당 (`import UIKit` 지양)
+- **Service**: 네트워크 통신 및 데이터 처리 담당
 
 ### 3. Code Style
-- **강제 언래핑 지양**: 앱 안정성을 위해 `!` 대신 `guard let` 또는 `if let`을 사용합니다.
-- **함수 분리**: 하나의 함수가 너무 길어지지 않도록, 기능별로 작게 나눕니다.
-- **주석 활용**: 복잡한 로직이나 팀원 간 공유가 필요한 부분에는 주석을 작성합니다.
- 
+- **Safe Unwrapping**: `guard let` 또는 `if let` 사용 (`!` 지양)
+- **Function**: 단일 책임 원칙 준수 (작게 분리)
+- **Comment**: 복잡한 로직 및 공유 필요한 부분 주석 작성
+
 <br>
 
 ## 📁 PR 컨벤션
 
-* PR 시, 템플릿이 등장한다. 해당 템플릿에서 작성해야할 부분은 아래와 같다
+PR 작성 시 아래 템플릿을 준수합니다.
 
-    1. `PR 유형 작성`, 어떤 변경 사항이 있었는지 [] 괄호 사이에 x를 입력하여 체크할 수 있도록 한다.
-
-    2. `작업 내용 작성`, 작업 내용에 대해 자세하게 작성을 한다.
-
-    3. `추후 진행할 작업`, PR 이후 작업할 내용에 대해 작성한다
-
-    4. `리뷰 포인트`, 본인 PR에서 꼭 확인해야 할 부분을 작성한다.
-
-    6. `PR 태그 종류`, PR 제목의 태그는 아래 형식을 따른다.
-
-
-
-#### 🌟 태그 종류 (커밋 컨벤션과 동일)
-
-<!-- 팀원들끼리 협의하여 기록해주세요! -->
-
-
-
-### ✅ PR 예시 모음
-
-> 🎉 [Chore] 프로젝트 초기 세팅 <br>
-
-> ✨ [Feat] 프로필 화면 UI 구현 <br>
-
-> 🐛 [Fix] iOS 17에서 버튼 클릭 오류 수정 <br>
-
-> 💄 [Design] 로그인 화면 레이아웃 조정 <br>
-
-> 📝 [Docs] README에 프로젝트 소개 추가 <br>
-
-
+1. **PR 유형**: 변경 사항의 종류 체크 (`[x]`)
+2. **작업 내용**: 구체적인 구현 내용 및 로직 설명
+3. **추후 진행할 작업**: 다음 단계 계획
+4. **리뷰 포인트**: 중점적으로 확인받고 싶은 부분
+5. **PR 태그**: 제목에 태그 명시 (예: `✨ [Feat] ...`)
 
 <br>
-
 
 ## 📑 커밋 컨벤션
 
-### 💬 깃모지 가이드
+| 아이콘 | 코드 | 설명 |
+| :---: | :---: | :--- |
+| ✨ | Feat | 새로운 기능 추가 |
+| 🐛 | Fix | 버그 수정 |
+| 💄 | Design | UI/스타일 수정 |
+| ♻️ | Refactor | 코드 리팩토링 |
+| 📝 | Docs | 문서 수정 |
+| 🎉 | Chore | 빌드 업무 수정, 패키지 매니저 수정 |
+| 🚀 | Deploy | 배포 관련 |
 
-| 아이콘 | 코드 | 설명 | 원문 |
-| :---: | :---: | :---: | :---: |
-| 🐛 | bug | 버그 수정 | Fix a bug |
-| ✨ | sparkles | 새 기능 | Introduce new features |
-| 💄 | lipstick | UI/스타일 파일 추가/수정 | Add or update the UI and style files |
-| ♻️ | recycle | 코드 리팩토링 | Refactor code |
-| ➕ | heavy_plus_sign | 의존성 추가 | Add a dependency |
-| 🔀 | twisted_rightwards_arrows | 브랜치 합병 | Merge branches |
-| 💡 | bulb | 주석 추가/수정 | Add or update comments in source code |
-| 🔥 | fire | 코드/파일 삭제 | Remove code or files |
-| 🚑 | ambulance | 긴급 수정 | Critical hotfix |
-| 🎉 | tada | 프로젝트 시작 | Begin a project |
-| 🔒 | lock | 보안 이슈 수정 | Fix security issues |
-| 🔖 | bookmark | 릴리즈/버전 태그 | Release / Version tags |
-| 📝 | memo | 문서 추가/수정 | Add or update documentation |
-| 🔧| wrench | 구성 파일 추가/삭제 | Add or update configuration files.|
-| ⚡️ | zap | 성능 개선 | Improve performance |
-| 🎨 | art | 코드 구조 개선 | Improve structure / format of the code |
-| 📦 | package | 컴파일된 파일 추가/수정 | Add or update compiled files |
-| 👽 | alien | 외부 API 변경 반영 | Update code due to external API changes |
-| 🚚 | truck | 리소스 이동, 이름 변경 | Move or rename resources |
-| 🙈 | see_no_evil | .gitignore 추가/수정 | Add or update a .gitignore file |
-
-### 🏷️ 커밋 태그 가이드
-### ✅ 커밋 예시 모음
-> 🎉 [Chore] 프로젝트 초기 세팅 <br>
-> ✨ [Feat] 프로필 화면 UI 구현 <br>
-> 🐛 [Fix] iOS 17에서 버튼 클릭 오류 수정 <br>
-> 💄 [Design] 로그인 화면 레이아웃 조정 <br>
-> 📝 [Docs] README에 프로젝트 소개 추가 <br>
-
-<br>
-
-## 🗂️ 폴더 컨벤션
+> **예시**: `✨ [Feat] 홈 화면 카드 스와이프 기능 구현`
