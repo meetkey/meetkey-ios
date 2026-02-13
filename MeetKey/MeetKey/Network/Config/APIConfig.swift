@@ -2,7 +2,7 @@ import Foundation
 
 struct APIConfig {
     static let baseURL = "https://meetkey.test-route53.shop"
-    
+//    static let testToken =
     // 개발/프로덕션 환경 분리 예시
     #if DEBUG
     static let isDebug = true

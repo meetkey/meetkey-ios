@@ -33,10 +33,10 @@ struct RecommendationDTO: Codable {
     let nativeLanguage: LanguageDTO
     let targetLanguage: LanguageDTO
     let interests: [String]?
-    let personality: PersonalityDTO?
+    let personality: RecPersonalityDTO?
     let photoUrls: [String]
     let introduction: String?
-    let badge: BadgeDTO?
+    let badge: RecBadgeDTO?
     let location: String?
 }
 
@@ -45,7 +45,7 @@ struct LanguageDTO: Codable {
     let level: String?
 }
 
-struct PersonalityDTO: Codable {
+struct RecPersonalityDTO: Codable {
     let socialType: String
     let meetingType: String
     let chatType: String
@@ -53,7 +53,7 @@ struct PersonalityDTO: Codable {
     let relationType: String
 }
 
-struct BadgeDTO: Codable {
+struct RecBadgeDTO: Codable {
     let level : String?
     let score: Int?
 }
