@@ -24,7 +24,7 @@ struct ProfileSectionView: View {
 
                     nameAndBadgeStack(
                         name: user.name,
-                        age: user.age,
+                        age: user.age ?? 0,
                         badge: user.badge
                     )
 
