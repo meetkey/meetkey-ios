@@ -19,6 +19,8 @@ struct HeaderOverlay: View {
     var onRightAction: () -> Void = {}
     var onDetailAction: () -> Void = {}
     
+    var onProfileTap: (() -> Void) = {}
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 0) {
@@ -211,7 +213,7 @@ extension HeaderOverlay {
             }
         }) {
             HStack(spacing: 15) {
-                Image(icon) // 메뉴 아이콘 커스텀 에셋 적용
+                Image(icon)
                     .resizable()
                     .frame(width: 24, height: 24)
                 Text(title)

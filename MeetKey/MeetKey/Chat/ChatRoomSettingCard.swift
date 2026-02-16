@@ -1,26 +1,25 @@
 import SwiftUI
 
 struct ChatRoomSettingCard: View {
-
+    
     // MARK: - Inputs
     let profileImageName: String
     let badgeImageName: String
     let title: String
     let onTapBack: () -> Void
     let onTapCall: () -> Void
-
-    // ✅ 부모(ChatRoomScreen)에서 제어
+    let onTapProfile: () -> Void
     @Binding var isExpanded: Bool
-
+    
     // MARK: - States
     @State private var isAlarmOn: Bool = true
-
+    
     // MARK: - Design
     private let bg = Color(red: 0.93, green: 0.93, blue: 0.93).opacity(0.85)
-
+    
     var body: some View {
         ZStack(alignment: .top) {
-
+            
             bg
                 .overlay(
                     bg
@@ -30,15 +29,15 @@ struct ChatRoomSettingCard: View {
                 .clipShape(BottomRoundedShape(radius: 24))
                 .shadow(color: .black.opacity(0.03), radius: 10, x: 0, y: 6)
                 .ignoresSafeArea(edges: .top)
-
+            
             VStack(spacing: 0) {
                 topRow
-
+                
                 if isExpanded {
                     Divider()
                         .opacity(0.25)
                         .padding(.top, 14)
-
+                    
                     menuList
                         .padding(.top, 6)
                         .padding(.bottom, 14)
@@ -75,12 +74,12 @@ struct ChatRoomSettingCard: View {
                         .scaledToFill()
                         .frame(width: 54, height: 54)
                         .clipShape(Circle())
-
+                    
                     HStack(spacing: 8) {
                         Text(title)
                             .font(.system(size: 24, weight: .semibold))
                             .foregroundColor(Color(white: 0.12))
-
+                        
                         Image(badgeImageName)
                             .resizable()
                             .scaledToFit()
@@ -119,21 +118,21 @@ struct ChatRoomSettingCard: View {
                     .tint(Color("Orange01"))
             }
             .padding(.vertical, 14)
-
+            
             Divider().opacity(0.15)
-
+            
             SettingRow(icon: "rectangle.portrait.and.arrow.right", title: "채팅방 나가기", tint: Color(white: 0.35)) {
                 // TODO
             }
-
+            
             Divider().opacity(0.15)
-
+            
             SettingRow(icon: "xmark", title: "차단하기", tint: Color(white: 0.35)) {
                 // TODO
             }
-
+            
             Divider().opacity(0.15)
-
+            
             SettingRow(icon: "exclamationmark.triangle", title: "신고하기", tint: Color("Orange01")) {
                 // TODO
             }
@@ -147,7 +146,7 @@ private struct SettingRow: View {
     let title: String
     let tint: Color
     let onTap: () -> Void
-
+    
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 12) {
@@ -166,7 +165,7 @@ private struct SettingRow: View {
 private struct SettingIcon: View {
     let systemName: String
     let tint: Color
-
+    
     var body: some View {
         Image(systemName: systemName)
             .font(.system(size: 18, weight: .semibold))
@@ -178,7 +177,7 @@ private struct SettingIcon: View {
 struct CircleIcon: View {
     let bg: Color
     let systemIcon: String
-
+    
     var body: some View {
         Circle()
             .fill(bg)
@@ -194,15 +193,15 @@ struct CircleIcon: View {
 // ✅ 아래 두 모서리만 둥글게
 struct BottomRoundedShape: Shape {
     var radius: CGFloat
-
+    
     func path(in rect: CGRect) -> Path {
         var path = Path()
         let r = min(radius, min(rect.width, rect.height) / 2)
-
+        
         path.move(to: CGPoint(x: rect.minX, y: rect.minY))
         path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
         path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - r))
-
+        
         path.addArc(
             center: CGPoint(x: rect.maxX - r, y: rect.maxY - r),
             radius: r,
@@ -210,9 +209,9 @@ struct BottomRoundedShape: Shape {
             endAngle: .degrees(90),
             clockwise: false
         )
-
+        
         path.addLine(to: CGPoint(x: rect.minX + r, y: rect.maxY))
-
+        
         path.addArc(
             center: CGPoint(x: rect.minX + r, y: rect.maxY - r),
             radius: r,
@@ -220,7 +219,7 @@ struct BottomRoundedShape: Shape {
             endAngle: .degrees(180),
             clockwise: false
         )
-
+        
         path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
         path.closeSubpath()
         return path
@@ -237,6 +236,7 @@ struct BottomRoundedShape: Shape {
                 title: "Jane Smith",
                 onTapBack: { },
                 onTapCall: { },
+                onTapProfile: { },
                 isExpanded: $expanded
             )
         }
