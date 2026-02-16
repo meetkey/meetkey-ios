@@ -8,34 +8,55 @@
 import SwiftUI
 
 struct ScoreHistory: View {
-    var scoreImage: Image = .init(.shieldDone)
-    var scoreTitle: String = "본인 인증"
-    var score: Int = 20
+    
+    let history: BadgeHistoryDTO
     
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
                 HStack(spacing: 4) {
-                    scoreImage
-                    Text(scoreTitle)
+                    imageForReason(history.reason)
+                    
+                    Text(history.reason)
                         .font(.meetKey(.body4))
                         .foregroundStyle(.text2)
                 }
-                Text("내 위치 기반으로 등록됩니다.")
-                    .font(.meetKey(.caption3))
-                    .foregroundStyle(.text04)
             }
             .padding(.leading, 18)
+            
             Spacer()
-            Text("+\(score)")
+            
+            Text(scoreText)
                 .font(.meetKey(.title5))
-                .foregroundStyle(.main)
+                .foregroundStyle(history.amount >= 0 ? .main : .red)
                 .padding(.trailing, 24)
         }
         .frame(height: 74)
-        .overlay(
+        .background(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(.disabled, lineWidth: 1)
+                .stroke(Color.disabled, lineWidth: 1)
         )
+        .padding(.horizontal, 2)
+    }
+}
+
+private extension ScoreHistory {
+    var scoreText: String {
+        history.amount >= 0 ? "+\(history.amount)" : "\(history.amount)"
+    }
+    
+    func imageForReason(_ reason: String) -> Image {
+        switch reason {
+        case "본인 인증":
+            return Image(.shieldBadge)
+        case "상세 프로필 작성 완료":
+            return Image(.editBadge)
+        case "활동적인 멤버":
+            return Image(.memberBadge)
+        case "긍정적인 평가":
+            return Image(.smileBadge)
+        default:
+            return Image(.smileBadge)
+        }
     }
 }

@@ -65,9 +65,18 @@ struct OtherProfile: View {
                     
                     VStack(alignment: .leading, spacing: 18) {
                         Recommend(
-                            recommend: profile.recommendCount,
-                            notRecommend: profile.notRecommendCount
+                            recommend: viewModel.recommendCount,
+                            notRecommend: viewModel.notRecommendCount,
+                            isRecommended: viewModel.isRecommended,
+                            isNotRecommended: viewModel.isNotRecommended,
+                            onRecommendTap: {
+                                viewModel.toggleRecommend(targetId: targetId)
+                            },
+                            onNotRecommendTap: {
+                                viewModel.toggleNotRecommend(targetId: targetId)
+                            }
                         )
+                        .padding(.top, 25)
                         
                         Section(title: "SAFE 뱃지 점수", isMore: false)
                         Badge(score: profile.badge?.totalScore ?? 0)
@@ -77,8 +86,6 @@ struct OtherProfile: View {
                             usingLanguage: .constant(profile.first),
                             interestingLanguage: .constant(profile.target)
                         )
-                        
-                        // 관심사
                         Section(title: "관심사", isMore: false)
                         LazyVGrid(
                             columns: Array(
@@ -93,7 +100,6 @@ struct OtherProfile: View {
                             }
                         }
                         
-                        // 내 성향
                         Section(title: "내 성향", isMore: false)
                         Tendency(personality: "성격", value: viewModel.socialTypeText)
                         Tendency(personality: "선호하는 만남 방식", value: viewModel.meetingTypeText)
@@ -101,14 +107,13 @@ struct OtherProfile: View {
                         Tendency(personality: "친구 유형", value: viewModel.friendTypeText)
                         Tendency(personality: "관계 목적", value: viewModel.relationTypeText, isLineHidden: true)
                         
-                        // 한 줄 소개
                         Section(title: "한 줄 소개", isMore: false)
                         OneLiner(introduceText: profile.bio)
-                            .padding(.bottom, 7)
+                            .padding(.bottom, 25)
                     }
                     .padding(.horizontal, 20)
                     }
-                    .background(.background1)
+                    .background(.white01)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .padding(.top, 20)
                     .padding(.bottom, 187)
