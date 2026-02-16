@@ -5,7 +5,7 @@ enum HeaderType {
     case homeDetail
     case matchingSuccess
     case chat
-//    case myProfile
+    case otherProfile
     case opponentDetail
 }
 
@@ -84,7 +84,7 @@ extension HeaderOverlay {
             }
         }
     }
-
+    
     @ViewBuilder
     private var centerArea: some View {
         switch state {
@@ -121,7 +121,7 @@ extension HeaderOverlay {
                             of: "Badge",
                             with: ""
                         )
-
+                        
                         Image(circleBadgeName)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -130,14 +130,23 @@ extension HeaderOverlay {
                 }
             }
             .padding(.top, 8)
-
+            
+        case .otherProfile:
+            VStack(alignment:.leading ,spacing: 2) {
+                Text ("Profile")
+                    .font (.meetKey(.body5) )
+                    .foregroundStyle(.text5)
+                Text("\(user.name)님의 프로필")
+                    .font(.meetKey (.body1) )
+                    .foregroundStyle(.text3)
+            }
         default:
             Text(user.name)
                 .font(.meetKey(.title5))
                 .foregroundStyle(Color.text1)
         }
     }
-
+    
     @ViewBuilder
     private var rightArea: some View {
         if state == .home || state == .homeDetail {
@@ -158,13 +167,13 @@ extension HeaderOverlay {
             }
         }
     }
-
+    
     private var homeHeaderText: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(user.name + "님,")
                 .font(.meetKey(.body5))
                 .foregroundStyle(Color.text5)
-                
+            
             if homeStatus == .finished {
                 Text("매칭 친구 모두 확인했어요!")
                     .font(.meetKey(.body1))
@@ -176,7 +185,7 @@ extension HeaderOverlay {
             }
         }
     }
-
+    
     private var reportMenuList: some View {
         VStack(spacing: 0) {
             menuItem(title: "프로필 보기", icon: "btn_profile_header") {
@@ -193,7 +202,7 @@ extension HeaderOverlay {
         }
         .padding(.bottom, 10)
     }
-
+    
     private func menuItem(title: String, icon: String, isDestructive: Bool = false, action: @escaping () -> Void) -> some View {
         Button(action: {
             withAnimation {
