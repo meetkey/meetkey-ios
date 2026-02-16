@@ -49,11 +49,17 @@ extension LocationAPI: TargetType {
     }
 
     var headers: [String: String]? {
-        var headers = ["Content-Type": "application/json"]
+        let token = KeychainManager.load(account: "accessToken") ?? ""
 
-        let accessToken = APIConfig.testToken
-            
-        headers["Authorization"] = "Bearer \(accessToken)"
+        var headers: [String: String] = [
+            "Content-Type": "application/json"
+        ]
+
+        // 토큰 있을 때만 Authorization 붙이기
+        if !token.isEmpty {
+            headers["Authorization"] = "Bearer \(token)"
+        }
+
         return headers
     }
 }
