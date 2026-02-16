@@ -153,7 +153,7 @@ struct ChatRoomScreen: View {
             .presentationDetents([.medium])
             .presentationDragIndicator(.hidden)
         }
-        .navigationDestination(isPresented: $isCallActive) {
+        .fullScreenCover(isPresented: $isCallActive) {
             VoiceCallView(
                 userName: opponent.nickname,
                 userBadge: .gold
