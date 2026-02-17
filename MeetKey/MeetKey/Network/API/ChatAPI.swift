@@ -22,6 +22,10 @@ enum ChatAPI {
     
     /// 읽음 처리
     case markAsRead(roomId: Int)
+    
+    // 추가: 알람 on/off
+        case updateAlarm(chatRoomId: Int, isAlarm: Bool)
+    
 }
 
 extension ChatAPI: TargetType {
@@ -63,7 +67,11 @@ var baseURL: URL {
             
         case .markAsRead(let roomId):
             return "/chat-room/\(roomId)/read"
+            
+        case .updateAlarm(let chatRoomId, _):
+            return "/chat-room/\(chatRoomId)/alarm"
         }
+
     }
     
     
@@ -80,6 +88,10 @@ var baseURL: URL {
             
         case .markAsRead:
             return .patch
+            
+        case .updateAlarm:
+            return .patch
+
         }
     }
     
@@ -118,6 +130,13 @@ var baseURL: URL {
         // 읽음 처리
         case .markAsRead:
             return .requestPlain
+            
+        case .updateAlarm(_, let isAlarm):
+            return .requestParameters(
+                parameters: ["isAlarm": isAlarm],
+                encoding: JSONEncoding.default
+            )
+
         }
     }
     
@@ -126,4 +145,6 @@ var baseURL: URL {
     var validationType: ValidationType {
         return .successCodes
     }
+    
+    var authorizationType: AuthorizationType? { .bearer }
 }

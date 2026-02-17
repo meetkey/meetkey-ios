@@ -69,4 +69,20 @@ final class ChatService {
             }
         }
     }
+    
+    func updateAlarm(chatRoomId: Int, isAlarm: Bool) async throws -> String {
+        try await withCheckedThrowingContinuation { continuation in
+            NetworkProvider.shared.requestChat(
+                .updateAlarm(chatRoomId: chatRoomId, isAlarm: isAlarm),
+                type: String.self
+            ) { result in
+                switch result {
+                case .success(let msg):
+                    continuation.resume(returning: msg)
+                case .failure(let err):
+                    continuation.resume(throwing: err)
+                }
+            }
+        }
+    }
 }

@@ -97,7 +97,12 @@ class NetworkProvider {
     
     // Chat 전용 Provider 추가
     private let chatProvider = MoyaProvider<ChatAPI>(
-        plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]
+        plugins: [
+            AccessTokenPlugin { _ in
+                KeychainManager.load(account: "accessToken") ?? ""
+            },
+            NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))
+        ]
     )
 
     // Step 1 프로바이더를 클래스 속성으로 유지해야 메모리에서 안 사라짐
