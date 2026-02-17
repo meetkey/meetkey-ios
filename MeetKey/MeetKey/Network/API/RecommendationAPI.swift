@@ -61,6 +61,16 @@ extension RecommendationAPI: TargetType {
 
     var headers: [String: String]? {
         let token = KeychainManager.load(account: "accessToken") ?? ""
+        
+        // 🔍 디버깅 로그 추가
+            print("------------------------------------------")
+            print("🚀 [NETWORK DEBUG] API 요청 발생")
+            print("📍 경로(Path): \(path)")
+            print("🔑 토큰 존재 여부: \(token.isEmpty ? "❌ 없음" : "✅ 있음")")
+            if !token.isEmpty {
+                print("🎫 토큰 앞부분: \(token.prefix(15))...") // 토큰 유효성 대조용
+            }
+            print("------------------------------------------")
 
         var headers: [String: String] = [
             "Content-Type": "application/json"

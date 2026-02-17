@@ -32,12 +32,20 @@ class LoginViewModel: ObservableObject {
                 let response = try await authService.login(provider: provider, idToken: idToken)
                 self.loginResponse = response
                 self.isLoginSuccess = true
+                print("DEBUG: 서버 응답 데이터 - AccessToken: \(response.accessToken ?? "nil"), IsNewMember: \(response.isNewMember)")
 
                 UserDefaults.standard.set(response.isNewMember, forKey: isNewMemberKey)
                 UserDefaults.standard.set(provider.rawValue, forKey: authProviderKey)
                 UserDefaults.standard.set(idToken, forKey: lastIdTokenKey)
 
                 if response.isNewMember {
+                    if let accessToken = response.accessToken {
+                            try? KeychainManager.save(value: accessToken, account: "accessToken")
+                            print("DEBUG: 신규 유저 임시 토큰 저장 완료")
+                    } else { print ("신규 유저에게 토큰이 전달되지 않았습니다")}
+                    if response.memberId == nil {
+                        print ("서버로부터 MemberID를 받지 못했습니다.")
+                    }
                     self.shouldNavigateToSignup = true
                 } else {
                     guard let accessToken = response.accessToken,

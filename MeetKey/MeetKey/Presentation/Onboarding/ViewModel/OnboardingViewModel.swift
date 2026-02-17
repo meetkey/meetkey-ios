@@ -280,7 +280,7 @@ class OnboardingViewModel: ObservableObject {
         let firstLanguage = mapLanguage(data.nativeLanguage)
         let targetLanguage = mapLanguage(data.targetLanguage)
         let targetLevel = mapLanguageLevel()
-        let phoneNumber = "010-0000-0000"
+        let phoneNumber = "+821000000000"
 
         return SignupRequest(
             idToken: idToken,
