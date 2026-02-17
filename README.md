@@ -17,7 +17,7 @@
 | **주디** | **하이빈** | **블루** | **제로** |
 |:---:|:---:|:---:|:---:|
 | <img src="https://github.com/kangjooy0ung.png" width="100"> | <img src="https://github.com/oevinqu.png" width="100"> | <img src="https://github.com/bluesummerskin.png" width="100"> | <img src="https://github.com/sum130.png" width="100"> |
-| **iOS** <br> | **iOS** <br> | **iOS** <br> | **iOS** <br> |
+| **iOS** | **iOS** | **iOS** | **iOS** |
 | [GitHub](https://github.com/kangjooy0ung) | [GitHub](https://github.com/oevinqu) | [GitHub](https://github.com/bluesummerskin) | [GitHub](https://github.com/sum130) |
 
 <br>
@@ -190,28 +190,28 @@ PR 작성 시 아래 템플릿을 준수합니다.
 ```text
 MeetKey
 ├── App
-│   ├── MeetKeyApp.swift
-│   └── Info.plist
+│   ├── MeetKeyApp.swift
+│   └── Info.plist
 ├── Global
-│   ├── Data (공통 모델)
-│   ├── Resources (Assets, Colors, Fonts)
-│   └── Utils (Extensions, Modifiers)
+│   ├── Data (공통 모델)
+│   ├── Resources (Assets, Colors, Fonts)
+│   └── Utils (Extensions, Modifiers)
 ├── Network
-│   ├── API (Moya Target)
-│   ├── Config (BaseURL, Headers)
-│   ├── DTO (Request/Response)
-│   ├── Provider (Network Provider)
-│   └── Services (Business Logic)
+│   ├── API (Moya Target)
+│   ├── Config (BaseURL, Headers)
+│   ├── DTO (Request/Response)
+│   ├── Provider (Network Provider)
+│   └── Services (Business Logic)
 ├── Presentation
-│   ├── Block
-│   ├── Filter
-│   ├── Header
-│   ├── Home
-│   ├── Login
-│   ├── MyPage
-│   ├── Onboarding
-│   ├── Report
-│   ├── Report+Block
-│   └── VoiceCall
+│   ├── Block
+│   ├── Filter
+│   ├── Header
+│   ├── Home
+│   ├── Login
+│   ├── MyPage
+│   ├── Onboarding
+│   ├── Report
+│   ├── Report+Block
+│   └── VoiceCall
 └── Resource
-    └── Assets.xcassets
+    └── Assets.xcassets
