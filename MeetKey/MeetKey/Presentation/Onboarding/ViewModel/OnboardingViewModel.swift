@@ -224,8 +224,18 @@ class OnboardingViewModel: ObservableObject {
                     let signupRequest = try buildSignupRequest()
                     let provider = try loadAuthProvider()
                     let signupResponse = try await authService.signup(provider: provider, request: signupRequest)
+
                     if let accessToken = signupResponse.accessToken,
                        let refreshToken = signupResponse.refreshToken {
+                        try KeychainManager.save(value: accessToken, account: "accessToken")
+                        try KeychainManager.save(value: refreshToken, account: "refreshToken")
+                    } else {
+                        let idToken = try loadLastIdToken()
+                        let loginResponse = try await authService.login(provider: provider, idToken: idToken)
+                        guard let accessToken = loginResponse.accessToken,
+                              let refreshToken = loginResponse.refreshToken else {
+                            throw OnboardingError.missingSignupToken
+                        }
                         try KeychainManager.save(value: accessToken, account: "accessToken")
                         try KeychainManager.save(value: refreshToken, account: "refreshToken")
                     }
@@ -267,6 +277,14 @@ class OnboardingViewModel: ObservableObject {
             throw OnboardingError.missingLoginContext
         }
         return provider
+    }
+
+    private func loadLastIdToken() throws -> String {
+        guard let token = UserDefaults.standard.string(forKey: lastIdTokenKey),
+              !token.isEmpty else {
+            throw OnboardingError.missingLoginContext
+        }
+        return token
     }
 
     private func buildSignupRequest() throws -> SignupRequest {
@@ -478,6 +496,7 @@ enum PersonalityField {
 enum OnboardingError: Error {
     case invalidPersonalitySelection
     case missingLoginContext
+    case missingSignupToken
 }
 
 private extension Array {
