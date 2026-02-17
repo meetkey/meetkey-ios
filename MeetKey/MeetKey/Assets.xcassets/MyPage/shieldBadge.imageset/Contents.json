@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "notRecommend.png",
+      "filename" : "Shield Done.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "notRecommend@2x.png",
+      "filename" : "Shield Done@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "notRecommend@3x.png",
+      "filename" : "Shield Done@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

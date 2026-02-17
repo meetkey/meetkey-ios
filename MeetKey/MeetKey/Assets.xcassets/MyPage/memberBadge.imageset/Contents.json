@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "notRecommend.png",
+      "filename" : "2 User.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "notRecommend@2x.png",
+      "filename" : "2 User@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "notRecommend@3x.png",
+      "filename" : "2 User@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

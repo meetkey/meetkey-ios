@@ -15,7 +15,58 @@ final class OtherProfileViewModel: ObservableObject {
     @Published var profile: OtherInfoDTO?
     @Published var isLoading: Bool = false
     
+    @Published var recommendCount: Int = 0
+    @Published var notRecommendCount: Int = 0
+    
+    @Published var isRecommended: Bool = false
+    @Published var isNotRecommended: Bool = false
+    
+    @Published var reportVM = ReportViewModel()
+    
+    private var cancellables = Set<AnyCancellable>()
+    
     private let provider = MoyaProvider<MyAPI>()
+    
+    init() {
+        setupReportViewModel()
+    }
+    
+    private func setupReportViewModel() {
+        reportVM.objectWillChange
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+        
+        reportVM.onFinalize = { [weak self] in
+            print("📍 [HomeVM] Report/Block Finalize Signal Received")
+            self?.finalizeReportProcess()
+        }
+    }
+    
+    func finalizeReportProcess() {
+        withAnimation(.easeInOut) {
+            reportVM.closeReportMenu()
+        }
+    }
+    
+    var headerUser: User? {
+        guard let profile else { return nil }
+        
+        return User(
+            id: profile.memberId,
+            name: profile.name,
+            profileImage: profile.profileImage,
+            age: profile.age,
+            gender: profile.gender,
+            homeTown: profile.homeTown,
+            location: profile.location,
+            first: profile.first,
+            target: profile.target,
+            level: profile.level,
+            interests: profile.interests
+        )
+    }
     
     var socialTypeText: String {
         PersonalityOptionMapper.socialType[
@@ -71,6 +122,9 @@ final class OtherProfileViewModel: ObservableObject {
                     
                     DispatchQueue.main.async {
                         self?.profile = decoded.data
+                        self?.recommendCount = decoded.data.recommendCount
+                        self?.notRecommendCount = decoded.data.notRecommendCount
+                        self?.isLoading = false
                     }
                     
                 } catch {
@@ -82,4 +136,38 @@ final class OtherProfileViewModel: ObservableObject {
             }
         }
     }
+    
+    func toggleRecommend(targetId: Int) {
+        sendEvaluation(targetId: targetId, type: .recommend) { [weak self] in
+            self?.fetchOtherProfile(targetId: targetId)
+        }
+    }
+    
+    func toggleNotRecommend(targetId: Int) {
+        sendEvaluation(targetId: targetId, type: .notRecommend) { [weak self] in
+            self?.fetchOtherProfile(targetId: targetId)
+        }
+    }
+    
+    func sendEvaluation(
+        targetId: Int,
+        type: EvaluationType,
+        completion: @escaping () -> Void
+    ) {
+        let dto = EvaluationRequestDTO(
+            targetMemberId: targetId,
+            type: type
+        )
+        
+        provider.request(.evaluation(dto: dto)) { result in
+            switch result {
+            case .success:
+                DispatchQueue.main.async {
+                    completion()
+                }
+            case .failure(let error):
+                print("실패", error)
+            }
+        }
+    }    
 }

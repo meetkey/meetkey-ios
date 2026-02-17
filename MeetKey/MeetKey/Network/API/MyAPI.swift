@@ -33,6 +33,7 @@ enum MyAPI {
     case getURLForImageUpload(dto: [ImageUploadRequestDTO])
     case registerProfileImages(keys: [String])
     case getOtherInfo(targetId: Int)
+    case evaluation(dto: EvaluationRequestDTO)
     
 }
 
@@ -82,6 +83,8 @@ extension MyAPI: TargetType {
             return "/photos/register"
         case .getOtherInfo(targetId: let targetId):
             return "/\(targetId)"
+        case .evaluation:
+            return "/evaluation/toggle"
         }
     }
     
@@ -93,7 +96,7 @@ extension MyAPI: TargetType {
             return .put
         case .updateMyProfileSettings, .updateMyLocation:
             return .patch
-        case .getURLForImageUpload, .registerProfileImages:
+        case .getURLForImageUpload, .registerProfileImages, .evaluation:
             return .post
         }
     }
@@ -114,6 +117,9 @@ extension MyAPI: TargetType {
             return .requestJSONEncodable(dto)
         case .registerProfileImages(let keys):
             return .requestJSONEncodable(keys)
+        case .evaluation(let dto):
+            return .requestJSONEncodable(dto)
+
         }
     }
 }

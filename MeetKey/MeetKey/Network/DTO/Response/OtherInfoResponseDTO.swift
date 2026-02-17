@@ -39,6 +39,12 @@ struct PersonalityDTO: Decodable {
     let relationType: String
 }
 
+struct BadgeHistoryResponseDTO: Decodable {
+    let code: String
+    let message: String
+    let data: BadgeDTO
+}
+
 struct BadgeDTO: Decodable {
     let badgeName: String
     let totalScore: Int
@@ -50,4 +56,15 @@ struct BadgeHistoryDTO: Decodable {
     let amount: Int
     let date: String
 }
+
+extension BadgeDTO {
+    init(from badgeInfo: BadgeInfo) {
+        self.badgeName = badgeInfo.badgeName
+        self.totalScore = badgeInfo.totalScore
+        self.histories = badgeInfo.histories?.map {
+            BadgeHistoryDTO(reason: $0.reason, amount: $0.amount, date: $0.date)
+        } ?? []
+    }
+}
+
 

@@ -17,7 +17,7 @@ final class MyProfileViewModel: ObservableObject {
         provider.request(.myInfo) { result in
             switch result {
             case .success(let response):
-                print("📦 statusCode:", response.statusCode)
+                print("📦 Profile statusCode:", response.statusCode)
                 
                 if let body = String(data: response.data, encoding: .utf8),
                    !body.isEmpty {
@@ -32,6 +32,7 @@ final class MyProfileViewModel: ObservableObject {
                             MyInfoResponseDTO.self,
                             from: response.data
                         )
+                        
                         let user = User(dto: decoded.data)
                         
                         DispatchQueue.main.async {
@@ -88,10 +89,36 @@ final class MyProfileViewModel: ObservableObject {
                 } catch {
                     print("❌ 디코딩 실패", error)
                 }
-
+                
             case .failure(let error):
                 print("❌ 조회 실패", error)
             }
         }
     }
+    
+    var socialTypeText: String {
+        guard let type = user?.personalities?.socialType else { return "" }
+        return PersonalityOptionMapper.socialType[type] ?? ""
+    }
+
+    var meetingTypeText: String {
+        guard let type = user?.personalities?.meetingType else { return "" }
+        return PersonalityOptionMapper.meetingType[type] ?? ""
+    }
+
+    var chatTypeText: String {
+        guard let type = user?.personalities?.chatType else { return "" }
+        return PersonalityOptionMapper.chatType[type] ?? ""
+    }
+
+    var friendTypeText: String {
+        guard let type = user?.personalities?.friendType else { return "" }
+        return PersonalityOptionMapper.friendType[type] ?? ""
+    }
+
+    var relationTypeText: String {
+        guard let type = user?.personalities?.relationType else { return "" }
+        return PersonalityOptionMapper.relationType[type] ?? ""
+    }
+
 }

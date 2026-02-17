@@ -25,7 +25,7 @@ struct MyProfile: View {
     //타사용자조회용 변수
     @State private var showOtherProfile = false
     @State private var selectedMemberId: Int?
-
+    
     
     var body: some View {
         
@@ -40,7 +40,11 @@ struct MyProfile: View {
         .navigationDestination(for: MyProfileRoute.self) { route in
             switch route {
             case .badge:
-                SafeBadgeRecord()
+                if let badgeInfo = user.badge {
+                    SafeBadgeRecord(badge: BadgeDTO(from: badgeInfo))
+                } else {
+                    EmptyView()
+                }
             case .interest:
                 InterestEditView(
                     viewModel: InterestEditViewModel(
@@ -98,11 +102,18 @@ struct MyProfile: View {
                     Section(title: "내 성향", isMore: true, onTapMore: {
                         push(.personality)
                     })
-                    Tendency(personality: "성격", value: user.personalities?.socialType ?? "외향적")
-                    Tendency(personality: "선호하는 만남 방식", value: user.personalities?.meetingType ?? "상관 없어요")
-                    Tendency(personality: "대화 스타일", value: user.personalities?.chatType ?? "먼저 말 걸어 주세요")
-                    Tendency(personality: "친구 유형", value: user.personalities?.friendType ?? "상관 없어요")
-                    Tendency(personality: "관계 목적", value: user.personalities?.relationType ?? "언어 공부", isLineHidden: true)
+                    
+                    Tendency(personality: "성격", value: viewModel.socialTypeText)
+                    
+                    Tendency(personality: "선호하는 만남 방식", value: viewModel.meetingTypeText)
+                    
+                    Tendency(personality: "대화 스타일", value: viewModel.chatTypeText)
+                    
+                    Tendency(personality: "친구 유형", value: viewModel.friendTypeText)
+                    
+                    Tendency(personality: "관계 목적", value: viewModel.relationTypeText, isLineHidden: true)
+                    
+                    
                     Section(title: "한 줄 소개", isMore: true)
                     OneLiner(introduceText: user.oneLiner ?? "안녕하세요. 김밋키입니다! 새로운 친구를 사귀고 싶습니다. MBTI는 ENTP입니다.")
                 }
