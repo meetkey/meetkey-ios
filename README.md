@@ -17,7 +17,7 @@
 | **주디** | **하이빈** | **블루** | **제로** |
 |:---:|:---:|:---:|:---:|
 | <img src="https://github.com/kangjooy0ung.png" width="100"> | <img src="https://github.com/oevinqu.png" width="100"> | <img src="https://github.com/bluesummerskin.png" width="100"> | <img src="https://github.com/sum130.png" width="100"> |
-| **iOS** | **iOS** | **iOS** <br> | **iOS** <br> |
+| **iOS** <br> | **iOS** <br> | **iOS** <br> | **iOS** <br> |
 | [GitHub](https://github.com/kangjooy0ung) | [GitHub](https://github.com/oevinqu) | [GitHub](https://github.com/bluesummerskin) | [GitHub](https://github.com/sum130) |
 
 <br>
@@ -99,33 +99,119 @@ For building and running the application you need:
 
 <br>
 
+## 🔖 브랜치 컨벤션
+
+### 1. 브랜치 전략
+모든 개발은 `dev` 브랜치를 기준으로 진행합니다.
+- **main**: 배포 가능한 상태의 최종 코드만 관리합니다.
+- **dev**: 개발 중인 코드가 모이는 곳입니다. (Default Branch)
+- **feat**: 새로운 기능 개발 브랜치입니다.
+- **fix**: 버그 수정 브랜치입니다.
+
+### 2. 브랜치 명명 규칙
+> `타입/#이슈번호-설명`
+
+이슈 번호를 포함하여 어떤 작업인지 명확히 식별합니다.
+- `feat/#1-login-view`
+- `fix/#3-crash-error`
+- `design/#5-home-layout`
+
+<br>
+
+## 🌀 코딩 컨벤션
+
+### 1. Naming Rules
+- **Class, Struct, Enum**: `UpperCamelCase` (대문자 시작)
+- **Variable, Function**: `lowerCamelCase` (소문자 시작)
+- **Action Function**: 동작이 명확한 동사로 시작 (`didTap...`, `fetch...`)
+
+### 2. Architecture (MVVM)
+- **View**: UI 구성과 사용자 입력만 담당
+- **ViewModel**: 비즈니스 로직 담당 (`import UIKit` 지양)
+- **Role**: 뷰컨트롤러가 비대해지지 않도록 로직 분리에 집중
+
+### 3. Code Style
+- **Safe Unwrapping**: `guard let` 또는 `if let` 사용 (`!` 지양)
+- **Function**: 단일 책임 원칙 준수 (작게 분리)
+- **Comment**: 복잡한 로직 및 공유 필요한 부분 주석 작성
+
+<br>
+
+## 📁 PR 컨벤션
+
+PR 작성 시 아래 템플릿을 준수합니다.
+
+1. **PR 유형**: 변경 사항의 종류 체크 (`[x]`)
+2. **작업 내용**: 구체적인 구현 내용 및 로직 설명
+3. **추후 진행할 작업**: 다음 단계 계획
+4. **리뷰 포인트**: 중점적으로 확인받고 싶은 부분
+5. **PR 태그**: 제목에 태그 명시 (예: `✨ [Feat] ...`)
+
+<br>
+
+## 📑 커밋 컨벤션
+
+### 💬 깃모지 가이드
+
+| 아이콘 | 코드 | 설명 | 원문 |
+| :---: | :---: | :---: | :---: |
+| 🐛 | bug | 버그 수정 | Fix a bug |
+| ✨ | sparkles | 새 기능 | Introduce new features |
+| 💄 | lipstick | UI/스타일 파일 추가/수정 | Add or update the UI and style files |
+| ♻️ | recycle | 코드 리팩토링 | Refactor code |
+| ➕ | heavy_plus_sign | 의존성 추가 | Add a dependency |
+| 🔀 | twisted_rightwards_arrows | 브랜치 합병 | Merge branches |
+| 💡 | bulb | 주석 추가/수정 | Add or update comments in source code |
+| 🔥 | fire | 코드/파일 삭제 | Remove code or files |
+| 🚑 | ambulance | 긴급 수정 | Critical hotfix |
+| 🎉 | tada | 프로젝트 시작 | Begin a project |
+| 🔒 | lock | 보안 이슈 수정 | Fix security issues |
+| 🔖 | bookmark | 릴리즈/버전 태그 | Release / Version tags |
+| 📝 | memo | 문서 추가/수정 | Add or update documentation |
+| 🔧| wrench | 구성 파일 추가/삭제 | Add or update configuration files.|
+| ⚡️ | zap | 성능 개선 | Improve performance |
+| 🎨 | art | 코드 구조 개선 | Improve structure / format of the code |
+| 📦 | package | 컴파일된 파일 추가/수정 | Add or update compiled files |
+| 👽 | alien | 외부 API 변경 반영 | Update code due to external API changes |
+| 🚚 | truck | 리소스 이동, 이름 변경 | Move or rename resources |
+| 🙈 | see_no_evil | .gitignore 추가/수정 | Add or update a .gitignore file |
+
+### ✅ 커밋 예시 모음
+> 🎉 [Chore] 프로젝트 초기 세팅 <br>
+> ✨ [Feat] 프로필 화면 UI 구현 <br>
+> 🐛 [Fix] iOS 17에서 버튼 클릭 오류 수정 <br>
+> 💄 [Design] 로그인 화면 레이아웃 조정 <br>
+> 📝 [Docs] README에 프로젝트 소개 추가 <br>
+
+<br>
+
 ## 🗂️ 폴더 컨벤션
 
 ```text
 MeetKey
 ├── App
-│   ├── MeetKeyApp.swift
-│   └── Info.plist
+│   ├── MeetKeyApp.swift
+│   └── Info.plist
 ├── Global
-│   ├── Data (공통 모델)
-│   ├── Resources (Assets, Colors, Fonts)
-│   └── Utils (Extensions, Modifiers)
+│   ├── Data (공통 모델)
+│   ├── Resources (Assets, Colors, Fonts)
+│   └── Utils (Extensions, Modifiers)
 ├── Network
-│   ├── API (Moya Target)
-│   ├── Config (BaseURL, Headers)
-│   ├── DTO (Request/Response)
-│   ├── Provider (Network Provider)
-│   └── Services (Business Logic)
+│   ├── API (Moya Target)
+│   ├── Config (BaseURL, Headers)
+│   ├── DTO (Request/Response)
+│   ├── Provider (Network Provider)
+│   └── Services (Business Logic)
 ├── Presentation
-│   ├── Block
-│   ├── Filter
-│   ├── Header
-│   ├── Home
-│   ├── Login
-│   ├── MyPage
-│   ├── Onboarding
-│   ├── Report
-│   ├── Report+Block
-│   └── VoiceCall
+│   ├── Block
+│   ├── Filter
+│   ├── Header
+│   ├── Home
+│   ├── Login
+│   ├── MyPage
+│   ├── Onboarding
+│   ├── Report
+│   ├── Report+Block
+│   └── VoiceCall
 └── Resource
-    └── Assets.xcassets
+    └── Assets.xcassets
