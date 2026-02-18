@@ -24,11 +24,17 @@ extension BlockAPI: TargetType {
     var method: Moya.Method { .post }
     var task: Task { .requestPlain }
     var headers: [String: String]? {
-        var headers = ["Content-Type": "application/json"]
-            
-        let accessToken = APIConfig.testToken
-            
-        headers["Authorization"] = "Bearer \(accessToken)"
+        let token = KeychainManager.load(account: "accessToken") ?? ""
+
+        var headers: [String: String] = [
+            "Content-Type": "application/json"
+        ]
+
+        // 토큰 있을 때만 Authorization 붙이기
+        if !token.isEmpty {
+            headers["Authorization"] = "Bearer \(token)"
+        }
+
         return headers
     }
 }

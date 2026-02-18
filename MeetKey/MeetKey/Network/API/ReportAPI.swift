@@ -42,12 +42,27 @@ extension ReportAPI: TargetType {
     }
 
     var headers: [String: String]? {
-        var headers = ["Content-Type": "application/json"]
-
-        let accessToken = APIConfig.testToken
-            
-        headers["Authorization"] = "Bearer \(accessToken)"
+        let token = KeychainManager.load(account: "accessToken") ?? ""
         
+        // 🔍 디버깅 로그 추가
+            print("------------------------------------------")
+            print("🚀 [NETWORK DEBUG] API 요청 발생")
+            print("📍 경로(Path): \(path)")
+            print("🔑 토큰 존재 여부: \(token.isEmpty ? "❌ 없음" : "✅ 있음")")
+            if !token.isEmpty {
+                print("🎫 토큰 앞부분: \(token.prefix(15))...") // 토큰 유효성 대조용
+            }
+            print("------------------------------------------")
+
+        var headers: [String: String] = [
+            "Content-Type": "application/json"
+        ]
+
+        // 토큰 있을 때만 Authorization 붙이기
+        if !token.isEmpty {
+            headers["Authorization"] = "Bearer \(token)"
+        }
+
         return headers
     }
 }
