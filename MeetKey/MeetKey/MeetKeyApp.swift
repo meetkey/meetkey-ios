@@ -10,13 +10,12 @@ struct MEETKEYApp: App {
 
     var body: some Scene {
         WindowGroup {
-//            AppRootView()
-//                .onOpenURL { url in
-//                    if AuthApi.isKakaoTalkLoginUrl(url) {
-//                        _ = AuthController.handleOpenUrl(url: url)
-//                    }
-//                }
-            HybinMainTabView()
+            AppRootView()
+                .onOpenURL { url in
+                    if AuthApi.isKakaoTalkLoginUrl(url) {
+                        _ = AuthController.handleOpenUrl(url: url)
+                    }
+                }
         }
     }
 }
