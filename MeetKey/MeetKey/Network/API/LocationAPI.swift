@@ -53,9 +53,9 @@ extension LocationAPI: TargetType {
             "Content-Type": "application/json"
         ]
         
-        let token = TokenStorage.accessToken
-        if !token.isEmpty {
-            headers["Authorization"] = "Bearer \(token)"
+        if let accessToken = KeychainManager.load(account: "accessToken"),
+           !accessToken.isEmpty {
+            headers["Authorization"] = "Bearer \(accessToken)"
         }
         return headers
     }
