@@ -2,6 +2,7 @@ import SwiftUI
 import Foundation
 import Combine
 
+
 // MARK: - ViewModel (서버 연동 + mock fallback)
 @MainActor
 final class ChatListViewModel: ObservableObject {
@@ -23,11 +24,37 @@ final class ChatListViewModel: ObservableObject {
 
 // MARK: - Main View
 struct ChatListView: View {
+    @StateObject private var homeVM = HomeViewModel()
+    @State private var profilePath = NavigationPath()
+    @State private var isTabBarHidden = false
+    @State private var user = User(from: RecommendationDTO(
+        targetMemberId: 0,
+        nickname: "테스트 유저",
+        age: 20,
+        hometown: nil,
+        distance: nil,
+        gender: "F",
+        nativeLanguage: LanguageDTO(
+            language: "ko",
+            level: "Korean"
+        ),
+        targetLanguage: LanguageDTO(
+            language: "en",
+            level: "English"
+        ),
+        interests: [],
+        personality: nil,
+        photoUrls: [],
+        introduction: nil,
+        badge: nil,
+        location: nil
+    ))
 
+    
     private let pageBg = Color(.white)
     private let orange = Color("Orange01") // 프로젝트 에셋명 맞춰두기
 
-    @State private var selectedTab: Tab = .chat
+    @State private var selectedTab: Tab = .home
     @StateObject private var vm = ChatListViewModel()
 
     var body: some View {
@@ -42,11 +69,11 @@ struct ChatListView: View {
                     case .people:
                         PlaceholderView(title: "People View")
                     case .home:
-                        PlaceholderView(title: "Home View")
+                        HomeView(homeVM: homeVM)
                     case .folder:
                         PlaceholderView(title: "Folder View")
                     case .profile:
-                        PlaceholderView(title: "Profile View")
+                        MyProfile(user: $user, path: $profilePath, isTabBarHidden: $isTabBarHidden)
                     }
                 }
             }
