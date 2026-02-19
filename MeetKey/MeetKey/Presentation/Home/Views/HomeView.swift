@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HomeView: View {
-
+    @EnvironmentObject var profileVM: MyProfileViewModel
     @ObservedObject var homeVM: HomeViewModel
     @Namespace private var profileTransition
 
@@ -101,7 +101,7 @@ extension HomeView {
     private var headerView: some View {
         HeaderOverlay(
             state: homeVM.isDetailViewPresented ? .homeDetail : .home,
-            user: homeVM.me,
+            user: profileVM.user ?? User.me,
             reportVM: homeVM.reportVM,
             homeStatus: homeVM.status,
             onLeftAction: { homeVM.dismissDetailView() },

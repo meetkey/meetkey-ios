@@ -19,7 +19,7 @@ struct AppRootView: View {
                 case .login:
                     LoginView()
                 case .main:
-                    HybinMainTabView()
+                    ChatListView()
                 }
             }
         }

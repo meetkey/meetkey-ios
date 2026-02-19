@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ProfileSectionView: View {
+    @EnvironmentObject var profileVM: MyProfileViewModel
+
     let size: CGSize
     let user: User
     var animation: Namespace.ID

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MatchingView: View {
+    @EnvironmentObject var profileVM: MyProfileViewModel
+
 
     @ObservedObject var homeVM: HomeViewModel
 
@@ -86,7 +88,7 @@ struct MatchingView: View {
 
                 HeaderOverlay(
                     state: .chat,
-                    user: homeVM.currentUser ?? homeVM.me,
+                    user: (homeVM.currentUser ?? homeVM.profileVM.user) ?? User.me,
                     reportVM: homeVM.reportVM,
                     onLeftAction: homeVM.dismissMatchView,
                     onRightAction: homeVM.reportVM.handleReportMenuTap,
@@ -106,7 +108,7 @@ struct MatchingView: View {
             ) {
                 ReportSelectionView(
                     reportVM: homeVM.reportVM,
-                    targetUser: homeVM.currentUser ?? User.mockData[0]
+                    targetUser: homeVM.currentUser ?? User.me
                 )
                 .presentationBackground(Color.background1)
                 .presentationDetents([

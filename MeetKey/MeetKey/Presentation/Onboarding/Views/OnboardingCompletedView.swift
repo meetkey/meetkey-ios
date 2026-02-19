@@ -90,7 +90,7 @@ struct OnboardingCompletedView: View {
                 }
             }
             .navigationDestination(isPresented: $navigateToHome) {
-                HybinMainTabView()
+                ChatListView()
             }
         }
         .navigationBarBackButtonHidden(true)
