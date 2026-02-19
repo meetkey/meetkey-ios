@@ -10,7 +10,7 @@ enum Tab: String, CaseIterable, Identifiable {
         case .people: return "2 User"
         case .home: return "Home"
         case .folder: return "Folder"
-        case .profile: return "myProfile"
+        case .profile: return "defaultProfile"
         }
     }
 }
