@@ -13,6 +13,8 @@ enum HomeStatus {
 @MainActor
 class HomeViewModel: ObservableObject {
 
+    @EnvironmentObject var profileVM: MyProfileViewModel
+    
     @Published var status: HomeStatus = .loading
     @Published var filter = FilterModel()
 
@@ -42,7 +44,6 @@ class HomeViewModel: ObservableObject {
     private let recommendationService = RecommendationService.shared
     private var cancellables = Set<AnyCancellable>()
 
-    let users: [User] = User.mockData
 
     // MARK: - Initialization
     init() {
@@ -340,7 +341,7 @@ extension HomeViewModel {
             let newMessage = ChatMessageDTO(
                 messageId: Int.random(in: 1...1_000_000),
                 chatRoomId: roomId,
-                senderId: me.id,
+                senderId: self.me.id,
                 messageType: .text,
                 content: content,
                 duration: nil,
@@ -366,129 +367,6 @@ extension HomeViewModel {
     }
 }
 extension User {
-    static let mockData: [User] = [
-        User(
-            id: 101,
-            name: "전효빈",
-            profileImage: "profileImageSample1",
-            age: 27,
-            gender: "MALE",
-            homeTown: "KOREA",
-            location: "SEOUL",
-            distance: "1.2km",
-            bio: "iOS 개발자가 되고 싶은 사람입니다. SwiftUI 최고!",
-            first: "KOREAN",
-            target: "ENGLISH",
-            level: "INTERMEDIATE",
-            recommendCount: 100,
-            notRecommendCount: 0,
-            interests: ["SwiftUI", "Xcode", "Git"],
-            personalities: Personalities(
-                socialType: "EXTROVERT",
-                meetingType: "ONE_ON_ONE",
-                chatType: "INITIATOR",
-                friendType: "ANYONE",
-                relationType: "CASUAL"
-            ),
-            badge: BadgeInfo(
-                badgeName: "골드 뱃지",
-                totalScore: 95,
-                histories: nil
-            ),
-            birthDate: nil  // 필요시 추가
-        ),
-        User(
-            id: 102,
-            name: "김민준",
-            profileImage: "profileImageSample2",
-            age: 24,
-            gender: "MALE",
-            homeTown: "KOREA",
-            location: "GYEONGGI",
-            distance: "3.5km",
-            bio: "주말마다 한강에서 러닝하는 거 좋아해요. 같이 뛰실 분?",
-            first: "KOREAN",
-            target: "JAPANESE",
-            level: "NOVICE",
-            recommendCount: 50,
-            notRecommendCount: 2,
-            interests: ["Running", "Coffee"],
-            personalities: nil,
-            badge: BadgeInfo(
-                badgeName: "실버 뱃지",
-                totalScore: 82,
-                histories: nil
-            ),
-            birthDate: nil
-        ),
-        User(
-            id: 103,
-            name: "이서연",
-            profileImage: "profileImageSample1",
-            age: 29,
-            gender: "FEMALE",
-            homeTown: "KOREA",
-            location: "SEOUL",
-            distance: "0.8km",
-            bio: "카페 투어와 사진 촬영이 취미입니다. 기록하는 걸 좋아해요.",
-            first: "KOREAN",
-            target: "FRENCH",
-            level: "ADVANCED",
-            interests: ["Photography", "Cafe"],
-            personalities: nil,
-            badge: BadgeInfo(
-                badgeName: "브론즈 뱃지",
-                totalScore: 75,
-                histories: nil
-            ),
-            birthDate: nil
-        ),
-        User(
-            id: 104,
-            name: "박지성",
-            profileImage: "profileImageSample2",
-            age: 31,
-            gender: "MALE",
-            homeTown: "KOREA",
-            location: "INCHEON",
-            distance: "12km",
-            bio: "개발자입니다. 커피 한 잔 하면서 기술 얘기 나누고 싶어요.",
-            first: "KOREAN",
-            target: "ENGLISH",
-            level: "NOVICE",
-            interests: ["Java", "Spring"],
-            personalities: nil,
-            badge: BadgeInfo(
-                badgeName: "노멀 뱃지",
-                totalScore: 30,
-                histories: nil
-            ),
-            birthDate: nil
-        ),
-        User(
-            id: 105,
-            name: "최유진",
-            profileImage: "profileImageSample1",
-            age: 24,
-            gender: "FEMALE",
-            homeTown: "KOREA",
-            location: "SEOUL",
-            distance: "2.1km",
-            bio: "이제 막 대학교 졸업했어요! 새로운 사람들을 만나는 건 늘 설레네요.",
-            first: "KOREAN",
-            target: "SPANISH",
-            level: "NOVICE",
-            interests: ["Travel", "Movie"],
-            personalities: nil,
-            badge: BadgeInfo(
-                badgeName: "골드 뱃지",
-                totalScore: 92,
-                histories: nil
-            ),
-            birthDate: nil
-        ),
-    ]
-
     // 로그인 유저 목데이터
     static let me = User(
         id: 1,

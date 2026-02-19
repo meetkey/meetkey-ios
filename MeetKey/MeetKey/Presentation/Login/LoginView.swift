@@ -151,7 +151,7 @@ struct LoginView: View {
                 OnboardingIntroView()
             }
             .navigationDestination(isPresented: $viewModel.shouldNavigateToHome) {
-                HybinMainTabView()
+                ChatListView()
             }
         }
     }

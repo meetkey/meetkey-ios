@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct HomeProfileDetailView: View {
+    @EnvironmentObject var profileVM: MyProfileViewModel
+
     @ObservedObject var homeVM: HomeViewModel
     let size: CGSize
     let safeArea: EdgeInsets

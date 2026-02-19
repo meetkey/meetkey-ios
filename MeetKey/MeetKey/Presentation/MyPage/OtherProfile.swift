@@ -130,7 +130,7 @@ private extension OtherProfile {
     private var headerView: some View {
         HeaderOverlay (
             state: .otherProfile,
-            user: viewModel.headerUser ?? User.mockData [0], reportVM: viewModel.reportVM,
+            user: viewModel.headerUser ?? User.me, reportVM: viewModel.reportVM,
             onLeftAction: {dismiss()},
             onRightAction: {
                 viewModel.reportVM.handleReportMenuTap()

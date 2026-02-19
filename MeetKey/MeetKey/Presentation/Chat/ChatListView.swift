@@ -1,7 +1,6 @@
-import SwiftUI
-import Foundation
 import Combine
-
+import Foundation
+import SwiftUI
 
 // MARK: - ViewModel (서버 연동 + mock fallback)
 @MainActor
@@ -24,35 +23,13 @@ final class ChatListViewModel: ObservableObject {
 
 // MARK: - Main View
 struct ChatListView: View {
+    @StateObject private var profileVM = MyProfileViewModel()
     @StateObject private var homeVM = HomeViewModel()
     @State private var profilePath = NavigationPath()
     @State private var isTabBarHidden = false
-    @State private var user = User(from: RecommendationDTO(
-        targetMemberId: 0,
-        nickname: "테스트 유저",
-        age: 20,
-        hometown: nil,
-        distance: nil,
-        gender: "F",
-        nativeLanguage: LanguageDTO(
-            language: "ko",
-            level: "Korean"
-        ),
-        targetLanguage: LanguageDTO(
-            language: "en",
-            level: "English"
-        ),
-        interests: [],
-        personality: nil,
-        photoUrls: [],
-        introduction: nil,
-        badge: nil,
-        location: nil
-    ))
 
-    
     private let pageBg = Color(.white)
-    private let orange = Color("Orange01") // 프로젝트 에셋명 맞춰두기
+    private let orange = Color("Orange01")  // 프로젝트 에셋명 맞춰두기
 
     @State private var selectedTab: Tab = .home
     @StateObject private var vm = ChatListViewModel()
@@ -73,16 +50,37 @@ struct ChatListView: View {
                     case .folder:
                         PlaceholderView(title: "Folder View")
                     case .profile:
-                        MyProfile(user: $user, path: $profilePath, isTabBarHidden: $isTabBarHidden)
+                        if profileVM.user != nil {
+                            MyProfile(
+                                user: Binding(
+                                    get: { profileVM.user ?? User.me },  // nil일경우 목데이터
+                                    set: { profileVM.user = $0 }
+                                ),
+                                path: $profilePath,
+                                isTabBarHidden: $isTabBarHidden
+                            )
+                        } else {
+                            ProgressView("프로필 로딩 중...")
+                        }
                     }
                 }
+
             }
             .safeAreaInset(edge: .bottom) {
-                BottomNavigationBar(selectedTab: $selectedTab)
+                if !homeVM.isDetailViewPresented {
+                    BottomNavigationBar(selectedTab: $selectedTab)
+                        .transition(
+                            .move(edge: .bottom).combined(with: .opacity)
+                        )
+                }
             }
             .toolbar(.hidden, for: .navigationBar)
         }
-        .task { await vm.load() }
+        .environmentObject(profileVM)
+        .task {
+            await vm.load()
+            profileVM.fetchMyProfile()  // 앱 켜질 때 내 정보 가져오기
+        }
     }
 
     private var chatListBody: some View {
@@ -130,7 +128,9 @@ struct ChatListHeader: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Good Afternoon!")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(Color(red: 0.12, green: 0.16, blue: 0.22))
+                        .foregroundColor(
+                            Color(red: 0.12, green: 0.16, blue: 0.22)
+                        )
 
                     Text("김밋키")
                         .font(.system(size: 20, weight: .bold))
@@ -197,7 +197,9 @@ struct ChatRow: View {
 
                     Text(chat.time)
                         .font(.system(size: 13))
-                        .foregroundColor(Color(red: 0.42, green: 0.45, blue: 0.5))
+                        .foregroundColor(
+                            Color(red: 0.42, green: 0.45, blue: 0.5)
+                        )
 
                     Spacer()
                 }
@@ -234,8 +236,10 @@ private struct ProfileAvatarView: View {
                 .fill(Color(white: 0.92))
 
             if let urlString,
-               let url = URL(string: urlString),
-               !urlString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                let url = URL(string: urlString),
+                !urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+                    .isEmpty
+            {
                 AsyncImage(url: url) { phase in
                     switch phase {
                     case .success(let image):
@@ -314,7 +318,9 @@ struct ChatItem: Identifiable {
 
     static func fromDTO(_ dto: ChatRoomSummaryDTO) -> ChatItem {
         let normalizedPreview: String = {
-            let raw = (dto.lastChatMessages ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let raw = (dto.lastChatMessages ?? "").trimmingCharacters(
+                in: .whitespacesAndNewlines
+            )
             return raw.isEmpty ? "Ciao! Let me know when you ar..." : raw
         }()
 
@@ -375,12 +381,72 @@ struct ChatItem: Identifiable {
 
 // MARK: - Sample Data (mock 유지)
 let sampleChats: [ChatItem] = [
-    .init(id: -1, name: "Jane Smith", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "gold", roomId: nil, opponent: nil, profileImageUrl: nil),
-    .init(id: -2, name: "Richard Thompson", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "silver", roomId: nil, opponent: nil, profileImageUrl: nil),
-    .init(id: -3, name: "Sarah Williams", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "bronze", roomId: nil, opponent: nil, profileImageUrl: nil),
-    .init(id: -4, name: "Michael Jones", preview: "Ciao! Let me know when you are free...", time: "3h", unread: 0, badge: "gold", roomId: nil, opponent: nil, profileImageUrl: nil),
-    .init(id: -5, name: "Natalie Clark", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "silver", roomId: nil, opponent: nil, profileImageUrl: nil),
-    .init(id: -6, name: "김유진", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "bronze", roomId: nil, opponent: nil, profileImageUrl: nil)
+    .init(
+        id: -1,
+        name: "Jane Smith",
+        preview: "Ciao! Let me know when you ar...",
+        time: "3h",
+        unread: 12,
+        badge: "gold",
+        roomId: nil,
+        opponent: nil,
+        profileImageUrl: nil
+    ),
+    .init(
+        id: -2,
+        name: "Richard Thompson",
+        preview: "Ciao! Let me know when you ar...",
+        time: "3h",
+        unread: 12,
+        badge: "silver",
+        roomId: nil,
+        opponent: nil,
+        profileImageUrl: nil
+    ),
+    .init(
+        id: -3,
+        name: "Sarah Williams",
+        preview: "Ciao! Let me know when you ar...",
+        time: "3h",
+        unread: 12,
+        badge: "bronze",
+        roomId: nil,
+        opponent: nil,
+        profileImageUrl: nil
+    ),
+    .init(
+        id: -4,
+        name: "Michael Jones",
+        preview: "Ciao! Let me know when you are free...",
+        time: "3h",
+        unread: 0,
+        badge: "gold",
+        roomId: nil,
+        opponent: nil,
+        profileImageUrl: nil
+    ),
+    .init(
+        id: -5,
+        name: "Natalie Clark",
+        preview: "Ciao! Let me know when you ar...",
+        time: "3h",
+        unread: 12,
+        badge: "silver",
+        roomId: nil,
+        opponent: nil,
+        profileImageUrl: nil
+    ),
+    .init(
+        id: -6,
+        name: "김유진",
+        preview: "Ciao! Let me know when you ar...",
+        time: "3h",
+        unread: 12,
+        badge: "bronze",
+        roomId: nil,
+        opponent: nil,
+        profileImageUrl: nil
+    ),
 ]
 
 // MARK: - Shapes
