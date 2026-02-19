@@ -41,14 +41,10 @@ struct ChatListView: View {
 
                 Group {
                     switch selectedTab {
-                    case .chat:
-                        chatListBody
-                    case .people:
-                        PlaceholderView(title: "People View")
                     case .home:
                         HomeView(homeVM: homeVM)
-                    case .folder:
-                        PlaceholderView(title: "Folder View")
+                    case .chat:
+                        chatListBody
                     case .profile:
                         if profileVM.user != nil {
                             MyProfile(
@@ -107,6 +103,11 @@ struct ChatListView: View {
 
 // MARK: - Header (기존 그대로)
 struct ChatListHeader: View {
+    @EnvironmentObject var profileVM: MyProfileViewModel
+    
+    private var displayName: String {
+        User.savedName ?? profileVM.user?.name ?? User.me.name
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -132,7 +133,7 @@ struct ChatListHeader: View {
                             Color(red: 0.12, green: 0.16, blue: 0.22)
                         )
 
-                    Text("김밋키")
+                    Text(displayName)
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.black)
                 }

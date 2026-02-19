@@ -17,11 +17,9 @@ class AuthService {
             ) { result in
                 switch result {
                 case .success(let response):
-                    self.saveTokens(response: response)
                     continuation.resume(returning: response)
                 case .failure(let error):
                     continuation.resume(throwing: error)
-                    print("❌ [DEBUG] 로그인 API 자체 실패: \(error)")
                 }
             }
         }
@@ -36,11 +34,9 @@ class AuthService {
             ) { result in
                 switch result {
                 case .success(let response):
-                    self.saveTokens(response: response)
                     continuation.resume(returning: response)
                 case .failure(let error):
                     continuation.resume(throwing: error)
-                    print("❌ [DEBUG] 회원가입 API 자체 실패: \(error)")
                 }
             }
         }
@@ -55,11 +51,26 @@ class AuthService {
             ) { result in
                 switch result {
                 case .success(let response):
-                    self.saveTokens(response: response)
                     continuation.resume(returning: response)
                 case .failure(let error):
                     continuation.resume(throwing: error)
-                    print("❌ [DEBUG] 리이슈 토큰 API 자체 실패: \(error)")
+                }
+            }
+        }
+    }
+    
+    // MARK: - Logout
+    func logout(refreshToken: String) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            networkProvider.request(
+                .logout(refreshToken: refreshToken),
+                type: EmptyResponse.self
+            ) { result in
+                switch result {
+                case .success:
+                    continuation.resume(returning: ())
+                case .failure(let error):
+                    continuation.resume(throwing: error)
                 }
             }
         }
@@ -115,28 +126,4 @@ class AuthService {
             }
         }
     }
-    
-    
-    private func saveTokens(response: LoginResponse) {
-        guard let access = response.accessToken,
-              let refresh = response.refreshToken else {
-            print("⚠️ [AuthService] 저장할 토큰이 응답에 포함되어 있지 않습니다.")
-            return
-        }
-
-        do {
-            try KeychainManager.save(value: access, account: "accessToken")
-            try KeychainManager.save(value: refresh, account: "refreshToken")
-            
-            print("✅ [AuthService] 토큰 저장 성공")
-            print("   - AT: \(access.prefix(15))...")
-            print("   - RT: \(refresh.prefix(15))...")
-            
-        } catch {
-            print("❌ [AuthService] Keychain 저장 중 에러 발생: \(error.localizedDescription)")
-            
-            // 필요하다면 여기서 사용자에게 '로그인 세션 저장 실패' 알림을 띄우는 로직을 추가할 수 있습니다.
-        }
-    }
 }
-

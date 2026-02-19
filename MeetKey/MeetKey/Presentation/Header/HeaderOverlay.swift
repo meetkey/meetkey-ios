@@ -60,6 +60,10 @@ struct HeaderOverlay: View {
 }
 
 extension HeaderOverlay {
+    private var homeDisplayName: String {
+        User.savedName ?? user.name
+    }
+    
     @ViewBuilder
     private var leftArea: some View {
         switch state {
@@ -68,7 +72,7 @@ extension HeaderOverlay {
                 Circle()
                     .fill(Color.gray.opacity(0.3))
                     .overlay(
-                        Text(String(user.name.prefix(1)))
+                        Text(String(homeDisplayName.prefix(1)))
                             .foregroundColor(.white)
                     )
             }
@@ -182,7 +186,7 @@ extension HeaderOverlay {
 
     private var homeHeaderText: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(user.name + "님,")
+            Text(homeDisplayName + "님,")
                 .font(.meetKey(.body5))
                 .foregroundStyle(Color.text5)
 

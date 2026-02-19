@@ -39,6 +39,10 @@ struct AppRootView: View {
             destination = .login
             showSplash = false
         }
+        .onReceive(NotificationCenter.default.publisher(for: .authDidLogout)) { _ in
+            destination = .login
+            showSplash = false
+        }
     }
 
     private func resolveDestination() -> Destination {
@@ -52,6 +56,7 @@ struct AppRootView: View {
 
 extension Notification.Name {
     static let authDidWithdraw = Notification.Name("authDidWithdraw")
+    static let authDidLogout = Notification.Name("authDidLogout")
 }
 
 #Preview {

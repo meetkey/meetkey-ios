@@ -309,6 +309,14 @@ class OnboardingViewModel: ObservableObject {
         let targetLanguage = mapLanguage(data.targetLanguage)
         let targetLevel = mapLanguageLevel()
         let phoneNumber = makeRandomPhoneNumber()
+        
+        if !data.name.isEmpty {
+            User.saveName(data.name)
+        }
+        User.saveLanguages(
+            native: firstLanguage.rawValue,
+            target: targetLanguage.rawValue
+        )
 
         return SignupRequest(
             idToken: idToken,

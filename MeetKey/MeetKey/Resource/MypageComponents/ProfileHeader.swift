@@ -12,13 +12,18 @@ struct ProfileHeader: View {
     let user: User
     let onTapSetting: () -> Void
     let onTapNotification: () -> Void
+    let onTapProfileImage: () -> Void
+    
+    private var displayName: String {
+        User.savedName ?? user.name
+    }
     
     private var usingLanguageImage: Image? {
-        Nation.from(serverValue: user.first)?.image
+        Nation.from(serverValue: User.savedNativeLanguage ?? user.first)?.image
     }
     
     private var interestingLanguageImage: Image? {
-        Nation.from(serverValue: user.target)?.image
+        Nation.from(serverValue: User.savedTargetLanguage ?? user.target)?.image
     }
     
     var body: some View {
@@ -36,20 +41,23 @@ struct ProfileHeader: View {
                     }
             }
             HStack(spacing: 20) {
-                ZStack {
-                    ProfileImage(
-                        imageString: user.profileImage,
-                        size: 75
-                    )
-                    Image(.editSquare)
-                        .padding(.leading, 57)
-                        .padding(.top, 57)
+                Button(action: onTapProfileImage) {
+                    ZStack {
+                        ProfileImage(
+                            imageString: user.profileImage,
+                            size: 75
+                        )
+                        Image(.editSquare)
+                            .padding(.leading, 57)
+                            .padding(.top, 57)
+                    }
+                    .frame(width: 75, height: 75)
                 }
-                .frame(width: 75, height: 75)
+                .buttonStyle(.plain)
                 .padding(.bottom, 21)
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(spacing: 3.5) {
-                        Text(user.name)
+                        Text(displayName)
                             .font(.meetKey(.title4))
                             .foregroundStyle(.text1)
                         Image(.bronze)
