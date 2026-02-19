@@ -299,9 +299,17 @@ class HomeViewModel: ObservableObject {
     func dismissMatchView() {
         isMatchViewPresented = false
         reportVM.closeReportMenu()
+        self.resetMatchState()
     }
     func presentFilterView() { isFilterViewPresented = true }
     func dismissFilterView() { isFilterViewPresented = false }
+    private func resetMatchState() {
+        print("🧹 [HomeVM] Resetting Match State for next user")
+        self.matchMessageText = ""      // 입력창 비우기
+        self.matchChatMessages = []    // 채팅 내역 비우기
+        self.matchedRoomId = nil       // 매칭된 방 ID 초기화
+        self.isChattingStarted = false // 채팅 시작 여부 초기화
+    }
 }
 
 // MARK: - Helper Struct
