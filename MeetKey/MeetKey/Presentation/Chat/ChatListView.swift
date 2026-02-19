@@ -119,12 +119,11 @@ struct ChatListHeader: View {
                 .ignoresSafeArea(edges: .top)
 
             HStack(spacing: 14) {
-
-                Image("CheolSoo")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 65, height: 65)
-                    .clipShape(Circle())
+                ProfileAvatarView(
+                    urlString: profileVM.user?.profileImage,
+                    fallbackAssetName: "defaultProfile"
+                )
+                .frame(width: 65, height: 65)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Good Afternoon!")

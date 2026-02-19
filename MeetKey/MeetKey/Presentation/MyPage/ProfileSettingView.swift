@@ -98,9 +98,11 @@ struct ProfileSettingView: View {
                     }
                     .frame(width: 100, height: 100)
                     .padding(.top, 40)
-                    ProfileInfo(title: "이름",
-                                context: viewModel.user.name,
-                                contextInfo: "이름은 변경할 수 없습니다.")
+                    ProfileInfo(
+                        title: "이름",
+                        context: User.savedName ?? viewModel.user.name,
+                        contextInfo: "이름은 변경할 수 없습니다."
+                    )
                     .padding(.top, 20)
                     ProfileInfo(
                         title: "생년월일",
@@ -197,6 +199,14 @@ struct ProfileSettingView: View {
         }
         .padding(.horizontal, 20)
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            if let native = User.savedNativeLanguage {
+                viewModel.user.first = native
+            }
+            if let target = User.savedTargetLanguage {
+                viewModel.user.target = target
+            }
+        }
     }
 }
 
