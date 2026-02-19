@@ -71,7 +71,6 @@ extension ProfileSectionView {
                 endPoint: .center
             )
         }
-        .ignoresSafeArea()
     }
 
     private func interestTagStack(interests: [String]?) -> some View {

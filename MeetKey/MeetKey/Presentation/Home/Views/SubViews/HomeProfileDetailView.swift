@@ -70,13 +70,25 @@ extension HomeProfileDetailView {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .matchedGeometryEffect(id: "profile_card", in: animation)
+                        .matchedGeometryEffect(
+                            id: "profile_card",
+                            in: animation
+                        )
                 } else {
                     Color.gray.opacity(0.1)
                 }
             }
             .frame(width: size.width - 40, height: 330)
             .clipShape(RoundedRectangle(cornerRadius: 15))
+            LinearGradient(
+                colors: [.gray.opacity(0.7), .clear],
+                        startPoint: .bottom,
+                        endPoint: .center
+                    )
+                    .frame(width: size.width - 40, height: 150)
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
+                    .allowsHitTesting(false)
+            
             .overlay(alignment: .topTrailing) {
                 if let badgeData = user.badge {
                     homeBadgeView(score: badgeData.totalScore)
@@ -92,10 +104,14 @@ extension HomeProfileDetailView {
                 Text("\(user.name)")
                     .font(.meetKey(.title2))
                     .foregroundStyle(Color.white01)
-                Text("\(user.age)")
+                    .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
+
+                Text("\(user.age!)")
                     .font(.meetKey(.title6))
                     .foregroundStyle(Color.white01)
+                    .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
                 Spacer()
+
             }
             HStack(alignment: .top, spacing: 6) {
                 Image("location_home")
@@ -119,9 +135,11 @@ extension HomeProfileDetailView {
                 .lineLimit(1)
             }
             .foregroundStyle(Color.white01.opacity(0.8))
+            .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
         }
         .padding(.horizontal, 20)
         .padding(.top, 25)
+        .padding(.bottom, 16)
     }
 
     private func languageSection(user: User) -> some View {

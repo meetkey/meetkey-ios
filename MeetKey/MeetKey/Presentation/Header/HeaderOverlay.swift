@@ -74,13 +74,13 @@ extension HeaderOverlay {
             }
         case .chat, .matchingSuccess:
             Button(action: onLeftAction) {
-                Image("btn_x_header") // X 아이콘 적용
+                Image("btn_x_header")
                     .resizable()
                     .frame(width: 40, height: 40)
             }
         default:
             Button(action: onLeftAction) {
-                Image("btn_arrow_header") // 뒤로가기 화살표 적용
+                Image("btn_arrow_header")
                     .resizable()
                     .frame(width: 40, height: 40)
             }
