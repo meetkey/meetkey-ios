@@ -36,7 +36,6 @@ class LoginViewModel: ObservableObject {
                 UserDefaults.standard.set(response.isNewMember, forKey: isNewMemberKey)
                 UserDefaults.standard.set(provider.rawValue, forKey: authProviderKey)
                 UserDefaults.standard.set(idToken, forKey: lastIdTokenKey)
-
                 if response.isNewMember {
                     self.shouldNavigateToSignup = true
                 } else {

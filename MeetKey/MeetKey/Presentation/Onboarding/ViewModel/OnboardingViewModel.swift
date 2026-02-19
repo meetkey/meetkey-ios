@@ -251,7 +251,6 @@ class OnboardingViewModel: ObservableObject {
                         try KeychainManager.save(value: refreshToken, account: "refreshToken")
                     }
                 }
-
                 if !profileImages.isEmpty {
                     let uploadItems = buildPhotoUploadItems()
                     let presigned = try await userService.requestPhotoUpload(uploadItems)
@@ -309,7 +308,7 @@ class OnboardingViewModel: ObservableObject {
         let firstLanguage = mapLanguage(data.nativeLanguage)
         let targetLanguage = mapLanguage(data.targetLanguage)
         let targetLevel = mapLanguageLevel()
-        let phoneNumber = "+821000000000"
+        let phoneNumber = makeRandomPhoneNumber()
 
         return SignupRequest(
             idToken: idToken,
@@ -379,7 +378,11 @@ class OnboardingViewModel: ObservableObject {
         guard let value else { return "" }
         return value.uppercased()
     }
-
+    
+    private func makeRandomPhoneNumber() -> String {
+        let randomDigits = String(format: "%08d", Int.random(in: 0...99999999))
+        return "+8210\(randomDigits)"
+    }
     private func buildPhotoUploadItems() -> [PhotoUploadRequestItem] {
         let sorted = profileImages.sorted { $0.key < $1.key }
         return sorted.map { (index, _) in
