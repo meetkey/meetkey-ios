@@ -1,7 +1,8 @@
 import SwiftUI
+import Foundation
 import Combine
 
-// ViewModel (서버 연동 + 403 fallback)
+// MARK: - ViewModel (서버 연동 + mock fallback)
 @MainActor
 final class ChatListViewModel: ObservableObject {
 
@@ -9,36 +10,22 @@ final class ChatListViewModel: ObservableObject {
 
     func load() async {
         do {
-            let rooms: [ChatRoomSummaryDTO] = try await fetchChatRooms()
+            let rooms = try await ChatService.shared.fetchChatRooms()
             let mapped = rooms.map { ChatItem.fromDTO($0) }
             self.chats = mapped.isEmpty ? sampleChats : mapped
         } catch {
-            // 어떤 에러(403 포함)도 UI는 더미로 유지
+            // 서버 에러/403/네트워크 실패 등 어떤 경우에도 UI는 mock 유지
             self.chats = sampleChats
             print("❌ fetchChatRooms failed:", error)
         }
     }
-
-    // NetworkProvider 콜백 -> async/await 브릿지
-    private func fetchChatRooms() async throws -> [ChatRoomSummaryDTO] {
-        try await withCheckedThrowingContinuation { cont in
-            NetworkProvider.shared.requestChat(.fetchChatRooms, type: [ChatRoomSummaryDTO].self) { result in
-                switch result {
-                case .success(let rooms):
-                    cont.resume(returning: rooms)
-                case .failure(let error):
-                    cont.resume(throwing: error)
-                }
-            }
-        }
-    }
 }
 
-// Main View
+// MARK: - Main View
 struct ChatListView: View {
 
     private let pageBg = Color(.white)
-    private let orange = Color("Orange")
+    private let orange = Color("Orange01") // 프로젝트 에셋명 맞춰두기
 
     @State private var selectedTab: Tab = .chat
     @StateObject private var vm = ChatListViewModel()
@@ -68,9 +55,7 @@ struct ChatListView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
         }
-        .task {
-            await vm.load()
-        }
+        .task { await vm.load() }
     }
 
     private var chatListBody: some View {
@@ -95,6 +80,7 @@ struct ChatListView: View {
     }
 }
 
+// MARK: - Header (기존 그대로)
 struct ChatListHeader: View {
 
     var body: some View {
@@ -133,26 +119,19 @@ struct ChatListHeader: View {
     }
 }
 
-// MARK: - Chat Row (UI 그대로, 단 네비게이션만 안전하게)
+// MARK: - Chat Row (서버/목업 UI 동일 유지 핵심)
 struct ChatRow: View {
 
     @Binding var chat: ChatItem
     let orange: Color
 
     var body: some View {
-
         NavigationLink {
-            // ✅ 서버 연동으로 들어온 데이터면 roomId/opponent로 진짜 채팅방 진입
             if let roomId = chat.roomId, let opponent = chat.opponent {
                 ChatRoomScreen(roomId: roomId, opponent: opponent)
             } else {
-                // ✅ 더미 데이터면 기존 로직 유지
-                if chat.name == "Jane Smith" {
-                    // 더미 Jane은 roomId 2로 고정해서 들어가게(원하면 바꿔)
-                    ChatRoomScreen(roomId: 2, opponent: .init(userId: 0, nickname: chat.name, profileImageUrl: nil))
-                } else {
-                    ChatDetailView(chat: $chat)
-                }
+                // sample용 fallback
+                ChatDetailView(chat: $chat)
             }
         } label: {
             rowContent
@@ -163,21 +142,28 @@ struct ChatRow: View {
     private var rowContent: some View {
         HStack(spacing: 14) {
 
-            Image("Jane")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 72, height: 72)
-                .clipShape(Circle())
+            // ✅ 프로필: 서버 URL이 있어도 "프레임 고정" + "동일한 둥근 마스크"로 UI 절대 안 깨짐
+            ProfileAvatarView(
+                urlString: chat.profileImageUrl,
+                fallbackAssetName: "Jane"
+            )
+            .frame(width: 72, height: 72)
 
             VStack(alignment: .leading, spacing: 6) {
 
                 HStack(spacing: 6) {
-                    if let badge = chat.badge {
-                        Image(badge)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 18, height: 18)
+
+                    // ✅ badge는 서버에 없어도 자리 고정 (정렬/간격 동일)
+                    Group {
+                        if let badge = chat.badge, !badge.isEmpty {
+                            Image(badge)
+                                .resizable()
+                                .scaledToFit()
+                        } else {
+                            Color.clear
+                        }
                     }
+                    .frame(width: 18, height: 18)
 
                     Text(chat.name)
                         .font(.system(size: 17, weight: .bold))
@@ -209,7 +195,44 @@ struct ChatRow: View {
     }
 }
 
-// Chat Detail View (UI 그대로)
+// MARK: - Avatar View (UI 안 깨지게 프레임/placeholder 고정)
+private struct ProfileAvatarView: View {
+    let urlString: String?
+    let fallbackAssetName: String
+
+    var body: some View {
+        ZStack {
+            // ✅ 항상 동일한 뒷배경 (로딩/실패/성공 상관없이 레이아웃 고정)
+            Circle()
+                .fill(Color(white: 0.92))
+
+            if let urlString,
+               let url = URL(string: urlString),
+               !urlString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    default:
+                        // ✅ 로딩/실패 시에도 mock과 동일한 기본 이미지로 통일
+                        Image(fallbackAssetName)
+                            .resizable()
+                            .scaledToFill()
+                    }
+                }
+            } else {
+                Image(fallbackAssetName)
+                    .resizable()
+                    .scaledToFill()
+            }
+        }
+        .clipShape(Circle())
+    }
+}
+
+// MARK: - Chat Detail (샘플용)
 struct ChatDetailView: View {
 
     @Binding var chat: ChatItem
@@ -221,7 +244,7 @@ struct ChatDetailView: View {
             Text("💬 \(chat.name)와의 대화방(임시)")
                 .font(.system(size: 22, weight: .bold))
 
-            Text("여기는 Jane이 아니라서 임시 화면")
+            Text("여기는 샘플용 임시 화면")
                 .foregroundColor(.gray)
 
             Spacer()
@@ -247,43 +270,93 @@ struct PlaceholderView: View {
     }
 }
 
-// MARK: - UI Model (roomId/opponent만 추가: UI엔 영향 없음)
+// MARK: - UI Model (서버 데이터가 와도 mock 느낌 유지하도록 정규화)
 struct ChatItem: Identifiable {
-    let id: UUID
+    let id: Int
+
     let name: String
     let preview: String
     let time: String
     var unread: Int
     let badge: String?
 
-    // ✅ 서버 연동용(추가해도 UI 레이아웃 안 바뀜)
+    // 서버 연동
     let roomId: Int?
     let opponent: ChatOpponentDTO?
+    let profileImageUrl: String?
 
     static func fromDTO(_ dto: ChatRoomSummaryDTO) -> ChatItem {
-        .init(
-            id: UUID(),
+        let normalizedPreview: String = {
+            let raw = (dto.lastChatMessages ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            return raw.isEmpty ? "Ciao! Let me know when you ar..." : raw
+        }()
+
+        let normalizedTime = relativeTime(dto.updatedAt)
+
+        let unread = dto.unReadMessageCnt ?? dto.unreadCount
+
+        // ✅ badge는 서버에 없어도 mock처럼 항상 보이게 하고 싶으면 안정적으로 부여
+        // (원치 않으면 nil로 두고, 위에서 자리만 유지해도 UI는 안 깨짐)
+        let badge = stableBadge(userId: dto.chatOpponent.userId)
+
+        return .init(
+            id: dto.roomId,
             name: dto.chatOpponent.nickname,
-            preview: (dto.lastChatMessages ?? "").unquoted, // ChatModels.swift extension 사용
-            time: dto.updatedAt, // 원하면 “3h” 같은 상대시간으로 바꿔도 됨 (UI는 그대로)
-            unread: dto.unReadMessageCnt ?? dto.unreadCount,
-            badge: nil,
+            preview: normalizedPreview,
+            time: normalizedTime,
+            unread: unread,
+            badge: badge,
             roomId: dto.roomId,
-            opponent: dto.chatOpponent
+            opponent: dto.chatOpponent,
+            profileImageUrl: dto.chatOpponent.profileImageUrl
         )
+    }
+
+    private static func stableBadge(userId: Int) -> String {
+        switch abs(userId) % 3 {
+        case 0: return "gold"
+        case 1: return "silver"
+        default: return "bronze"
+        }
+    }
+
+    private static func relativeTime(_ isoString: String) -> String {
+        guard let date = parseISO8601(isoString) else { return "now" }
+        let diff = Int(Date().timeIntervalSince(date))
+        if diff <= 0 { return "now" }
+
+        let m = diff / 60
+        let h = diff / 3600
+        let d = diff / 86400
+
+        if d > 0 { return "\(d)d" }
+        if h > 0 { return "\(h)h" }
+        if m > 0 { return "\(m)m" }
+        return "now"
+    }
+
+    private static func parseISO8601(_ s: String) -> Date? {
+        let f1 = ISO8601DateFormatter()
+        f1.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let d = f1.date(from: s) { return d }
+
+        let f2 = ISO8601DateFormatter()
+        f2.formatOptions = [.withInternetDateTime]
+        return f2.date(from: s)
     }
 }
 
-// Sample Data (그대로)
+// MARK: - Sample Data (mock 유지)
 let sampleChats: [ChatItem] = [
-    .init(id: UUID(), name: "Jane Smith", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "gold", roomId: nil, opponent: nil),
-    .init(id: UUID(), name: "Richard Thompson", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "silver", roomId: nil, opponent: nil),
-    .init(id: UUID(), name: "Sarah Williams", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "bronze", roomId: nil, opponent: nil),
-    .init(id: UUID(), name: "Michael Jones", preview: "Ciao! Let me know when you are free...", time: "3h", unread: 0, badge: "gold", roomId: nil, opponent: nil),
-    .init(id: UUID(), name: "Natalie Clark", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "silver", roomId: nil, opponent: nil),
-    .init(id: UUID(), name: "김유진", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "bronze", roomId: nil, opponent: nil)
+    .init(id: -1, name: "Jane Smith", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "gold", roomId: nil, opponent: nil, profileImageUrl: nil),
+    .init(id: -2, name: "Richard Thompson", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "silver", roomId: nil, opponent: nil, profileImageUrl: nil),
+    .init(id: -3, name: "Sarah Williams", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "bronze", roomId: nil, opponent: nil, profileImageUrl: nil),
+    .init(id: -4, name: "Michael Jones", preview: "Ciao! Let me know when you are free...", time: "3h", unread: 0, badge: "gold", roomId: nil, opponent: nil, profileImageUrl: nil),
+    .init(id: -5, name: "Natalie Clark", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "silver", roomId: nil, opponent: nil, profileImageUrl: nil),
+    .init(id: -6, name: "김유진", preview: "Ciao! Let me know when you ar...", time: "3h", unread: 12, badge: "bronze", roomId: nil, opponent: nil, profileImageUrl: nil)
 ]
 
+// MARK: - Shapes
 struct BottomRoundedShape0: Shape {
 
     var radius: CGFloat
@@ -320,4 +393,3 @@ struct BottomRoundedShape0: Shape {
 }
 
 #Preview { ChatListView() }
-
