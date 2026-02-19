@@ -86,3 +86,24 @@ final class ChatService {
         }
     }
 }
+
+
+
+//매칭 뷰에서 메시지 전송하기 위한 로직
+extension ChatService {
+    /// - Parameters:
+    ///   - roomId: 채팅방 ID
+    ///   - content: 메시지 내용
+    ///   - type: 메시지 타입 (기본 "TEXT")
+    func sendMatchMessage(roomId: Int, content: String, type: String = "TEXT") {
+        // 1. 서버 명세서에 따른 페이로드 구성 (Encodable DTO가 있다고 가정)
+        // let payload = ["chatRoomId": roomId, "messageType": type, "content": content]
+        
+        // 2. 실제 STOMP 전송 로직이 들어갈 자리
+        print("🚀 [STOMP SEND MOCK] destination: /pub/chat/send")
+        print("📦 [Payload]: \(content) (RoomID: \(roomId))")
+        
+        // TODO: 전송 로직 구현 후 말씀주세요,,,
+        // stompClient.send(destination: "/pub/chat/send", body: payload)
+    }
+}

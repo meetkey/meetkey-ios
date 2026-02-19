@@ -57,6 +57,7 @@ struct HybinMainTabView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
+        .navigationBarBackButtonHidden(true)
         .ignoresSafeArea(.keyboard)  // 키보드 올라올 때 탭 바 밀림 방지
     }
 

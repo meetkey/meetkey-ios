@@ -37,7 +37,7 @@ var baseURL: URL {
     }
     
     var headers: [String: String]? {
-        let token = KeychainManager.load(account: "accessToken") ?? ""
+        let token = APIConfig.testToken
 
         var headers: [String: String] = [
             "Content-Type": "application/json"

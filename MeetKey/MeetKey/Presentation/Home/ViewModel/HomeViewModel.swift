@@ -32,6 +32,11 @@ class HomeViewModel: ObservableObject {
     @Published var currentFilter = RecommendationRequest()
     @Published var reportVM = ReportViewModel()
 
+    @Published var matchMessageText: String = ""
+    @Published var matchedRoomId: Int? = nil
+    @Published var isChattingStarted: Bool = false
+    @Published var matchChatMessages: [ChatMessageDTO] = []
+
     private let locationManager = LocationManager.shared
     private let locationService = LocationService.shared
     private let recommendationService = RecommendationService.shared
@@ -108,13 +113,13 @@ class HomeViewModel: ObservableObject {
             let response = try await recommendationService.getRecommendation(
                 filter: currentFilter
             )
-            
+
             // 2. 스와이프 정보 업데이트
             let swipeInfo = response.data.swipeInfo
             self.remainingCount = swipeInfo.remainingCount
             self.totalCount = swipeInfo.totalCount
             self.hasReachedLimit = (self.remainingCount == 0)
-            
+
             print("📊 [Swipe] \(remainingCount)/\(totalCount)")
 
             // 3. 유저 리스트 변환 및 저장
@@ -294,6 +299,61 @@ extension HomeViewModel {
         let id = UUID()
         let category: String
         let items: [InterestType]
+    }
+}
+//MARK: - 채팅
+// HomeViewModel+Matching.swift
+
+extension HomeViewModel {
+    func sendInitialMatchMessage() async {
+        // 1. 입력값 유효성 검사 및 전송할 텍스트 보관
+        let content = matchMessageText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !content.isEmpty else { return }
+        
+        do {
+            // 2. 채팅방 생성 로직 (방이 없는 경우에만 생성)
+            if matchedRoomId == nil {
+                guard let targetUserId = currentUser?.id else {
+                    print("❌ 오류: 대상 사용자 ID를 찾을 수 없습니다.")
+                    return
+                }
+                let response = try await ChatService.shared.createChatRoom(targetUserId: targetUserId)
+                self.matchedRoomId = response.createdChatRoomId
+            }
+            
+            // 3. 방 ID 옵셔널 바인딩 (DTO 생성을 위해 필수)
+            guard let roomId = matchedRoomId else {
+                print("❌ 오류: 생성된 방 ID가 없습니다.")
+                return
+            }
+            
+            // 4. ChatMessageDTO 규격에 맞게 메시지 객체 생성
+            let newMessage = ChatMessageDTO(
+                messageId: Int.random(in: 1...1_000_000),
+                chatRoomId: roomId,
+                senderId: me.id,
+                messageType: .text,
+                content: content,
+                duration: nil,
+                createdAt: DateFormatter.iso8601Full.string(from: Date()),
+                mine: true
+            )
+            
+            // 5. 메인 스레드에서 UI 업데이트 및 상태 변경
+            await MainActor.run {
+                withAnimation(.easeInOut) {
+                    self.matchChatMessages.append(newMessage)
+                    self.isChattingStarted = true 
+                    self.matchMessageText = ""
+                }
+            }
+            
+            // 6. (옵션) 서버로 실제 메시지 전송 시도 (STOMP 브릿지)
+            ChatService.shared.sendMatchMessage(roomId: roomId, content: content)
+            
+        } catch {
+            print("❌ 매칭 채팅 처리 실패: \(error.localizedDescription)")
+        }
     }
 }
 extension User {
