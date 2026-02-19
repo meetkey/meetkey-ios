@@ -46,4 +46,13 @@ enum KeychainManager {
     static func load(account: String) -> String? {
         return try? read(account: account)
     }
+
+    static func delete(account: String) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: "MeetKey",
+            kSecAttrAccount as String: account
+        ]
+        SecItemDelete(query as CFDictionary)
+    }
 }

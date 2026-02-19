@@ -16,6 +16,11 @@ struct SignupRequest: Codable {
     let phoneNumber: String // 국제번호 형식
 }
 
+struct WithdrawRequest: Codable {
+    let kakaoAccessToken: String?
+    let appleAuthorizationCode: String?
+}
+
 enum Gender: String, Codable {
     case male = "MALE"
     case female = "FEMALE"
@@ -28,6 +33,9 @@ enum AppLanguage: String, Codable {
     case chinese = "CHINESE"
     case spanish = "SPANISH"
     case french = "FRENCH"
+    case german = "GERMAN"
+    case italian = "ITALIAN"
+    case russian = "RUSSIAN"
 }
 
 enum LanguageLevel: String, Codable {
