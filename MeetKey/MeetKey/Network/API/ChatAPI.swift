@@ -37,19 +37,17 @@ var baseURL: URL {
     }
     
     var headers: [String: String]? {
-        let token = APIConfig.testToken
-
         var headers: [String: String] = [
             "Content-Type": "application/json"
         ]
-
-        // 토큰 있을 때만 Authorization 붙이기
-        if !token.isEmpty {
-            headers["Authorization"] = "Bearer \(token)"
+        
+        if let accessToken = KeychainManager.load(account: "accessToken"),
+           !accessToken.isEmpty {
+            headers["Authorization"] = "Bearer \(accessToken)"
         }
-
         return headers
     }
+    
 
 
     // URL Path

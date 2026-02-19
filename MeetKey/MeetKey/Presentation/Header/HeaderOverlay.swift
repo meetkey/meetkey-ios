@@ -201,6 +201,7 @@ extension HeaderOverlay {
     private var reportMenuList: some View {
         VStack(spacing: 0) {
             menuItem(title: "프로필 보기", icon: "btn_profile_header") {
+                onLeftAction()
                 onDetailAction()
             }
             Divider().padding(.horizontal, 10)

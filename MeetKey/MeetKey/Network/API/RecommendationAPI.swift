@@ -60,12 +60,14 @@ extension RecommendationAPI: TargetType {
     }
 
     var headers: [String: String]? {
-        var headers = ["Content-Type": "application/json"]
-
-        let accessToken = APIConfig.testToken
-            
-        headers["Authorization"] = "Bearer \(accessToken)"
+        var headers: [String: String] = [
+            "Content-Type": "application/json"
+        ]
         
+        if let accessToken = KeychainManager.load(account: "accessToken"),
+           !accessToken.isEmpty {
+            headers["Authorization"] = "Bearer \(accessToken)"
+        }
 
         switch self {
         case .getRecommendations:
