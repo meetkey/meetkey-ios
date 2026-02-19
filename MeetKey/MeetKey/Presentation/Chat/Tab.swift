@@ -1,16 +1,14 @@
 import Foundation
 
 enum Tab: String, CaseIterable, Identifiable {
-    case chat, people, home, folder, profile
+    case home, chat, profile
     var id: String { rawValue }
 
     var iconAsset: String {
         switch self {
-        case .chat: return "Chat"
-        case .people: return "2 User"
         case .home: return "Home"
-        case .folder: return "Folder"
-        case .profile: return "defaultProfile"
+        case .chat: return "Chat"
+        case .profile: return "Profile"
         }
     }
 }

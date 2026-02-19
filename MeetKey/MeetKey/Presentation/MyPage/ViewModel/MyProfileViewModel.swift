@@ -10,6 +10,8 @@ import Moya
 
 final class MyProfileViewModel: ObservableObject {
     @Published var user: User?
+    @Published var isLoggingOut = false
+    @Published var logoutErrorMessage: String?
     @Published var isWithdrawing = false
     @Published var withdrawErrorMessage: String?
     
@@ -98,6 +100,35 @@ final class MyProfileViewModel: ObservableObject {
             case .failure(let error):
                 print("❌ 조회 실패", error)
             }
+        }
+    }
+    
+    @MainActor
+    func logout() async {
+        guard !isLoggingOut else { return }
+        isLoggingOut = true
+        logoutErrorMessage = nil
+        defer { isLoggingOut = false }
+        
+        do {
+            guard let refreshToken = try KeychainManager.read(account: "refreshToken"),
+                  !refreshToken.isEmpty else {
+                logoutErrorMessage = "리프레시 토큰이 없습니다"
+                return
+            }
+            
+            try await authService.logout(
+                refreshToken: refreshToken
+            )
+            
+            KeychainManager.delete(account: "accessToken")
+            KeychainManager.delete(account: "refreshToken")
+            UserDefaults.standard.removeObject(forKey: authProviderKey)
+            UserDefaults.standard.removeObject(forKey: appleAuthorizationCodeKey)
+            NotificationCenter.default.post(name: .authDidLogout, object: nil)
+        } catch {
+            print("❌ 로그아웃 실패: \(error)")
+            logoutErrorMessage = error.localizedDescription
         }
     }
     

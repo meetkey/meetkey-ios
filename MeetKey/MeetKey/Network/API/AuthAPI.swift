@@ -6,6 +6,7 @@ enum AuthAPI {
     case login(provider: SocialProvider, idToken: String)
     case signup(provider: SocialProvider, request: SignupRequest)
     case reissue(refreshToken: String)
+    case logout(refreshToken: String)
     case withdraw(refreshToken: String)
     case sendSMS(phone: String)
     case verifySMS(phone: String, code: String)
@@ -27,6 +28,8 @@ extension AuthAPI: TargetType {
             return "/auth/signup"
         case .reissue:
             return "/auth/reissue"
+        case .logout:
+            return "/auth/logout"
         case .withdraw:
             return "/auth/withdraw"
         case .sendSMS:
@@ -38,7 +41,7 @@ extension AuthAPI: TargetType {
     
     var method: Moya.Method {
         switch self {
-        case .login, .signup, .reissue, .withdraw, .sendSMS, .verifySMS:
+        case .login, .signup, .reissue, .logout, .withdraw, .sendSMS, .verifySMS:
             return .post
         }
     }
@@ -72,6 +75,9 @@ extension AuthAPI: TargetType {
         case .reissue:
             return .requestPlain
             
+        case .logout:
+            return .requestPlain
+            
         case .withdraw:
             return .requestPlain
             
@@ -99,6 +105,12 @@ extension AuthAPI: TargetType {
         switch self {
         case .reissue(let refreshToken):
             headers["refresh"] = refreshToken
+        case .logout(let refreshToken):
+            headers["refresh"] = refreshToken
+            if let accessToken = KeychainManager.load(account: "accessToken"),
+               !accessToken.isEmpty {
+                headers["Authorization"] = "Bearer \(accessToken)"
+            }
         case .withdraw(let refreshToken):
             headers["refresh"] = refreshToken
             if let accessToken = KeychainManager.load(account: "accessToken"),
