@@ -13,6 +13,8 @@ enum HomeStatus {
 @MainActor
 class HomeViewModel: ObservableObject {
 
+    @EnvironmentObject var profileVM: MyProfileViewModel
+    
     @Published var status: HomeStatus = .loading
     @Published var filter = FilterModel()
 
@@ -32,12 +34,16 @@ class HomeViewModel: ObservableObject {
     @Published var currentFilter = RecommendationRequest()
     @Published var reportVM = ReportViewModel()
 
+    @Published var matchMessageText: String = ""
+    @Published var matchedRoomId: Int? = nil
+    @Published var isChattingStarted: Bool = false
+    @Published var matchChatMessages: [ChatMessageDTO] = []
+
     private let locationManager = LocationManager.shared
     private let locationService = LocationService.shared
     private let recommendationService = RecommendationService.shared
     private var cancellables = Set<AnyCancellable>()
 
-    let users: [User] = User.mockData
 
     // MARK: - Initialization
     init() {
@@ -99,25 +105,22 @@ class HomeViewModel: ObservableObject {
         }
     }
 
-    func fetchUserAsync() async {
+    func fetchUserAsync(isRetry: Bool = false) async {
         print("📍 [HomeVM] Fetching Users...")
         status = .loading
 
         do {
-            // 1. Service에서 봉투(Response)를 통째로 받음
             let response = try await recommendationService.getRecommendation(
                 filter: currentFilter
             )
-            
-            // 2. 스와이프 정보 업데이트
+
             let swipeInfo = response.data.swipeInfo
             self.remainingCount = swipeInfo.remainingCount
             self.totalCount = swipeInfo.totalCount
             self.hasReachedLimit = (self.remainingCount == 0)
-            
+
             print("📊 [Swipe] \(remainingCount)/\(totalCount)")
 
-            // 3. 유저 리스트 변환 및 저장
             let recommendations = response.data.recommendations
             print("✅ [HomeVM] Fetched User Count: \(recommendations.count)")
 
@@ -126,7 +129,6 @@ class HomeViewModel: ObservableObject {
                 self.currentUser = nil
                 status = .finished
             } else {
-                // Service가 하던 map 작업을 여기서 해줍니다.
                 self.allUsers = recommendations.map { User(from: $0) }
                 self.currentIndex = 0
                 self.currentUser = self.allUsers.first
@@ -134,6 +136,20 @@ class HomeViewModel: ObservableObject {
             }
         } catch {
             print("❌ [HomeVM] Data Fetch Failed: \(error)")
+
+            if let netError = error as? NetworkError,
+               case .serverError(let code, _) = netError,
+               code == "COMMON500",
+               !isRetry {
+                
+                print("🔄 [HomeVM] 서버 잠깨우는 중... 0.5초 후 재시도합니다.")
+                
+                try? await Task.sleep(nanoseconds: 500_000_000)
+                
+                await fetchUserAsync(isRetry: true)
+                return
+            }
+
             status = .finished
         }
     }
@@ -283,9 +299,17 @@ class HomeViewModel: ObservableObject {
     func dismissMatchView() {
         isMatchViewPresented = false
         reportVM.closeReportMenu()
+        self.resetMatchState()
     }
     func presentFilterView() { isFilterViewPresented = true }
     func dismissFilterView() { isFilterViewPresented = false }
+    private func resetMatchState() {
+        print("🧹 [HomeVM] Resetting Match State for next user")
+        self.matchMessageText = ""      // 입력창 비우기
+        self.matchChatMessages = []    // 채팅 내역 비우기
+        self.matchedRoomId = nil       // 매칭된 방 ID 초기화
+        self.isChattingStarted = false // 채팅 시작 여부 초기화
+    }
 }
 
 // MARK: - Helper Struct
@@ -296,130 +320,61 @@ extension HomeViewModel {
         let items: [InterestType]
     }
 }
-extension User {
-    static let mockData: [User] = [
-        User(
-            id: 101,
-            name: "전효빈",
-            profileImage: "profileImageSample1",
-            age: 27,
-            gender: "MALE",
-            homeTown: "KOREA",
-            location: "SEOUL",
-            distance: "1.2km",
-            bio: "iOS 개발자가 되고 싶은 사람입니다. SwiftUI 최고!",
-            first: "KOREAN",
-            target: "ENGLISH",
-            level: "INTERMEDIATE",
-            recommendCount: 100,
-            notRecommendCount: 0,
-            interests: ["SwiftUI", "Xcode", "Git"],
-            personalities: Personalities(
-                socialType: "EXTROVERT",
-                meetingType: "ONE_ON_ONE",
-                chatType: "INITIATOR",
-                friendType: "ANYONE",
-                relationType: "CASUAL"
-            ),
-            badge: BadgeInfo(
-                badgeName: "골드 뱃지",
-                totalScore: 95,
-                histories: nil
-            ),
-            birthDate: nil  // 필요시 추가
-        ),
-        User(
-            id: 102,
-            name: "김민준",
-            profileImage: "profileImageSample2",
-            age: 24,
-            gender: "MALE",
-            homeTown: "KOREA",
-            location: "GYEONGGI",
-            distance: "3.5km",
-            bio: "주말마다 한강에서 러닝하는 거 좋아해요. 같이 뛰실 분?",
-            first: "KOREAN",
-            target: "JAPANESE",
-            level: "NOVICE",
-            recommendCount: 50,
-            notRecommendCount: 2,
-            interests: ["Running", "Coffee"],
-            personalities: nil,
-            badge: BadgeInfo(
-                badgeName: "실버 뱃지",
-                totalScore: 82,
-                histories: nil
-            ),
-            birthDate: nil
-        ),
-        User(
-            id: 103,
-            name: "이서연",
-            profileImage: "profileImageSample1",
-            age: 29,
-            gender: "FEMALE",
-            homeTown: "KOREA",
-            location: "SEOUL",
-            distance: "0.8km",
-            bio: "카페 투어와 사진 촬영이 취미입니다. 기록하는 걸 좋아해요.",
-            first: "KOREAN",
-            target: "FRENCH",
-            level: "ADVANCED",
-            interests: ["Photography", "Cafe"],
-            personalities: nil,
-            badge: BadgeInfo(
-                badgeName: "브론즈 뱃지",
-                totalScore: 75,
-                histories: nil
-            ),
-            birthDate: nil
-        ),
-        User(
-            id: 104,
-            name: "박지성",
-            profileImage: "profileImageSample2",
-            age: 31,
-            gender: "MALE",
-            homeTown: "KOREA",
-            location: "INCHEON",
-            distance: "12km",
-            bio: "개발자입니다. 커피 한 잔 하면서 기술 얘기 나누고 싶어요.",
-            first: "KOREAN",
-            target: "ENGLISH",
-            level: "NOVICE",
-            interests: ["Java", "Spring"],
-            personalities: nil,
-            badge: BadgeInfo(
-                badgeName: "노멀 뱃지",
-                totalScore: 30,
-                histories: nil
-            ),
-            birthDate: nil
-        ),
-        User(
-            id: 105,
-            name: "최유진",
-            profileImage: "profileImageSample1",
-            age: 24,
-            gender: "FEMALE",
-            homeTown: "KOREA",
-            location: "SEOUL",
-            distance: "2.1km",
-            bio: "이제 막 대학교 졸업했어요! 새로운 사람들을 만나는 건 늘 설레네요.",
-            first: "KOREAN",
-            target: "SPANISH",
-            level: "NOVICE",
-            interests: ["Travel", "Movie"],
-            personalities: nil,
-            badge: BadgeInfo(
-                badgeName: "골드 뱃지",
-                totalScore: 92,
-                histories: nil
-            ),
-            birthDate: nil
-        ),
-    ]
+//MARK: - 채팅
 
+extension HomeViewModel {
+    func sendInitialMatchMessage() async {
+        // 1. 입력값 유효성 검사 및 전송할 텍스트 보관
+        let content = matchMessageText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !content.isEmpty else { return }
+        
+        do {
+            // 2. 채팅방 생성 로직 (방이 없는 경우에만 생성)
+            if matchedRoomId == nil {
+                guard let targetUserId = currentUser?.id else {
+                    print("❌ 오류: 대상 사용자 ID를 찾을 수 없습니다.")
+                    return
+                }
+                let response = try await ChatService.shared.createChatRoom(targetUserId: targetUserId)
+                self.matchedRoomId = response.createdChatRoomId
+            }
+            
+            // 3. 방 ID 옵셔널 바인딩 (DTO 생성을 위해 필수)
+            guard let roomId = matchedRoomId else {
+                print("❌ 오류: 생성된 방 ID가 없습니다.")
+                return
+            }
+            
+            // 4. ChatMessageDTO 규격에 맞게 메시지 객체 생성
+            let newMessage = ChatMessageDTO(
+                messageId: Int.random(in: 1...1_000_000),
+                chatRoomId: roomId,
+                senderId: self.me.id,
+                messageType: .text,
+                content: content,
+                duration: nil,
+                createdAt: DateFormatter.iso8601Full.string(from: Date()),
+                mine: true
+            )
+            
+            // 5. 메인 스레드에서 UI 업데이트 및 상태 변경
+            await MainActor.run {
+                withAnimation(.easeInOut) {
+                    self.matchChatMessages.append(newMessage)
+                    self.isChattingStarted = true 
+                    self.matchMessageText = ""
+                }
+            }
+            
+            // 6. (옵션) 서버로 실제 메시지 전송 시도 (STOMP 브릿지)
+            ChatService.shared.sendMatchMessage(roomId: roomId, content: content)
+            
+        } catch {
+            print("❌ 매칭 채팅 처리 실패: \(error.localizedDescription)")
+        }
+    }
+}
+extension User {
     // 로그인 유저 목데이터
     static let me = User(
         id: 1,

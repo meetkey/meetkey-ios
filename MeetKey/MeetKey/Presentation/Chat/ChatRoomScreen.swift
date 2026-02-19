@@ -4,71 +4,72 @@ import AVFoundation
 
 // MARK: - Main
 struct ChatRoomScreen: View {
-    
-    // ChatRoomScreen(roomId: room.roomId, opponent: room.chatOpponent)
+
     let roomId: Int
     let opponent: ChatOpponentDTO
-    
+
+    @StateObject private var vm: ChatRoomViewModel
+
     private let orange = Color("Orange01")
     private let pageBg = Color(white: 0.98)
-    
+
     @Environment(\.dismiss) private var dismiss
-    
-    // 헤더 펼침 상태
+
     @State private var isSettingExpanded: Bool = false
-    
-    // 대화주제 카드 오픈 상태
     @State private var isTopicCardOpen: Bool = false
-    
+
     @State private var isMissionExpanded: Bool = true
     @State private var isMissionDone: Bool = false
-    
-    // 서버 메시지 + 임시 전송 메시지 모두 담는 최종 배열(기존 UI 그대로 사용)
-    @State private var messages: [ChatMessage] = []
-    
+
     @State private var inputText: String = ""
-    
+
     // 사진 첨부
     @State private var pickedPhotoItem: PhotosPickerItem? = nil
     @State private var pickedImageData: Data? = nil
-    
+
     // 녹음 카드
     @State private var isShowingRecordingCard: Bool = false
-    
+
     // 오디오 재생
     @State private var audioPlayer: AVAudioPlayer? = nil
     @State private var playingMessageID: UUID? = nil
-    
+
     // 전화 화면 이동
     @State private var isCallActive: Bool = false
-    
+
     // 톡상대 상세프로필뷰로 이동
     @State private var showOtherProfile = false
     @State private var selectedMemberId: Int?
-    
+
     // API 로딩/페이지네이션
     @State private var isLoading: Bool = false
     @State private var loadError: String? = nil
     @State private var nextCursor: Int? = nil
     @State private var hasNext: Bool = false
     @State private var isPaging: Bool = false
+
+    // STOMP 연결 상태(단순 플래그)
+    @State private var isStompConnected: Bool = false
     
+    init(roomId: Int, opponent: ChatOpponentDTO) {
+        self.roomId = roomId
+        self.opponent = opponent
+        _vm = StateObject(wrappedValue: ChatRoomViewModel(roomId: roomId))
+    }
+
+
     var body: some View {
         ZStack(alignment: .top) {
             pageBg.ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
-                
-                // 헤더 자리(항상 120만 차지)
                 headerSlot
                     .zIndex(20)
-                
-                // 나머지 콘텐츠
+
                 contentArea
             }
             .zIndex(1)
-            
-            // 헤더 펼쳤을 때 딤
+
             if isSettingExpanded {
                 Color.black.opacity(0.18)
                     .ignoresSafeArea()
@@ -80,12 +81,10 @@ struct ChatRoomScreen: View {
                         }
                     }
             }
-            
-            // 헤더는 딤보다 위
+
             headerOverlay
                 .zIndex(30)
-            
-            // 대화 주제 추천 카드 오버레이
+
             if isTopicCardOpen {
                 Color.black.opacity(0.18)
                     .ignoresSafeArea()
@@ -96,10 +95,10 @@ struct ChatRoomScreen: View {
                             isTopicCardOpen = false
                         }
                     }
-                
+
                 VStack {
                     Spacer()
-                    
+
                     TopicSuggestionCard(
                         orange: orange,
                         suggestions: [
@@ -131,7 +130,12 @@ struct ChatRoomScreen: View {
         .toolbar(.hidden, for: .navigationBar)
         .task {
             await openRoom()
+
+            let token = KeychainManager.load(account: "accessToken") ?? ""
+            guard !token.isEmpty else { return }
+            vm.bindStomp(token: token)
         }
+
         .onDisappear {
             stopAudio()
         }
@@ -169,13 +173,13 @@ struct ChatRoomScreen: View {
             }
         }
     }
-    
+
     // MARK: - Header Slot
     private var headerSlot: some View {
         Color.clear
             .frame(height: 120)
     }
-    
+
     // MARK: - Header Overlay
     private var headerOverlay: some View {
         ChatRoomSettingCard(
@@ -200,22 +204,22 @@ struct ChatRoomScreen: View {
         .frame(maxWidth: .infinity, alignment: .top)
         .allowsHitTesting(true)
     }
-    
+
     // MARK: - Content
     private var contentArea: some View {
         VStack(spacing: 0) {
-            
+
             if let err = loadError {
                 Text(err)
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(.red.opacity(0.75))
                     .padding(.top, 6)
             }
-            
+
             ScrollViewReader { proxy in
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 14) {
-                        
+
                         if isMissionExpanded {
                             MissionExpandedCard(
                                 orange: orange,
@@ -240,7 +244,7 @@ struct ChatRoomScreen: View {
                                 }
                             )
                         }
-                        
+
                         if hasNext {
                             Button {
                                 Task { await loadMore() }
@@ -252,8 +256,8 @@ struct ChatRoomScreen: View {
                             }
                             .disabled(isPaging)
                         }
-                        
-                        ForEach(messages) { msg in
+
+                        ForEach(vm.messages) { msg in
                             ChatMessageRow(
                                 message: msg,
                                 orange: orange,
@@ -262,20 +266,20 @@ struct ChatRoomScreen: View {
                             )
                             .id(msg.id)
                         }
-                        
+
                         Spacer(minLength: 110)
                     }
                     .padding(.horizontal, 18)
                     .padding(.bottom, 6)
                 }
-                .onChange(of: messages.count) { _ in
-                    guard let last = messages.last else { return }
+                .onChange(of: vm.messages.count) { _ in
+                    guard let last = vm.messages.last else { return }
                     withAnimation(.easeOut(duration: 0.2)) {
                         proxy.scrollTo(last.id, anchor: .bottom)
                     }
                 }
             }
-            
+
             ChatFooter(
                 orange: orange,
                 inputText: $inputText,
@@ -295,37 +299,35 @@ struct ChatRoomScreen: View {
         .animation(.easeInOut(duration: 0.18), value: isSettingExpanded)
         .animation(.easeInOut(duration: 0.18), value: isTopicCardOpen)
     }
-    
+
     // MARK: - Open Room
     @MainActor
     private func openRoom() async {
         let token = KeychainManager.load(account: "accessToken") ?? ""
-        
-        // 로그인/토큰 없으면 서버 호출 안 하고 UI 시연용 데이터
+
+        // 토큰 없으면 서버 호출 안 하고 UI 시연용 데이터
         guard !token.isEmpty else {
-            loadError = nil  // 빨간 에러 숨김
-            messages = [
-                .init(kind: .text("Hi! (mock)"), isMe: false, time: "10:33"),
-                .init(kind: .text("Hello 🙂 (mock)"), isMe: true, time: "10:34"),
-                .init(kind: .text("This is chat UI demo."), isMe: false, time: "10:35")
-            ]
+            loadError = nil
+            let mockDTO = makeMockHistoryDTO()
+            apply(dto: mockDTO, isAppendOld: false)
             hasNext = false
             return
         }
-        
+
+        // 1) 히스토리(HTTP)
         await loadInitial()
-        
+
+        // 2) 읽음 처리(HTTP)
         do { try await ChatService.shared.markAsRead(roomId: roomId) } catch { }
     }
-    
-    
+
     @MainActor
     private func loadInitial() async {
         guard !isLoading else { return }
         isLoading = true
         loadError = nil
         defer { isLoading = false }
-        
+
         do {
             let dto = try await ChatService.shared.fetchMessages(roomId: roomId, cursorId: nil)
             apply(dto: dto, isAppendOld: false)
@@ -333,14 +335,14 @@ struct ChatRoomScreen: View {
             loadError = "메시지 불러오기 실패: \(error.localizedDescription)"
         }
     }
-    
+
     @MainActor
     private func loadMore() async {
         guard hasNext, !isPaging else { return }
         guard let cursor = nextCursor else { return }
         isPaging = true
         defer { isPaging = false }
-        
+
         do {
             let dto = try await ChatService.shared.fetchMessages(roomId: roomId, cursorId: cursor)
             apply(dto: dto, isAppendOld: true)
@@ -348,82 +350,102 @@ struct ChatRoomScreen: View {
             loadError = "추가 로딩 실패: \(error.localizedDescription)"
         }
     }
-    
+
     @MainActor
     private func apply(dto: ChatRoomMessagesDTO, isAppendOld: Bool) {
         self.nextCursor = dto.nextCursor
         self.hasNext = dto.hasNext
-        
+
         let mapped: [ChatMessage] = dto.chatMessages.map { m in
             let time = m.createdAt.replacingOccurrences(of: "T", with: " ").prefix(16)
             let timeStr = String(time)
-            
+
             switch m.messageType {
             case .text:
                 return ChatMessage(kind: .text((m.content ?? "").unquoted), isMe: m.mine, time: timeStr)
             case .image:
-                
-                return ChatMessage(kind: .text("[IMAGE]"), isMe: m.mine, time: timeStr)
-            case .audio:
-                return ChatMessage(kind: .text("[AUDIO]"), isMe: m.mine, time: timeStr)
+                // 서버에서는 content에 URL이 들어옴. 지금 UI는 Data 이미지니까 일단 placeholder
+                return ChatMessage(kind: .text("[IMAGE] \(m.content ?? "")"), isMe: m.mine, time: timeStr)
+            case .voice:
+                return ChatMessage(kind: .text("[VOICE] \(m.content ?? "")"), isMe: m.mine, time: timeStr)
             }
         }
-        
+
         if isAppendOld {
-            self.messages = mapped + self.messages
+            vm.messages = mapped + vm.messages
         } else {
-            self.messages = mapped
+            vm.messages = mapped
         }
     }
-    
-    // MARK: - Send (임시 전송 UI)
+
+    @MainActor
+    private func appendIncoming(dto: ChatMessageDTO) {
+        let time = dto.createdAt.replacingOccurrences(of: "T", with: " ").prefix(16)
+        let timeStr = String(time)
+
+        switch dto.messageType {
+        case .text:
+            vm.messages.append(.init(kind: .text((dto.content ?? "").unquoted), isMe: dto.mine, time: timeStr))
+        case .image:
+            vm.messages.append(.init(kind: .text("[IMAGE] \(dto.content ?? "")"), isMe: dto.mine, time: timeStr))
+        case .voice:
+            vm.messages.append(.init(kind: .text("[VOICE] \(dto.content ?? "")"), isMe: dto.mine, time: timeStr))
+        }
+    }
+
+    // MARK: - Send
     private func sendTextOrImage() {
         let trimmed = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.isEmpty && pickedImageData == nil { return }
-        
-        let time = nowHHMM()
-        
-        if let data = pickedImageData {
-            messages.append(.init(kind: .image(data), isMe: true, time: time))
-        }
-        if !trimmed.isEmpty {
-            messages.append(.init(kind: .text(trimmed), isMe: true, time: time))
-        }
-        
+        if trimmed.isEmpty { return }   // 텍스트만
+
+        let token = KeychainManager.load(account: "accessToken") ?? ""
+        guard !token.isEmpty else { return }
+
+        // 1) UI에 즉시 반영
+        vm.messages.append(.init(kind: .text(trimmed), isMe: true, time: nowHHMM()))
+
+        // 2) STOMP 전송
+        vm.sendText(trimmed)
+
         inputText = ""
         pickedPhotoItem = nil
         pickedImageData = nil
     }
-    
+
+
     private func sendVoice(url: URL, durationSec: Int) {
         let time = nowHHMM()
-        messages.append(.init(kind: .voice(url: url, durationSec: durationSec), isMe: true, time: time))
+        vm.messages.append(.init(kind: .voice(url: url, durationSec: durationSec), isMe: true, time: time))
+
+        // VOICE는 서버 스펙상 content에 "미디어 URL"이 들어가야 해서
+        // 실제 전송은 (1) 파일 업로드 -> URL 받기 -> (2) STOMP SEND 해야 정상.
+        // 지금은 UI 데모 유지.
     }
-    
+
     private func nowHHMM() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
         return formatter.string(from: Date())
     }
-    
+
     // MARK: - Audio Play
     private func togglePlay(for msg: ChatMessage) {
         guard case .voice(let url, _) = msg.kind else { return }
-        
+
         if playingMessageID == msg.id {
             stopAudio()
             return
         }
-        
+
         stopAudio()
-        
+
         do {
             let player = try AVAudioPlayer(contentsOf: url)
             audioPlayer = player
             playingMessageID = msg.id
             player.prepareToPlay()
             player.play()
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + player.duration) {
                 if playingMessageID == msg.id { stopAudio() }
             }
@@ -431,27 +453,38 @@ struct ChatRoomScreen: View {
             stopAudio()
         }
     }
-    
+
     private func stopAudio() {
         audioPlayer?.stop()
         audioPlayer = nil
         playingMessageID = nil
     }
+
+    // MARK: - Mock
+    private func makeMockHistoryDTO() -> ChatRoomMessagesDTO {
+        let now = ISO8601DateFormatter().string(from: Date())
+        let arr: [ChatMessageDTO] = [
+            .init(messageId: 1, chatRoomId: roomId, senderId: opponent.userId, messageType: .text, content: "Hi! (mock)", duration: nil, createdAt: now, mine: false),
+            .init(messageId: 2, chatRoomId: roomId, senderId: 0, messageType: .text, content: "Hello 🙂 (mock)", duration: nil, createdAt: now, mine: true),
+            .init(messageId: 3, chatRoomId: roomId, senderId: opponent.userId, messageType: .text, content: "This is chat UI demo.", duration: nil, createdAt: now, mine: false),
+        ]
+        return .init(roomId: roomId, chatOpponent: opponent, chatMessages: arr, nextCursor: nil, hasNext: false)
+    }
 }
 
 // MARK: - Topic Suggestion Card
 private struct TopicSuggestionCard: View {
-    
+
     let orange: Color
     let suggestions: [String]
     let onClose: () -> Void
     let onPick: (String) -> Void
-    
+
     var body: some View {
         ZStack(alignment: .topLeading) {
             VStack(spacing: 14) {
                 Spacer(minLength: 4)
-                
+
                 VStack(spacing: 10) {
                     ForEach(suggestions, id: \.self) { text in
                         Button {
@@ -490,7 +523,7 @@ private struct TopicSuggestionCard: View {
                     .fill(Color.white)
                     .shadow(color: Color.black.opacity(0.10), radius: 16, x: 0, y: 10)
             )
-            
+
             Button(action: onClose) {
                 Circle()
                     .fill(orange)
@@ -515,7 +548,7 @@ struct ChatMessage: Identifiable {
         case image(Data)
         case voice(url: URL, durationSec: Int)
     }
-    
+
     let id = UUID()
     let kind: Kind
     let isMe: Bool
@@ -529,49 +562,49 @@ struct MissionExpandedCard: View {
     let keyImageName: String
     let onToggleExpand: () -> Void
     let onTapDone: () -> Void
-    
+
     var body: some View {
         ZStack(alignment: .topTrailing) {
             VStack(alignment: .leading, spacing: 10) {
-                
+
                 HStack(alignment: .top, spacing: 12) {
                     ZStack {
                         Circle()
                             .fill(Color(red: 1.0, green: 0.90, blue: 0.74))
                             .frame(width: 44, height: 44)
-                        
+
                         Image(keyImageName)
                             .resizable()
                             .scaledToFill()
                             .frame(width: 30, height: 30)
                             .clipShape(Circle())
                     }
-                    
+
                     VStack(alignment: .leading, spacing: 8) {
                         Text("오늘의 미션")
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.black)
-                        
+
                         HStack(spacing: 8) {
                             Image(systemName: "clock.fill")
                                 .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(orange)
-                            
+
                             Text("2시간 남음")
                                 .font(.system(size: 17, weight: .semibold))
                                 .foregroundColor(orange)
                         }
                     }
-                    
+
                     Spacer()
                 }
-                
+
                 Text("서로 자신의 나라의 음식을 공유하세요.")
                     .font(.system(size: 16, weight: .regular))
                     .foregroundColor(Color(white: 0.52))
                     .padding(.leading, 56)
                     .fixedSize(horizontal: false, vertical: true)
-                
+
                 Button(action: onTapDone) {
                     Text("미션 완료")
                         .font(.system(size: 14, weight: .bold))
@@ -597,7 +630,7 @@ struct MissionExpandedCard: View {
             )
             .cornerRadius(14)
             .shadow(color: .black.opacity(0.10), radius: 2.5, x: 0, y: 1)
-            
+
             Button(action: onToggleExpand) {
                 Image(systemName: "chevron.up")
                     .font(.system(size: 18, weight: .bold))
@@ -615,7 +648,7 @@ struct MissionCollapsedBar: View {
     let orange: Color
     let keyImageName: String
     let onToggleExpand: () -> Void
-    
+
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -630,38 +663,38 @@ struct MissionCollapsedBar: View {
                     )
                 )
                 .shadow(color: .black.opacity(0.10), radius: 2.5, x: 0, y: 1)
-            
+
             HStack(spacing: 12) {
                 ZStack {
                     Circle()
                         .fill(Color(red: 1.0, green: 0.90, blue: 0.74))
                         .frame(width: 40, height: 40)
-                    
+
                     Image(keyImageName)
                         .resizable()
                         .scaledToFill()
                         .frame(width: 26, height: 26)
                         .clipShape(Circle())
                 }
-                
+
                 VStack(alignment: .leading, spacing: 6) {
                     Text("오늘의 미션")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.black)
-                    
+
                     HStack(spacing: 8) {
                         Image(systemName: "clock.fill")
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(orange)
-                        
+
                         Text("2시간 남음")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(orange)
                     }
                 }
-                
+
                 Spacer()
-                
+
                 Button(action: onToggleExpand) {
                     Image(systemName: "chevron.down")
                         .font(.system(size: 18, weight: .bold))
@@ -682,7 +715,7 @@ struct ChatMessageRow: View {
     let orange: Color
     let isPlaying: Bool
     let onTapVoice: (ChatMessage) -> Void
-    
+
     var body: some View {
         HStack {
             if message.isMe { Spacer(minLength: 56) }
@@ -693,12 +726,12 @@ struct ChatMessageRow: View {
 }
 
 struct ChatBubble: View {
-    
+
     let message: ChatMessage
     let orange: Color
     let isPlaying: Bool
     let onTapVoice: (ChatMessage) -> Void
-    
+
     var body: some View {
         switch message.kind {
         case .text(let text):
@@ -709,14 +742,14 @@ struct ChatBubble: View {
             voiceBubble(durationSec: durationSec)
         }
     }
-    
+
     private func textBubble(_ text: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(text)
                 .font(.system(size: 18, weight: .regular))
                 .foregroundColor(message.isMe ? .white : Color(white: 0.12))
                 .multilineTextAlignment(.leading)
-            
+
             Text(message.time)
                 .font(.system(size: 12, weight: .regular))
                 .foregroundColor(message.isMe ? Color.white.opacity(0.65) : Color(white: 0.70))
@@ -730,7 +763,7 @@ struct ChatBubble: View {
         )
         .frame(maxWidth: 290, alignment: message.isMe ? .trailing : .leading)
     }
-    
+
     private func imageBubble(_ data: Data) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             if let uiImage = UIImage(data: data) {
@@ -741,7 +774,7 @@ struct ChatBubble: View {
                     .clipped()
                     .cornerRadius(14)
             }
-            
+
             Text(message.time)
                 .font(.system(size: 12, weight: .regular))
                 .foregroundColor(message.isMe ? Color.white.opacity(0.65) : Color(white: 0.70))
@@ -755,10 +788,10 @@ struct ChatBubble: View {
         )
         .frame(maxWidth: 290, alignment: message.isMe ? .trailing : .leading)
     }
-    
+
     private func voiceBubble(durationSec: Int) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            
+
             Button {
                 onTapVoice(message)
             } label: {
@@ -767,17 +800,17 @@ struct ChatBubble: View {
                         Circle()
                             .stroke(orange, lineWidth: 2)
                             .frame(width: 30, height: 30)
-                        
+
                         Image(systemName: isPlaying ? "pause.fill" : "play.fill")
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(orange)
                             .offset(x: isPlaying ? 0 : 1)
                     }
-                    
+
                     Text("음성녹음 \(formatMMSS(durationSec))")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(Color(white: 0.12))
-                    
+
                     Spacer(minLength: 0)
                 }
                 .padding(.horizontal, 14)
@@ -785,7 +818,7 @@ struct ChatBubble: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            
+
             Text(message.time)
                 .font(.system(size: 12, weight: .regular))
                 .foregroundColor(Color(white: 0.70))
@@ -805,7 +838,7 @@ struct ChatBubble: View {
         .shadow(color: Color.black.opacity(0.06), radius: 10, x: 0, y: 6)
         .frame(maxWidth: 290, alignment: message.isMe ? .trailing : .leading)
     }
-    
+
     private func formatMMSS(_ seconds: Int) -> String {
         let m = seconds / 60
         let s = seconds % 60
@@ -815,23 +848,23 @@ struct ChatBubble: View {
 
 // MARK: - Footer
 struct ChatFooter: View {
-    
+
     let orange: Color
     @Binding var inputText: String
-    
+
     @Binding var pickedPhotoItem: PhotosPickerItem?
     @Binding var pickedImageData: Data?
-    
+
     let onSend: () -> Void
     let onTapMic: () -> Void
     let onTapTopic: () -> Void
-    
+
     var body: some View {
         ZStack {
             Color.white.ignoresSafeArea(.container, edges: .bottom)
-            
+
             VStack(alignment: .leading, spacing: 10) {
-                
+
                 HStack {
                     Button(action: onTapTopic) {
                         Circle()
@@ -844,29 +877,29 @@ struct ChatFooter: View {
                             )
                     }
                     .buttonStyle(.plain)
-                    
+
                     Text("대화 주제 추천 받기  5/5")
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(orange)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 5)
                         .overlay(Capsule().stroke(orange, lineWidth: 1))
-                    
+
                     Spacer()
                 }
                 .padding(.horizontal, 18)
                 .padding(.top, 10)
-                
+
                 HStack(spacing: 14) {
-                    
+
                     ZStack {
                         RoundedRectangle(cornerRadius: 26, style: .continuous)
                             .fill(Color(white: 0.92))
                             .frame(height: 64)
                             .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 5)
-                        
+
                         HStack(spacing: 12) {
-                            
+
                             PhotosPicker(selection: $pickedPhotoItem, matching: .images) {
                                 Circle()
                                     .fill(Color(white: 0.88))
@@ -879,7 +912,7 @@ struct ChatFooter: View {
                             }
                             .buttonStyle(.plain)
                             .padding(.leading, 10)
-                            
+
                             if let data = pickedImageData, let uiImage = UIImage(data: data) {
                                 ZStack(alignment: .topTrailing) {
                                     Image(uiImage: uiImage)
@@ -888,7 +921,7 @@ struct ChatFooter: View {
                                         .frame(width: 44, height: 44)
                                         .clipped()
                                         .cornerRadius(10)
-                                    
+
                                     Button {
                                         pickedPhotoItem = nil
                                         pickedImageData = nil
@@ -902,17 +935,17 @@ struct ChatFooter: View {
                                     .offset(x: 6, y: -6)
                                 }
                             }
-                            
+
                             TextField("Type a message", text: $inputText)
                                 .font(.system(size: 17, weight: .regular))
                                 .foregroundColor(Color(white: 0.18))
                                 .submitLabel(.send)
                                 .onSubmit(onSend)
-                            
+
                             Spacer()
                         }
                     }
-                    
+
                     Button(action: onTapMic) {
                         Circle()
                             .fill(orange)
@@ -927,7 +960,7 @@ struct ChatFooter: View {
                     .buttonStyle(.plain)
                 }
                 .padding(.horizontal, 18)
-                
+
                 Spacer(minLength: 2)
             }
         }
@@ -938,6 +971,13 @@ struct ChatFooter: View {
                 .frame(height: 1),
             alignment: .top
         )
+    }
+}
+
+// MARK: - String unquoted
+extension String {
+    var unquoted: String {
+        trimmingCharacters(in: CharacterSet(charactersIn: "\""))
     }
 }
 

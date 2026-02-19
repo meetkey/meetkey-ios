@@ -10,8 +10,15 @@ import Moya
 
 final class MyProfileViewModel: ObservableObject {
     @Published var user: User?
+    @Published var isLoggingOut = false
+    @Published var logoutErrorMessage: String?
+    @Published var isWithdrawing = false
+    @Published var withdrawErrorMessage: String?
     
     private let provider = MoyaProvider<MyAPI>()
+    private let authService = AuthService.shared
+    private let authProviderKey = "authProvider"
+    private let appleAuthorizationCodeKey = "lastAuthorizationCode"
     
     func fetchMyProfile() {
         provider.request(.myInfo) { result in
@@ -93,6 +100,65 @@ final class MyProfileViewModel: ObservableObject {
             case .failure(let error):
                 print("❌ 조회 실패", error)
             }
+        }
+    }
+    
+    @MainActor
+    func logout() async {
+        guard !isLoggingOut else { return }
+        isLoggingOut = true
+        logoutErrorMessage = nil
+        defer { isLoggingOut = false }
+        
+        do {
+            guard let refreshToken = try KeychainManager.read(account: "refreshToken"),
+                  !refreshToken.isEmpty else {
+                logoutErrorMessage = "리프레시 토큰이 없습니다"
+                return
+            }
+            
+            try await authService.logout(
+                refreshToken: refreshToken
+            )
+            
+            KeychainManager.delete(account: "accessToken")
+            KeychainManager.delete(account: "refreshToken")
+            UserDefaults.standard.removeObject(forKey: authProviderKey)
+            UserDefaults.standard.removeObject(forKey: appleAuthorizationCodeKey)
+            NotificationCenter.default.post(name: .authDidLogout, object: nil)
+        } catch {
+            print("❌ 로그아웃 실패: \(error)")
+            logoutErrorMessage = error.localizedDescription
+        }
+    }
+    
+    @MainActor
+    func withdraw() async {
+        guard !isWithdrawing else { return }
+        isWithdrawing = true
+        withdrawErrorMessage = nil
+        defer { isWithdrawing = false }
+        
+        do {
+            guard let refreshToken = try KeychainManager.read(account: "refreshToken"),
+                  !refreshToken.isEmpty else {
+                withdrawErrorMessage = "리프레시 토큰이 없습니다"
+                return
+            }
+            
+            try await authService.withdraw(
+                refreshToken: refreshToken
+            )
+            
+            KeychainManager.delete(account: "accessToken")
+            KeychainManager.delete(account: "refreshToken")
+            UserDefaults.standard.removeObject(forKey: authProviderKey)
+            UserDefaults.standard.removeObject(forKey: appleAuthorizationCodeKey)
+            NotificationCenter.default.post(name: .authDidWithdraw, object: nil)
+            print("🚀 회원탈퇴 완료")
+        } catch {
+            print("❌ 회원탈퇴 실패: \(error)")
+            withdrawErrorMessage = error.localizedDescription
         }
     }
     

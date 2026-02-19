@@ -276,4 +276,29 @@ extension User {
     static func saveBirthDate(_ birthDateString: String) {
         UserDefaults.standard.set(birthDateString, forKey: "userBirthDate")
     }
+    
+    // 사용자 이름 저장/로드
+    static var savedName: String? {
+        let name = UserDefaults.standard.string(forKey: "userName")
+        return name?.isEmpty == false ? name : nil
+    }
+    
+    static func saveName(_ name: String) {
+        UserDefaults.standard.set(name, forKey: "userName")
+    }
+    
+    static var savedNativeLanguage: String? {
+        let value = UserDefaults.standard.string(forKey: "userNativeLanguage")
+        return value?.isEmpty == false ? value : nil
+    }
+    
+    static var savedTargetLanguage: String? {
+        let value = UserDefaults.standard.string(forKey: "userTargetLanguage")
+        return value?.isEmpty == false ? value : nil
+    }
+    
+    static func saveLanguages(native: String, target: String) {
+        UserDefaults.standard.set(native, forKey: "userNativeLanguage")
+        UserDefaults.standard.set(target, forKey: "userTargetLanguage")
+    }
 }

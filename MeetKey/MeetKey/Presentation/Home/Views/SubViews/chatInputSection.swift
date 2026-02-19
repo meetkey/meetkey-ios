@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ChatInputSection: View {
     @Binding var messageText: String
-
+    var onSend: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -43,7 +43,7 @@ struct ChatInputSection: View {
                     .background(Color(.systemGray6))
                     .cornerRadius(25)
 
-                Button(action: { /* 메시지 전송 */  }) {
+                Button(action:  onSend ) {
                     Image(systemName: "paperplane.fill")
                         .font(.system(size: 18))
                         .foregroundColor(.white)

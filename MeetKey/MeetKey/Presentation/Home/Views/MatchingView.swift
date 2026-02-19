@@ -8,19 +8,66 @@
 import SwiftUI
 
 struct MatchingView: View {
+    @EnvironmentObject var profileVM: MyProfileViewModel
+
 
     @ObservedObject var homeVM: HomeViewModel
-
-    @State private var messageText: String = ""
 
     var body: some View {
         GeometryReader { geometry in
             let screenSize = geometry.size
             let safeArea = geometry.safeAreaInsets
+            let headerHeight: CGFloat = 125
 
             ZStack(alignment: .top) {
 
-                backgroundSection(size: screenSize)
+                if !homeVM.isChattingStarted {
+                    backgroundSection(size: screenSize)
+                }
+
+                VStack(spacing: 0) {
+                    if homeVM.isChattingStarted {
+                        Spacer().frame(height: headerHeight)
+
+                        ScrollViewReader { proxy in
+                            ScrollView {
+                                LazyVStack(spacing: 12) {
+                                    ForEach(
+                                        homeVM.matchChatMessages,
+                                        id: \.messageId
+                                    ) { msg in
+                                        MatchMessageBubble(message: msg)
+                                    }
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.bottom, 20)
+                            }
+                            .onChange(of: homeVM.matchChatMessages.count) {
+                                oldValue,
+                                newValue in
+                                withAnimation {
+                                    if let lastId = homeVM.matchChatMessages
+                                        .last?.messageId
+                                    {
+                                        proxy.scrollTo(lastId, anchor: .bottom)
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Spacer()
+                    }
+
+                    ChatInputSection(
+                        messageText: $homeVM.matchMessageText,
+                        onSend: {
+                            Task {
+                                await homeVM.sendInitialMatchMessage()
+                            }
+                        }
+                    )
+                    .padding(.bottom, safeArea.bottom)
+                }
 
                 if homeVM.reportVM.isReportMenuPresented {
                     closeOverlay
@@ -28,13 +75,20 @@ struct MatchingView: View {
 
                 VStack {
                     Spacer()
-                    ChatInputSection(messageText: $messageText)
-                        .padding(.bottom, safeArea.bottom)
+                    ChatInputSection(
+                        messageText: $homeVM.matchMessageText,
+                        onSend: {
+                            Task {
+                                await homeVM.sendInitialMatchMessage()
+                            }
+                        }
+                    )
+                    .padding(.bottom, safeArea.bottom)
                 }
 
                 HeaderOverlay(
                     state: .chat,
-                    user: homeVM.currentUser ?? homeVM.me,
+                    user: (homeVM.currentUser ?? homeVM.profileVM.user) ?? User.me,
                     reportVM: homeVM.reportVM,
                     onLeftAction: homeVM.dismissMatchView,
                     onRightAction: homeVM.reportVM.handleReportMenuTap,
@@ -54,14 +108,19 @@ struct MatchingView: View {
             ) {
                 ReportSelectionView(
                     reportVM: homeVM.reportVM,
-                    targetUser: homeVM.currentUser ?? User.mockData[0]
+                    targetUser: homeVM.currentUser ?? User.me
                 )
                 .presentationBackground(Color.background1)
                 .presentationDetents([
-                    homeVM.reportVM.currentReportStep == .reportCase ? .height(500) :
-                        homeVM.reportVM.currentReportStep == .reportReason ? .height(500) : .medium
+                    homeVM.reportVM.currentReportStep == .reportCase
+                        ? .height(500)
+                        : homeVM.reportVM.currentReportStep == .reportReason
+                            ? .height(500) : .medium
                 ])
-                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: homeVM.reportVM.currentReportStep)
+                .animation(
+                    .spring(response: 0.4, dampingFraction: 0.8),
+                    value: homeVM.reportVM.currentReportStep
+                )
             }
         }
     }
@@ -75,7 +134,7 @@ struct MatchingView: View {
                     .scaledToFit()
                     .frame(width: 140, height: 140)
 
-                VStack(alignment:.center) {
+                VStack(alignment: .center) {
                     Text("소울 메이트 발견!")
                         .font(.meetKey(.title4))
                         .foregroundStyle(Color.text2)
@@ -98,5 +157,27 @@ struct MatchingView: View {
             .onTapGesture {
                 withAnimation { homeVM.reportVM.closeReportMenu() }
             }
+    }
+}
+
+struct MatchMessageBubble: View {
+    let message: ChatMessageDTO
+
+    var body: some View {
+        HStack {
+            Spacer()
+            Text((message.content ?? "").unquoted)
+                .font(.system(size: 15))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .foregroundStyle(Color.white)
+                .background(Color.orange)
+                .clipShape(
+                    MyRoundedCorner(
+                        radius: 12,
+                        corners: [.topLeft, .bottomLeft, .bottomRight]
+                    )
+                )
+        }
     }
 }

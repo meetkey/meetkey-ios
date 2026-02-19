@@ -59,6 +59,40 @@ class AuthService {
         }
     }
     
+    // MARK: - Logout
+    func logout(refreshToken: String) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            networkProvider.request(
+                .logout(refreshToken: refreshToken),
+                type: EmptyResponse.self
+            ) { result in
+                switch result {
+                case .success:
+                    continuation.resume(returning: ())
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    // MARK: - Withdraw
+    func withdraw(refreshToken: String) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            networkProvider.request(
+                .withdraw(refreshToken: refreshToken),
+                type: EmptyResponse.self
+            ) { result in
+                switch result {
+                case .success:
+                    continuation.resume(returning: ())
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
     // MARK: - SMS Send
     func sendSMS(phone: String) async throws -> Bool {
         return try await withCheckedThrowingContinuation { continuation in
@@ -93,4 +127,3 @@ class AuthService {
         }
     }
 }
-

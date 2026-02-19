@@ -191,6 +191,17 @@ class OnboardingViewModel: ObservableObject {
     
     let countries = ["USA", "UK", "China", "Japan", "Korea", "France", "Germany", "Italy", "Spain"]
     let languages = ["영어 (English)", "한국어 (한국어)", "중국어 (中國語)", "일본어 (日本語)", "스페인어 (Español)", "프랑스어 (Français)", "독일어 (Deutsch)", "이탈리아어 (Italiano)", "러시아어 (Pусский)"]
+    private let languageCodeMap: [String: AppLanguage] = [
+        "영어 (English)": .english,
+        "한국어 (한국어)": .korean,
+        "중국어 (中國語)": .chinese,
+        "일본어 (日本語)": .japanese,
+        "스페인어 (Español)": .spanish,
+        "프랑스어 (Français)": .french,
+        "독일어 (Deutsch)": .german,
+        "이탈리아어 (Italiano)": .italian,
+        "러시아어 (Pусский)": .russian
+    ]
 
     func fetchOptions() {
         isLoading = true
@@ -224,13 +235,22 @@ class OnboardingViewModel: ObservableObject {
                     let signupRequest = try buildSignupRequest()
                     let provider = try loadAuthProvider()
                     let signupResponse = try await authService.signup(provider: provider, request: signupRequest)
+
                     if let accessToken = signupResponse.accessToken,
                        let refreshToken = signupResponse.refreshToken {
                         try KeychainManager.save(value: accessToken, account: "accessToken")
                         try KeychainManager.save(value: refreshToken, account: "refreshToken")
+                    } else {
+                        let idToken = try loadLastIdToken()
+                        let loginResponse = try await authService.login(provider: provider, idToken: idToken)
+                        guard let accessToken = loginResponse.accessToken,
+                              let refreshToken = loginResponse.refreshToken else {
+                            throw OnboardingError.missingSignupToken
+                        }
+                        try KeychainManager.save(value: accessToken, account: "accessToken")
+                        try KeychainManager.save(value: refreshToken, account: "refreshToken")
                     }
                 }
-
                 if !profileImages.isEmpty {
                     let uploadItems = buildPhotoUploadItems()
                     let presigned = try await userService.requestPhotoUpload(uploadItems)
@@ -269,6 +289,14 @@ class OnboardingViewModel: ObservableObject {
         return provider
     }
 
+    private func loadLastIdToken() throws -> String {
+        guard let token = UserDefaults.standard.string(forKey: lastIdTokenKey),
+              !token.isEmpty else {
+            throw OnboardingError.missingLoginContext
+        }
+        return token
+    }
+
     private func buildSignupRequest() throws -> SignupRequest {
         guard let idToken = UserDefaults.standard.string(forKey: lastIdTokenKey) else {
             throw OnboardingError.missingLoginContext
@@ -276,11 +304,19 @@ class OnboardingViewModel: ObservableObject {
 
         let birthday = formatBirthday()
         let gender = mapGender(data.gender)
-        let homeTown = data.hometown ?? ""
+        let homeTown = mapCountry(data.hometown)
         let firstLanguage = mapLanguage(data.nativeLanguage)
         let targetLanguage = mapLanguage(data.targetLanguage)
         let targetLevel = mapLanguageLevel()
-        let phoneNumber = "010-0000-0000"
+        let phoneNumber = makeRandomPhoneNumber()
+        
+        if !data.name.isEmpty {
+            User.saveName(data.name)
+        }
+        User.saveLanguages(
+            native: firstLanguage.rawValue,
+            target: targetLanguage.rawValue
+        )
 
         return SignupRequest(
             idToken: idToken,
@@ -323,11 +359,16 @@ class OnboardingViewModel: ObservableObject {
 
     private func mapLanguage(_ value: String?) -> AppLanguage {
         guard let value else { return .english }
+        if let mapped = languageCodeMap[value] { return mapped }
+        if let byCode = AppLanguage(rawValue: value.uppercased()) { return byCode }
         if value.contains("한국") { return .korean }
         if value.contains("일본") { return .japanese }
         if value.contains("중국") { return .chinese }
         if value.contains("스페인") { return .spanish }
         if value.contains("프랑스") { return .french }
+        if value.contains("독일") { return .german }
+        if value.contains("이탈리아") { return .italian }
+        if value.contains("러시아") { return .russian }
         return .english
     }
 
@@ -340,7 +381,16 @@ class OnboardingViewModel: ObservableObject {
         default: return .fluent
         }
     }
-
+    
+    private func mapCountry(_ value: String?) -> String {
+        guard let value else { return "" }
+        return value.uppercased()
+    }
+    
+    private func makeRandomPhoneNumber() -> String {
+        let randomDigits = String(format: "%08d", Int.random(in: 0...99999999))
+        return "+8210\(randomDigits)"
+    }
     private func buildPhotoUploadItems() -> [PhotoUploadRequestItem] {
         let sorted = profileImages.sorted { $0.key < $1.key }
         return sorted.map { (index, _) in
@@ -478,6 +528,7 @@ enum PersonalityField {
 enum OnboardingError: Error {
     case invalidPersonalitySelection
     case missingLoginContext
+    case missingSignupToken
 }
 
 private extension Array {
