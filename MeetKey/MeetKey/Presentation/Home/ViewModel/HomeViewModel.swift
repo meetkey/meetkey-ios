@@ -104,17 +104,15 @@ class HomeViewModel: ObservableObject {
         }
     }
 
-    func fetchUserAsync() async {
+    func fetchUserAsync(isRetry: Bool = false) async {
         print("📍 [HomeVM] Fetching Users...")
         status = .loading
 
         do {
-            // 1. Service에서 봉투(Response)를 통째로 받음
             let response = try await recommendationService.getRecommendation(
                 filter: currentFilter
             )
 
-            // 2. 스와이프 정보 업데이트
             let swipeInfo = response.data.swipeInfo
             self.remainingCount = swipeInfo.remainingCount
             self.totalCount = swipeInfo.totalCount
@@ -122,7 +120,6 @@ class HomeViewModel: ObservableObject {
 
             print("📊 [Swipe] \(remainingCount)/\(totalCount)")
 
-            // 3. 유저 리스트 변환 및 저장
             let recommendations = response.data.recommendations
             print("✅ [HomeVM] Fetched User Count: \(recommendations.count)")
 
@@ -131,7 +128,6 @@ class HomeViewModel: ObservableObject {
                 self.currentUser = nil
                 status = .finished
             } else {
-                // Service가 하던 map 작업을 여기서 해줍니다.
                 self.allUsers = recommendations.map { User(from: $0) }
                 self.currentIndex = 0
                 self.currentUser = self.allUsers.first
@@ -139,6 +135,20 @@ class HomeViewModel: ObservableObject {
             }
         } catch {
             print("❌ [HomeVM] Data Fetch Failed: \(error)")
+
+            if let netError = error as? NetworkError,
+               case .serverError(let code, _) = netError,
+               code == "COMMON500",
+               !isRetry {
+                
+                print("🔄 [HomeVM] 서버 잠깨우는 중... 0.5초 후 재시도합니다.")
+                
+                try? await Task.sleep(nanoseconds: 500_000_000)
+                
+                await fetchUserAsync(isRetry: true)
+                return
+            }
+
             status = .finished
         }
     }
@@ -302,7 +312,6 @@ extension HomeViewModel {
     }
 }
 //MARK: - 채팅
-// HomeViewModel+Matching.swift
 
 extension HomeViewModel {
     func sendInitialMatchMessage() async {

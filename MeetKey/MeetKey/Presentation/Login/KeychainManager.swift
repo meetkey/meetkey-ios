@@ -5,16 +5,26 @@ import Security
 enum KeychainManager {
     static func save(value: String, account: String) throws {
         let data = Data(value.utf8)
-        let query: [String: Any] = [
+        
+        // 1. 찾기용 쿼리 (삭제할 때도 사용)
+        let searchQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: "MeetKey",
-            kSecAttrAccount as String: account,
-            kSecValueData as String: data
+            kSecAttrAccount as String: account
         ]
 
-        SecItemDelete(query as CFDictionary)
-        let status = SecItemAdd(query as CFDictionary, nil)
+        // 2. 일단 기존 방을 비웁니다 (ValueData 없이 Account로만 검색해서 삭제)
+        SecItemDelete(searchQuery as CFDictionary)
+
+        // 3. 저장용 쿼리 (찾기용 쿼리에 실제 데이터(ValueData)만 추가)
+        var saveQuery = searchQuery
+        saveQuery[kSecValueData as String] = data
+
+        // 4. 새 데이터 추가
+        let status = SecItemAdd(saveQuery as CFDictionary, nil)
+        
         if status != errSecSuccess {
+            print("❌ Keychain 저장 실패: \(status)")
             throw NSError(domain: "Keychain", code: Int(status), userInfo: nil)
         }
     }

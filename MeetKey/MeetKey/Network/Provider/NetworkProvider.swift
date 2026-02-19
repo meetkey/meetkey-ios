@@ -53,6 +53,7 @@ class NetworkProvider {
                         let data = try decoder.decode(T.self, from: response.data)
                         completion(.success(data))
                     } else {
+                        self.handleAuthError(response.statusCode)
                         // Error 응답 처리 400 401 500
                         let decoder = JSONDecoder()
                         if let errorResponse = try? decoder.decode(
@@ -150,6 +151,7 @@ class NetworkProvider {
                         completion(.success(decoded))
 
                     } else {
+                        self.handleAuthError(response.statusCode)
                         // 에러 응답 처리
                         if let errorBody = try? decoder.decode(ErrorResponse.self, from: response.data) {
                             completion(.failure(NetworkError.serverError(code: errorBody.code, message: errorBody.message)))
@@ -178,7 +180,6 @@ class NetworkProvider {
         completion: @escaping (Result<T, Error>) -> Void
     ) {
         print("서버로 요청")
-        let accessToken = KeychainManager.load(account: "accessToken") ?? ""
 
         recommendationProvider.request(target) { result in
             print("서버 대답 도착")
@@ -197,6 +198,7 @@ class NetworkProvider {
                         )
                         completion(.success(decodedData))
                     } else {
+                        self.handleAuthError(response.statusCode)
                         // 에러 응답 처리 (서버에서 준 에러 메시지 파싱)
                         if let errorBody = try? decoder.decode(
                             ErrorResponse.self,
@@ -245,7 +247,6 @@ class NetworkProvider {
         completion: @escaping (Result<T, Error>) -> Void
     ) {
         print("📍 위치 API 요청 시작")
-        let accessToken = KeychainManager.load(account: "accessToken") ?? ""
 
         locationProvider.request(target) { result in
             switch result {
@@ -278,6 +279,7 @@ class NetworkProvider {
                         )
                         completion(.success(data))
                     } else {
+                        self.handleAuthError(response.statusCode)
                         let decoder = JSONDecoder()
                         if let errorResponse = try? decoder.decode(
                             ErrorResponse.self,
@@ -327,7 +329,6 @@ class NetworkProvider {
         completion: @escaping (Result<T, Error>) -> Void
     ) {
         print("📍 [Block] 서버로 요청")
-        let accessToken = KeychainManager.load(account: "accessToken") ?? ""
 
         blockProvider.request(target) { result in
             print("📍 [Block] 서버 대답 도착")
@@ -343,6 +344,7 @@ class NetworkProvider {
                         let decodedData = try decoder.decode(T.self, from: response.data)
                         completion(.success(decodedData))
                     } else {
+                        self.handleAuthError(response.statusCode)
                         if let errorBody = try? decoder.decode(ErrorResponse.self, from: response.data) {
                             completion(.failure(NetworkError.serverError(code: errorBody.code, message: errorBody.message)))
                         } else {
@@ -373,8 +375,7 @@ class NetworkProvider {
         completion: @escaping (Result<T, Error>) -> Void
     ) {
         print("📍 [Report] 서버로 신고 요청")
-        let accessToken = KeychainManager.load(account: "accessToken") ?? ""
-
+        
         reportProvider.request(target) { result in
             switch result {
             case .success(let response):
@@ -385,6 +386,7 @@ class NetworkProvider {
                         let decodedData = try decoder.decode(T.self, from: response.data)
                         completion(.success(decodedData))
                     } else {
+                        self.handleAuthError(response.statusCode)
                         if let errorBody = try? decoder.decode(ErrorResponse.self, from: response.data) {
                             completion(.failure(NetworkError.serverError(code: errorBody.code, message: errorBody.message)))
                         } else {
@@ -400,6 +402,16 @@ class NetworkProvider {
         }
     }
 
+    private func handleAuthError(_ statusCode: Int) {
+        if statusCode == 401 {
+            print("🚨 [Network] 401 토큰 만료 감지 -> 강제 로그아웃")
+            
+            KeychainManager.delete(account: "accessToken")
+            KeychainManager.delete(account: "refreshToken")
+            
+            NotificationCenter.default.post(name: .authDidWithdraw, object: nil)
+        }
+    }
 }
 
 // MARK: - Network Error

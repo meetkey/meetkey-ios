@@ -16,6 +16,7 @@ struct MEETKEYApp: App {
                         _ = AuthController.handleOpenUrl(url: url)
                     }
                 }
+               
         }
     }
 }
