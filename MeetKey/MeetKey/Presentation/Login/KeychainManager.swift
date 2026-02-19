@@ -46,7 +46,6 @@ enum KeychainManager {
     static func load(account: String) -> String? {
         return try? read(account: account)
     }
-
     static func delete(account: String) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,

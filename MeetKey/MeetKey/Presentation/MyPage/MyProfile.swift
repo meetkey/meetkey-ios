@@ -21,6 +21,8 @@ struct MyProfile: View {
     @Binding var isTabBarHidden: Bool
     
     @State private var isEditProfilePresented = false
+    @State private var showWithdrawAlert = false
+    @State private var showWithdrawErrorAlert = false
     
     //타사용자조회용 변수
     @State private var showOtherProfile = false
@@ -116,6 +118,21 @@ struct MyProfile: View {
                     
                     Section(title: "한 줄 소개", isMore: true)
                     OneLiner(introduceText: user.oneLiner ?? "안녕하세요. 김밋키입니다! 새로운 친구를 사귀고 싶습니다. MBTI는 ENTP입니다.")
+                    
+                    Button {
+                        showWithdrawAlert = true
+                    } label: {
+                        HStack(spacing: 0) {
+                            Text("회원탈퇴")
+                                .font(.meetKey(.body2))
+                                .foregroundStyle(Color.meetKey.error)
+                                .frame(height: 22)
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                    }
+                    .disabled(viewModel.isWithdrawing)
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 18)
@@ -128,6 +145,22 @@ struct MyProfile: View {
         }
         .background(.background1)
         .ignoresSafeArea()
+        .navigationBarBackButtonHidden(true)
+        .alert("회원탈퇴", isPresented: $showWithdrawAlert) {
+            Button("취소", role: .cancel) {}
+            Button("탈퇴", role: .destructive) {
+                Task {
+                    await requestWithdraw()
+                }
+            }
+        } message: {
+            Text("정말 탈퇴하시겠어요?")
+        }
+        .alert("회원탈퇴 실패", isPresented: $showWithdrawErrorAlert) {
+            Button("확인", role: .cancel) {}
+        } message: {
+            Text(viewModel.withdrawErrorMessage ?? "")
+        }
         .sheet(isPresented: $isEditProfilePresented) {
             if let user = viewModel.user {
                 ProfileSettingView(user: user) { editedUser in
@@ -145,10 +178,17 @@ struct MyProfile: View {
                 OtherProfile(targetId: id)
             }
         }
+        .onChange(of: viewModel.withdrawErrorMessage) { _, message in
+            showWithdrawErrorAlert = (message != nil)
+        }
     }
     
     private func push(_ route: MyProfileRoute) {
         isTabBarHidden = true
         path.append(route)
+    }
+    
+    private func requestWithdraw() async {
+        await viewModel.withdraw()
     }
 }

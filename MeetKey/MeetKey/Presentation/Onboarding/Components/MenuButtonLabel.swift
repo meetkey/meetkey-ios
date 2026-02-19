@@ -6,12 +6,12 @@ struct MenuButtonLabel: View {
     
     var body: some View {
         ZStack {
-            // Layer 1 텍스트 레이어 중앙 정렬
+            // Layer 1 텍스트 중앙 정렬
             Text(title)
                 .font(.custom("Pretendard-SemiBold", size: 18))
                 .foregroundColor(selectedText != nil ? Color.meetKey.main : Color.meetKey.text1)
             
-            // Layer 2 아이콘 레이어 오른쪽 정렬
+            // Layer 2 아이콘 오른쪽 정렬
             HStack {
                 Spacer()
                 
@@ -35,12 +35,12 @@ struct MenuButtonLabel: View {
             RoundedRectangle(cornerRadius: 30)
                 .fill(selectedText != nil ? Color.meetKey.sub1 : Color.meetKey.black02.opacity(0.2))
         )
-        // Border 그라데이션 Orange06 to Orange07 두께 1_5px
+        // Border 그라데이션 Orange06 to Orange07 두께 1.5px
         .overlay(
             RoundedRectangle(cornerRadius: 30)
                 .strokeBorder(
                     LinearGradient.meetKeyStateActive,
-                    lineWidth: selectedText != nil ? 1.5 : 0 // 선택 안 되면 두께 0
+                    lineWidth: selectedText != nil ? 1.5 : 0
                 )
         )
         .cornerRadius(30)

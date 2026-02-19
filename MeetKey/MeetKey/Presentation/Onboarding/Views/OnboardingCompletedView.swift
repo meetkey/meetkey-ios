@@ -62,16 +62,16 @@ struct OnboardingCompletedView: View {
                     Spacer()
                     
                     // C 시작하기 버튼
-                    Button(action: {
-                        // birthDate를 UserDefaults에 저장
-                        User.saveBirthDate(viewModel.data.birthDateString)
-                        
-                        if viewModel.isOnboardingCompleted {
-                            navigateToHome = true
-                        } else {
-                            viewModel.saveOnboardingData()
-                        }
-                    }) {
+                Button(action: {
+                    // birthDate를 UserDefaults에 저장
+                    User.saveBirthDate(viewModel.data.birthDateString)
+                    
+                    if viewModel.isOnboardingCompleted {
+                        navigateToHome = true
+                    } else {
+                        viewModel.saveOnboardingData()
+                    }
+                }) {
                         Text("시작하기")
                             .font(.custom("Pretendard-SemiBold", size: 18))
                             .foregroundColor(Color.meetKey.white01)
