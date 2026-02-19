@@ -42,6 +42,13 @@ final class MyProfileViewModel: ObservableObject {
                         
                         let user = User(dto: decoded.data)
                         
+                        if User.savedName == nil {
+                            User.saveName(user.name)
+                        }
+                        if User.savedNativeLanguage == nil || User.savedTargetLanguage == nil {
+                            User.saveLanguages(native: user.first, target: user.target)
+                        }
+                        
                         DispatchQueue.main.async {
                             self.user = user
                         }
