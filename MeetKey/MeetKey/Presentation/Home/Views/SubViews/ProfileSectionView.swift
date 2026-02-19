@@ -54,7 +54,7 @@ extension ProfileSectionView {
                 case .success(let image):
                     image
                         .resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(contentMode: .fit)
                 case .failure(_), .empty:
                     Color.black.opacity(0.1)
                 @unknown default:
